@@ -1,0 +1,1 @@
+# Plataforma_Inteligente_de_IoT_com_Seguran-a_Adaptativa_e_Otimiza-o_de_Recursos
