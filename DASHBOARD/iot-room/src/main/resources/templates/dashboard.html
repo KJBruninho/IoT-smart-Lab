@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Room | Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-icon">🌿</div>
+        <div><h1>IoT Room</h1><span>Qualidade ambiental</span></div>
+    </div>
+    <nav>
+        <a href="/dashboard" class="active">Dashboard</a>
+        <a href="/estacoes">Estações</a>
+        <a href="/sensores">Sensores</a>
+        <a href="/leituras">Leituras</a>
+    </nav>
+</aside>
+<main class="main-content">
+    <header class="topbar">
+        <div><h2>Controlo de Qualidade da Água</h2><p>Monitorização de temperatura e TDS em tempo real</p></div>
+        <div class="status-pill">Sistema ativo</div>
+    </header>
+    <section class="cards">
+        <div class="card"><span>Estações</span><strong th:text="${totalEstacoes}">0</strong><p>Estações registadas</p></div>
+        <div class="card"><span>Sensores</span><strong th:text="${totalSensores}">0</strong><p>Sensores ativos</p></div>
+        <div class="card"><span>Leituras</span><strong th:text="${totalLeituras}">0</strong><p>Registos na base de dados</p></div>
+        <div class="card highlight"><span>Estado</span><strong>OK</strong><p>Sem alertas críticos</p></div>
+    </section>
+    <section class="grid">
+        <div class="panel"><div class="panel-header"><h3>Temperatura</h3><span>ºC</span></div><canvas id="temperaturaChart"></canvas></div>
+        <div class="panel"><div class="panel-header"><h3>TDS</h3><span>ppm</span></div><canvas id="tdsChart"></canvas></div>
+    </section>
+    <section class="panel table-panel">
+        <div class="panel-header"><h3>Leituras Recentes</h3><span>Últimos registos</span></div>
+        <table>
+            <thead><tr><th>Estação</th><th>Sensor</th><th>Tipo</th><th>Valor</th><th>Unidade</th><th>Data</th></tr></thead>
+            <tbody>
+            <tr th:each="leitura : ${leiturasRecentes}">
+                <td th:text="${leitura.sensor.estacao.nome}">Estação</td>
+                <td th:text="${leitura.sensor.nome}">Sensor</td>
+                <td><span class="tag" th:text="${leitura.sensor.tipo}">Tipo</span></td>
+                <td th:text="${leitura.valor}">0</td>
+                <td th:text="${leitura.sensor.unidade}">ppm</td>
+                <td th:text="${#temporals.format(leitura.registadoEm, 'dd/MM/yyyy HH:mm:ss')}">Data</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+<script th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>
