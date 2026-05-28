@@ -3,6 +3,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <math.h>
+#include <Preferences.h>
 
 // =====================================================
 // CONFIGURAÇÃO WIFI
@@ -18,6 +19,9 @@ const int   MQTT_PORT   = 1883;
 
 const char* TOPIC_TEMP = "esp32/temperatura";
 const char* TOPIC_TDS  = "esp32/tds";
+
+// Opcional: publicar também o fator de calibração
+const char* TOPIC_TDS_FACTOR = "esp32/tds/fator";
 
 // =====================================================
 // PINOS
@@ -46,6 +50,8 @@ DallasTemperature sensors(&oneWire);
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
+
+Preferences preferences;
 
 // =====================================================
 // TIMERS
@@ -158,9 +164,10 @@ void sampleTDS() {
 }
 
 // =====================================================
-// CÁLCULO TDS
+// CÁLCULO TDS SEM FATOR
+// Usado internamente para calibração
 // =====================================================
-float calculateTDS(float temperature) {
+float calculateRawTDS(float temperature) {
   if (!bufferReady) return NAN;
   if (isnan(temperature)) return NAN;
 
@@ -184,11 +191,26 @@ float calculateTDS(float temperature) {
     -255.86 * pow(compensationVoltage, 2)
     +857.39 * compensationVoltage) * 0.5;
 
-  tds *= tdsFactor;
-
   if (isnan(tds) || isinf(tds) || tds < 0) return NAN;
 
   return tds;
+}
+
+// =====================================================
+// CÁLCULO TDS CALIBRADO
+// =====================================================
+float calculateTDS(float temperature) {
+  float rawTDS = calculateRawTDS(temperature);
+
+  if (isnan(rawTDS)) return NAN;
+
+  float calibratedTDS = rawTDS * tdsFactor;
+
+  if (isnan(calibratedTDS) || isinf(calibratedTDS) || calibratedTDS < 0) {
+    return NAN;
+  }
+
+  return calibratedTDS;
 }
 
 // =====================================================
@@ -197,6 +219,7 @@ float calculateTDS(float temperature) {
 void publishMQTT(float temperature, float tds) {
   char tempStr[12];
   char tdsStr[12];
+  char factorStr[12];
 
   if (!isnan(temperature)) {
     dtostrf(temperature, 1, 2, tempStr);
@@ -207,6 +230,9 @@ void publishMQTT(float temperature, float tds) {
     dtostrf(tds, 1, 0, tdsStr);
     mqttClient.publish(TOPIC_TDS, tdsStr);
   }
+
+  dtostrf(tdsFactor, 1, 4, factorStr);
+  mqttClient.publish(TOPIC_TDS_FACTOR, factorStr);
 }
 
 // =====================================================
@@ -215,7 +241,10 @@ void publishMQTT(float temperature, float tds) {
 void printDebug(float temperature, float tds) {
   int rawADC = analogRead(TDS_PIN);
 
-  Serial.print("Temp: ");
+  Serial.print("ADC: ");
+  Serial.print(rawADC);
+
+  Serial.print(" | Temp: ");
 
   if (!isnan(temperature)) {
     Serial.print(temperature, 2);
@@ -228,16 +257,28 @@ void printDebug(float temperature, float tds) {
 
   if (!isnan(tds)) {
     Serial.print(tds, 0);
-    Serial.println(" ppm");
+    Serial.print(" ppm");
   } else {
-    Serial.println("ERRO");
+    Serial.print("ERRO");
   }
+
+  Serial.print(" | Fator: ");
+  Serial.println(tdsFactor, 4);
 }
 
 // =====================================================
 // CALIBRAÇÃO VIA SERIAL
-// Comando: CAL:valor_real
-// Exemplo: CAL:342
+//
+// Comandos:
+//
+// CAL:342
+// Calibra usando solução conhecida de 342 ppm
+//
+// RESETCAL
+// Apaga calibração e volta ao fator 1.0
+//
+// FACTOR?
+// Mostra o fator atual
 // =====================================================
 void handleCalibration(float currentTemperature) {
   if (!Serial.available()) return;
@@ -245,18 +286,60 @@ void handleCalibration(float currentTemperature) {
   String cmd = Serial.readStringUntil('\n');
   cmd.trim();
 
+  // Mostrar fator atual
+  if (cmd == "FACTOR?") {
+    Serial.print("Fator TDS atual: ");
+    Serial.println(tdsFactor, 4);
+    return;
+  }
+
+  // Reset da calibração
+  if (cmd == "RESETCAL") {
+    tdsFactor = 1.0;
+    preferences.putFloat("factor", tdsFactor);
+
+    Serial.println("Calibração TDS apagada.");
+    Serial.println("Fator TDS reposto para 1.0000");
+    return;
+  }
+
+  // Comando de calibração
   if (!cmd.startsWith("CAL:")) return;
 
   float realValue = cmd.substring(4).toFloat();
-  float currentTDS = calculateTDS(currentTemperature);
 
-  if (realValue > 0 && !isnan(currentTDS) && currentTDS > 0) {
-    tdsFactor = realValue / currentTDS;
+  // Para calibrar, usamos o TDS bruto, sem o fator anterior
+  float rawTDS = calculateRawTDS(currentTemperature);
 
-    Serial.print("Calibração aplicada. Novo fator: ");
+  if (realValue > 0 && !isnan(rawTDS) && rawTDS > 0) {
+    tdsFactor = realValue / rawTDS;
+
+    preferences.putFloat("factor", tdsFactor);
+
+    Serial.println();
+    Serial.println("===== CALIBRAÇÃO TDS =====");
+    Serial.print("Valor real: ");
+    Serial.print(realValue, 2);
+    Serial.println(" ppm");
+
+    Serial.print("Leitura bruta: ");
+    Serial.print(rawTDS, 2);
+    Serial.println(" ppm");
+
+    Serial.print("Novo fator: ");
     Serial.println(tdsFactor, 4);
+
+    Serial.println("Calibração guardada na memória.");
+    Serial.println("==========================");
+    Serial.println();
+
   } else {
     Serial.println("Erro na calibração.");
+    Serial.println("Verificar:");
+    Serial.println("- Sensor dentro da solução");
+    Serial.println("- Temperatura válida");
+    Serial.println("- Buffer de leitura já preenchido");
+    Serial.println("- Valor CAL maior que zero");
   }
 }
 
@@ -271,15 +354,28 @@ void setup() {
   analogReadResolution(12);
   analogSetPinAttenuation(TDS_PIN, ADC_11db);
 
+  // Memória persistente para calibração
+  preferences.begin("tds", false);
+  tdsFactor = preferences.getFloat("factor", 1.0);
+
   sensors.begin();
 
   setupWiFi();
 
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
 
+  Serial.println();
   Serial.println("Sistema iniciado.");
-  Serial.println("Para calibrar, escrever: CAL:valor_real");
+  Serial.print("Fator TDS carregado: ");
+  Serial.println(tdsFactor, 4);
+
+  Serial.println();
+  Serial.println("Comandos disponíveis:");
+  Serial.println("CAL:valor_real");
   Serial.println("Exemplo: CAL:342");
+  Serial.println("FACTOR?");
+  Serial.println("RESETCAL");
+  Serial.println();
 }
 
 // =====================================================
