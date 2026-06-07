@@ -68,7 +68,6 @@ CREATE TABLE leituras_sensor (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     data_registo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     sensor_id BIGINT NOT NULL,
-    unidade VARCHAR(20) NOT NULL,
     valor DECIMAL(10, 2) NOT NULL,
 
     CONSTRAINT fk_leituras_sensor
