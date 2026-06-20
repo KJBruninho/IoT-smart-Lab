@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dados - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+		<nav class="sidebar-nav">
+		    <a th:href="@{/professor}">Dashboard</a>
+		    <a th:href="@{/professor/grupos}">Grupos</a>
+		    <a th:href="@{/professor/experiencias}">Experiências</a>
+		    <a th:href="@{/professor/dados}" class="active">Dados e Gráficos</a>
+		    <a th:href="@{/professor/avisos}">Avisos</a>
+		    <a th:href="@{/professor/alertas}">Alertas</a>
+		    <a th:href="@{/professor/forum}">Fórum</a>
+		</nav>
+    </aside>
+
+    <main class="professor-main">
+        <header class="professor-topbar">
+            <div>
+                <h1>Dados e Gráficos</h1>
+                <p>Consulta dos dados recolhidos por grupo e experiência.</p>
+            </div>
+        </header>
+
+        <section class="professor-panel">
+            <div class="panel-header">
+                <h2>Dados dos Grupos</h2>
+            </div>
+
+            <p>Depois vamos adicionar filtros por grupo, experiência, sensor e data.</p>
+        </section>
+    </main>
+
+</div>
+
+<script th:src="@{/js/professor.js}"></script>
+</body>
+</html>

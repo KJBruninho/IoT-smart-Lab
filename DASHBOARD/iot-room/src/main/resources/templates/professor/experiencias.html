@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Experiências - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+		<nav class="sidebar-nav">
+		    <a th:href="@{/professor}">Dashboard</a>
+		    <a th:href="@{/professor/grupos}">Grupos</a>
+		    <a th:href="@{/professor/experiencias}" class="active">Experiências</a>
+		    <a th:href="@{/professor/dados}">Dados e Gráficos</a>
+		    <a th:href="@{/professor/avisos}">Avisos</a>
+		    <a th:href="@{/professor/alertas}" >Alertas</a>
+		    <a th:href="@{/professor/forum}">Fórum</a>
+		</nav>
+    </aside>
+
+    <main class="professor-main">
+        <header class="professor-topbar">
+            <div>
+                <h1>Experiências</h1>
+                <p>Criação e gestão de experiências por grupo.</p>
+            </div>
+        </header>
+
+        <section class="professor-panel">
+            <div class="panel-header">
+                <h2>As Minhas Experiências</h2>
+                <button class="btn-primary">Criar Experiência</button>
+            </div>
+
+            <p>Esta página será ligada à base de dados depois da gestão de grupos.</p>
+        </section>
+    </main>
+
+</div>
+
+<script th:src="@{/js/professor.js}"></script>
+</body>
+</html>

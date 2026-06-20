@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ver Experiência - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+		<nav class="sidebar-nav">
+		    <a th:href="@{/professor}">Dashboard</a>
+		    <a th:href="@{/professor/grupos}">Grupos</a>
+		    <a th:href="@{/professor/experiencias}" class="active">Experiências</a>
+		    <a th:href="@{/professor/dados}">Dados e Gráficos</a>
+		    <a th:href="@{/professor/avisos}">Avisos</a>
+		    <a th:href="@{/professor/alertas}">Alertas</a>
+		    <a th:href="@{/professor/forum}">Fórum</a>
+		</nav>
+    </aside>
+
+    <main class="professor-main">
+
+        <header class="professor-topbar">
+            <div>
+                <h1 th:text="${experiencia.nome}">Nome da Experiência</h1>
+                <p>Detalhes da experiência selecionada.</p>
+            </div>
+
+            <a th:if="${experiencia.estado != 'FINALIZADA' and experiencia.estado != 'CANCELADA'}"
+               class="btn-primary"
+               th:href="@{/professor/experiencias/{id}/editar(id=${experiencia.id})}">
+                Editar Experiência
+            </a>
+        </header>
+
+        <section class="professor-panel">
+
+            <div class="details-grid">
+
+                <div class="detail-item">
+                    <span>Nome</span>
+                    <strong th:text="${experiencia.nome}">Experiência</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Grupo</span>
+                    <strong th:text="${nomesGrupos[experiencia.grupoId] != null ? nomesGrupos[experiencia.grupoId] : '-'}">
+                        Grupo
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Estado</span>
+
+                    <strong th:if="${experiencia.estado == 'CRIADA'}">
+                        Criada
+                    </strong>
+
+                    <strong th:if="${experiencia.estado == 'EM_EXECUCAO'}" class="text-success">
+                        Em execução
+                    </strong>
+
+                    <strong th:if="${experiencia.estado == 'FINALIZADA'}" class="text-success">
+                        Finalizada
+                    </strong>
+
+                    <strong th:if="${experiencia.estado == 'CANCELADA'}" class="text-danger">
+                        Cancelada
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Data de início</span>
+                    <strong th:text="${experiencia.dataInicio != null ? #temporals.format(experiencia.dataInicio, 'dd/MM/yyyy HH:mm') : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Data de fim</span>
+                    <strong th:text="${experiencia.dataFim != null ? #temporals.format(experiencia.dataFim, 'dd/MM/yyyy HH:mm') : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Criada em</span>
+                    <strong th:text="${experiencia.criadoEm != null ? #temporals.format(experiencia.criadoEm, 'dd/MM/yyyy HH:mm') : '-'}">
+                        -
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="description-box">
+                <h2>Descrição</h2>
+                <p th:text="${experiencia.descricao != null ? experiencia.descricao : 'Sem descrição.'}">
+                    Sem descrição.
+                </p>
+            </div>
+
+            <div class="form-actions">
+
+                <form th:if="${experiencia.estado == 'CRIADA'}"
+                      th:action="@{/professor/experiencias/{id}/iniciar(id=${experiencia.id})}"
+                      method="post">
+                    <button type="submit" class="btn-primary">
+                        Iniciar Experiência
+                    </button>
+                </form>
+
+                <form th:if="${experiencia.estado == 'CRIADA' or experiencia.estado == 'EM_EXECUCAO'}"
+                      th:action="@{/professor/experiencias/{id}/finalizar(id=${experiencia.id})}"
+                      method="post">
+                    <button type="submit" class="btn-primary">
+                        Finalizar Experiência
+                    </button>
+                </form>
+
+                <form th:if="${experiencia.estado == 'CRIADA' or experiencia.estado == 'EM_EXECUCAO'}"
+                      th:action="@{/professor/experiencias/{id}/cancelar(id=${experiencia.id})}"
+                      method="post">
+                    <button type="submit" class="btn-small btn-warning">
+                        Cancelar Experiência
+                    </button>
+                </form>
+				
+				<section class="professor-panel">
+				    <div class="panel-header">
+				        <h2>Estações associadas</h2>
+				    </div>
+
+				    <div th:if="${#lists.isEmpty(estacoesAssociadas)}" class="empty-state">
+				        Ainda não existem estações associadas a esta experiência.
+				    </div>
+
+				    <div th:if="${!#lists.isEmpty(estacoesAssociadas)}" class="table-wrapper">
+				        <table class="professor-table">
+				            <thead>
+				            <tr>
+				                <th>Ordem</th>
+				                <th>Estação</th>
+				                <th>Device ID</th>
+				                <th>Observação</th>
+				                <th>Adicionada em</th>
+				                <th>Ações</th>
+				            </tr>
+				            </thead>
+
+				            <tbody>
+				            <tr th:each="item : ${estacoesAssociadas}">
+				                <td th:text="${item.ordem}">1</td>
+
+				                <td th:text="${estacoesMap[item.estacaoId] != null ? estacoesMap[item.estacaoId].nome : '-'}">
+				                    Estação
+				                </td>
+
+				                <td th:text="${estacoesMap[item.estacaoId] != null ? estacoesMap[item.estacaoId].deviceId : '-'}">
+				                    device
+				                </td>
+
+				                <td th:text="${item.observacao != null ? item.observacao : '-'}">
+				                    -
+				                </td>
+
+				                <td th:text="${item.adicionadaEm != null ? #temporals.format(item.adicionadaEm, 'dd/MM/yyyy HH:mm') : '-'}">
+				                    -
+				                </td>
+
+				                <td class="actions-cell">
+				                    <form th:if="${experiencia.estado != 'FINALIZADA' and experiencia.estado != 'CANCELADA'}"
+				                          th:action="@{/professor/experiencias/{id}/estacoes/{estacaoId}/remover(id=${experiencia.id}, estacaoId=${item.estacaoId})}"
+				                          method="post">
+				                        <button type="submit" class="btn-small btn-warning">
+				                            Remover
+				                        </button>
+				                    </form>
+				                </td>
+				            </tr>
+				            </tbody>
+				        </table>
+				    </div>
+				</section>
+
+				<section th:if="${experiencia.estado != 'FINALIZADA' and experiencia.estado != 'CANCELADA'}"
+				         class="professor-panel">
+				    <div class="panel-header">
+				        <h2>Adicionar estação</h2>
+				    </div>
+
+				    <form th:action="@{/professor/experiencias/{id}/estacoes/adicionar(id=${experiencia.id})}"
+				          th:object="${estacaoForm}"
+				          method="post"
+				          class="professor-form">
+
+				        <div class="form-group">
+				            <label for="estacaoId">Estação</label>
+				            <select id="estacaoId" th:field="*{estacaoId}" required>
+				                <option value="">Selecionar estação</option>
+
+				                <option th:each="estacao : ${estacoesDisponiveis}"
+				                        th:value="${estacao.id}"
+				                        th:text="${estacao.nome + ' - ' + estacao.deviceId}">
+				                    Estação
+				                </option>
+				            </select>
+				        </div>
+
+				        <div class="form-group">
+				            <label for="ordem">Ordem</label>
+				            <input type="number" id="ordem" th:field="*{ordem}" min="1" value="1">
+				        </div>
+
+				        <div class="form-group">
+				            <label for="observacao">Observação</label>
+				            <input type="text" id="observacao" th:field="*{observacao}" maxlength="255">
+				        </div>
+
+				        <div class="form-actions">
+				            <button type="submit" class="btn-primary">
+				                Associar Estação
+				            </button>
+				        </div>
+
+				    </form>
+				</section>
+
+                <a class="btn-link" th:href="@{/professor/experiencias}">
+                    Voltar às experiências
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script th:src="@{/js/professor.js}"></script>
+</body>
+</html>

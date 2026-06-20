@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dados e Gráficos - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+		<nav class="sidebar-nav">
+		    <a th:href="@{/professor}">Dashboard</a>
+		    <a th:href="@{/professor/grupos}">Grupos</a>
+		    <a th:href="@{/professor/experiencias}">Experiências</a>
+		    <a th:href="@{/professor/dados}" class="active">Dados e Gráficos</a>
+		    <a th:href="@{/professor/avisos}">Avisos</a>
+		    <a th:href="@{/professor/alertas}">Alertas</a>
+		    <a th:href="@{/professor/forum}">Fórum</a>
+		</nav>
+    </aside>
+
+    <main class="professor-main">
+
+        <header class="professor-topbar">
+            <div>
+                <h1>Dados e Gráficos</h1>
+                <p>Comparação de leituras por grupo, experiência, estação e sensor.</p>
+            </div>
+        </header>
+
+        <section class="professor-panel">
+            <div class="panel-header">
+                <h2>Configuração da comparação</h2>
+                <span>Máximo de 4 comparações</span>
+            </div>
+
+            <form th:action="@{/professor/dados}" method="get" class="comparison-form">
+
+                <div class="comparison-count">
+                    <label for="numeroComparacoes">Número de comparações</label>
+
+                    <select id="numeroComparacoes" name="numeroComparacoes">
+                        <option value="1" th:selected="${numeroComparacoes == 1}">1 comparação</option>
+                        <option value="2" th:selected="${numeroComparacoes == 2}">2 comparações</option>
+                        <option value="3" th:selected="${numeroComparacoes == 3}">3 comparações</option>
+                        <option value="4" th:selected="${numeroComparacoes == 4}">4 comparações</option>
+                    </select>
+                </div>
+
+                <div class="comparison-grid">
+
+                    <article class="comparison-card" th:if="${numeroComparacoes >= 1}">
+                        <h3>Comparação 1</h3>
+
+                        <div class="comparison-fields">
+                            <div class="form-group">
+                                <label for="grupoId1">Grupo</label>
+                                <select id="grupoId1" name="grupoId1">
+                                    <option value="">Todos</option>
+                                    <option th:each="grupo : ${grupos}"
+                                            th:value="${grupo.id}"
+                                            th:text="${grupo.nome}"
+                                            th:selected="${filtros[0].grupoId != null and filtros[0].grupoId == grupo.id}">
+                                        Grupo
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="experienciaId1">Experiência</label>
+                                <select id="experienciaId1" name="experienciaId1">
+                                    <option value="">Todas</option>
+                                    <option th:each="experiencia : ${experiencias}"
+                                            th:value="${experiencia.id}"
+                                            th:text="${experiencia.nome}"
+                                            th:selected="${filtros[0].experienciaId != null and filtros[0].experienciaId == experiencia.id}">
+                                        Experiência
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="estacaoId1">Estação</label>
+                                <select id="estacaoId1" name="estacaoId1">
+                                    <option value="">Todas</option>
+                                    <option th:each="estacao : ${estacoes}"
+                                            th:value="${estacao.id}"
+                                            th:text="${estacao.nome + ' - ' + estacao.deviceId}"
+                                            th:selected="${filtros[0].estacaoId != null and filtros[0].estacaoId == estacao.id}">
+                                        Estação
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tipoSensor1">Sensor</label>
+                                <select id="tipoSensor1" name="tipoSensor1">
+                                    <option value="TEMPERATURA" th:selected="${filtros[0].tipoSensor == 'TEMPERATURA'}">
+                                        Temperatura
+                                    </option>
+                                    <option value="TDS" th:selected="${filtros[0].tipoSensor == 'TDS'}">
+                                        TDS
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="limite1">Leituras</label>
+                                <input type="number" id="limite1" name="limite1" min="5" max="500"
+                                       th:value="${filtros[0].limite}">
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="comparison-card" th:if="${numeroComparacoes >= 2}">
+                        <h3>Comparação 2</h3>
+
+                        <div class="comparison-fields">
+                            <div class="form-group">
+                                <label for="grupoId2">Grupo</label>
+                                <select id="grupoId2" name="grupoId2">
+                                    <option value="">Todos</option>
+                                    <option th:each="grupo : ${grupos}"
+                                            th:value="${grupo.id}"
+                                            th:text="${grupo.nome}"
+                                            th:selected="${filtros[1].grupoId != null and filtros[1].grupoId == grupo.id}">
+                                        Grupo
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="experienciaId2">Experiência</label>
+                                <select id="experienciaId2" name="experienciaId2">
+                                    <option value="">Todas</option>
+                                    <option th:each="experiencia : ${experiencias}"
+                                            th:value="${experiencia.id}"
+                                            th:text="${experiencia.nome}"
+                                            th:selected="${filtros[1].experienciaId != null and filtros[1].experienciaId == experiencia.id}">
+                                        Experiência
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="estacaoId2">Estação</label>
+                                <select id="estacaoId2" name="estacaoId2">
+                                    <option value="">Todas</option>
+                                    <option th:each="estacao : ${estacoes}"
+                                            th:value="${estacao.id}"
+                                            th:text="${estacao.nome + ' - ' + estacao.deviceId}"
+                                            th:selected="${filtros[1].estacaoId != null and filtros[1].estacaoId == estacao.id}">
+                                        Estação
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tipoSensor2">Sensor</label>
+                                <select id="tipoSensor2" name="tipoSensor2">
+                                    <option value="TEMPERATURA" th:selected="${filtros[1].tipoSensor == 'TEMPERATURA'}">
+                                        Temperatura
+                                    </option>
+                                    <option value="TDS" th:selected="${filtros[1].tipoSensor == 'TDS'}">
+                                        TDS
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="limite2">Leituras</label>
+                                <input type="number" id="limite2" name="limite2" min="5" max="500"
+                                       th:value="${filtros[1].limite}">
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="comparison-card" th:if="${numeroComparacoes >= 3}">
+                        <h3>Comparação 3</h3>
+
+                        <div class="comparison-fields">
+                            <div class="form-group">
+                                <label for="grupoId3">Grupo</label>
+                                <select id="grupoId3" name="grupoId3">
+                                    <option value="">Todos</option>
+                                    <option th:each="grupo : ${grupos}"
+                                            th:value="${grupo.id}"
+                                            th:text="${grupo.nome}"
+                                            th:selected="${filtros[2].grupoId != null and filtros[2].grupoId == grupo.id}">
+                                        Grupo
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="experienciaId3">Experiência</label>
+                                <select id="experienciaId3" name="experienciaId3">
+                                    <option value="">Todas</option>
+                                    <option th:each="experiencia : ${experiencias}"
+                                            th:value="${experiencia.id}"
+                                            th:text="${experiencia.nome}"
+                                            th:selected="${filtros[2].experienciaId != null and filtros[2].experienciaId == experiencia.id}">
+                                        Experiência
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="estacaoId3">Estação</label>
+                                <select id="estacaoId3" name="estacaoId3">
+                                    <option value="">Todas</option>
+                                    <option th:each="estacao : ${estacoes}"
+                                            th:value="${estacao.id}"
+                                            th:text="${estacao.nome + ' - ' + estacao.deviceId}"
+                                            th:selected="${filtros[2].estacaoId != null and filtros[2].estacaoId == estacao.id}">
+                                        Estação
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tipoSensor3">Sensor</label>
+                                <select id="tipoSensor3" name="tipoSensor3">
+                                    <option value="TEMPERATURA" th:selected="${filtros[2].tipoSensor == 'TEMPERATURA'}">
+                                        Temperatura
+                                    </option>
+                                    <option value="TDS" th:selected="${filtros[2].tipoSensor == 'TDS'}">
+                                        TDS
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="limite3">Leituras</label>
+                                <input type="number" id="limite3" name="limite3" min="5" max="500"
+                                       th:value="${filtros[2].limite}">
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="comparison-card" th:if="${numeroComparacoes >= 4}">
+                        <h3>Comparação 4</h3>
+
+                        <div class="comparison-fields">
+                            <div class="form-group">
+                                <label for="grupoId4">Grupo</label>
+                                <select id="grupoId4" name="grupoId4">
+                                    <option value="">Todos</option>
+                                    <option th:each="grupo : ${grupos}"
+                                            th:value="${grupo.id}"
+                                            th:text="${grupo.nome}"
+                                            th:selected="${filtros[3].grupoId != null and filtros[3].grupoId == grupo.id}">
+                                        Grupo
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="experienciaId4">Experiência</label>
+                                <select id="experienciaId4" name="experienciaId4">
+                                    <option value="">Todas</option>
+                                    <option th:each="experiencia : ${experiencias}"
+                                            th:value="${experiencia.id}"
+                                            th:text="${experiencia.nome}"
+                                            th:selected="${filtros[3].experienciaId != null and filtros[3].experienciaId == experiencia.id}">
+                                        Experiência
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="estacaoId4">Estação</label>
+                                <select id="estacaoId4" name="estacaoId4">
+                                    <option value="">Todas</option>
+                                    <option th:each="estacao : ${estacoes}"
+                                            th:value="${estacao.id}"
+                                            th:text="${estacao.nome + ' - ' + estacao.deviceId}"
+                                            th:selected="${filtros[3].estacaoId != null and filtros[3].estacaoId == estacao.id}">
+                                        Estação
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tipoSensor4">Sensor</label>
+                                <select id="tipoSensor4" name="tipoSensor4">
+                                    <option value="TEMPERATURA" th:selected="${filtros[3].tipoSensor == 'TEMPERATURA'}">
+                                        Temperatura
+                                    </option>
+                                    <option value="TDS" th:selected="${filtros[3].tipoSensor == 'TDS'}">
+                                        TDS
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="limite4">Leituras</label>
+                                <input type="number" id="limite4" name="limite4" min="5" max="500"
+                                       th:value="${filtros[3].limite}">
+                            </div>
+                        </div>
+                    </article>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        Aplicar Comparação
+                    </button>
+
+                    <a class="btn-link" th:href="@{/professor/dados}">
+                        Limpar
+                    </a>
+                </div>
+
+            </form>
+        </section>
+
+        <section class="professor-panel chart-panel">
+            <div class="panel-header">
+                <h2>Gráfico comparativo</h2>
+                <span>As séries usam a ordem cronológica das leituras</span>
+            </div>
+
+            <div id="comparisonWarning" class="comparison-warning" style="display: none;">
+                Atenção: estás a comparar sensores com unidades diferentes. A tabela continua correta,
+                mas o gráfico pode ser difícil de interpretar.
+            </div>
+
+            <div id="emptyChartState" class="empty-state" style="display: none;">
+                Não existem dados suficientes para gerar o gráfico.
+            </div>
+
+            <div class="comparison-chart-wrapper">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </section>
+
+        <section class="comparison-results">
+
+            <article th:each="serie, serieStat : ${series}" class="professor-panel comparison-result-card">
+
+                <div class="panel-header">
+                    <div>
+                        <h2 th:text="${serie.nome}">Comparação</h2>
+                        <span th:text="'Total de leituras: ' + ${#lists.size(serie.leituras)}">
+                            Total de leituras: 0
+                        </span>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(serie.leituras)}" class="empty-state">
+                    Não existem leituras para esta comparação.
+                </div>
+
+                <div th:if="${!#lists.isEmpty(serie.leituras)}" class="table-wrapper">
+                    <table class="professor-table comparison-table">
+                        <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Grupo</th>
+                            <th>Experiência</th>
+                            <th>Estação</th>
+                            <th>Sensor</th>
+                            <th>Valor</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="leitura : ${serie.leituras}"
+                            class="chart-source"
+                            th:attr="data-serie=${serie.nome},
+                                     data-label=${leitura.dataRegisto != null ? #temporals.format(leitura.dataRegisto, 'dd/MM HH:mm:ss') : '-'},
+                                     data-value=${leitura.valor},
+                                     data-unidade=${leitura.unidade}">
+
+                            <td th:text="${leitura.dataRegisto != null ? #temporals.format(leitura.dataRegisto, 'dd/MM/yyyy HH:mm:ss') : '-'}">
+                                -
+                            </td>
+
+                            <td th:text="${leitura.grupoNome}">Grupo</td>
+
+                            <td th:text="${leitura.experienciaNome}">Experiência</td>
+
+                            <td>
+                                <span th:text="${leitura.estacaoNome}">Estação</span>
+                                <small th:text="${leitura.deviceId}">device</small>
+                            </td>
+
+                            <td>
+                                <span th:text="${leitura.sensorNome}">Sensor</span>
+                                <small th:text="${leitura.tipoSensor}">Tipo</small>
+                            </td>
+
+                            <td>
+                                <strong th:text="${leitura.valor}">0</strong>
+                                <span th:text="${leitura.unidade}">un</span>
+                            </td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </article>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const numeroSelect = document.getElementById('numeroComparacoes');
+
+        if (numeroSelect) {
+            numeroSelect.addEventListener('change', function () {
+                this.form.submit();
+            });
+        }
+
+        const rows = document.querySelectorAll('.chart-source');
+        const emptyChartState = document.getElementById('emptyChartState');
+        const warning = document.getElementById('comparisonWarning');
+        const chartWrapper = document.querySelector('.comparison-chart-wrapper');
+
+        if (!rows || rows.length === 0) {
+            if (emptyChartState) {
+                emptyChartState.style.display = 'block';
+            }
+
+            if (chartWrapper) {
+                chartWrapper.style.display = 'none';
+            }
+
+            return;
+        }
+
+        const grouped = {};
+        const units = new Set();
+
+        rows.forEach(function (row) {
+            const serie = row.dataset.serie;
+            const label = row.dataset.label;
+            const value = parseFloat(String(row.dataset.value).replace(',', '.'));
+            const unidade = row.dataset.unidade;
+
+            if (!serie || Number.isNaN(value)) {
+                return;
+            }
+
+            if (unidade) {
+                units.add(unidade);
+            }
+
+            if (!grouped[serie]) {
+                grouped[serie] = {
+                    labels: [],
+                    values: []
+                };
+            }
+
+            grouped[serie].labels.push(label);
+            grouped[serie].values.push(value);
+        });
+
+        const seriesNames = Object.keys(grouped);
+
+        if (seriesNames.length === 0) {
+            if (emptyChartState) {
+                emptyChartState.style.display = 'block';
+            }
+
+            if (chartWrapper) {
+                chartWrapper.style.display = 'none';
+            }
+
+            return;
+        }
+
+        if (units.size > 1 && warning) {
+            warning.style.display = 'block';
+        }
+
+        const maxLength = Math.max.apply(
+            null,
+            seriesNames.map(function (name) {
+                return grouped[name].values.length;
+            })
+        );
+
+        const labels = [];
+
+        for (let i = 0; i < maxLength; i++) {
+            labels.push(String(i + 1));
+        }
+
+        const datasets = seriesNames.map(function (name) {
+            return {
+                label: name,
+                data: grouped[name].values,
+                tension: 0.25,
+                spanGaps: true
+            };
+        });
+
+        const canvas = document.getElementById('comparisonChart');
+
+        if (!canvas) {
+            return;
+        }
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function (context) {
+                                const serieName = context.dataset.label;
+                                const index = context.dataIndex;
+
+                                if (grouped[serieName] && grouped[serieName].labels[index]) {
+                                    return 'Data: ' + grouped[serieName].labels[index];
+                                }
+
+                                return '';
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Ordem das leituras'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Valor'
+                        },
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

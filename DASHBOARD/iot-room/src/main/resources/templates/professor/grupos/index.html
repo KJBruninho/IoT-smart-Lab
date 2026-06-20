@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupos - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+		<nav class="sidebar-nav">
+		    <a th:href="@{/professor}">Dashboard</a>
+		    <a th:href="@{/professor/grupos}" class="active">Grupos</a>
+		    <a th:href="@{/professor/experiencias}">Experiências</a>
+		    <a th:href="@{/professor/dados}">Dados e Gráficos</a>
+		    <a th:href="@{/professor/avisos}">Avisos</a>
+		    <a th:href="@{/professor/alertas}">Alertas</a>
+		    <a th:href="@{/professor/forum}">Fórum</a>
+		</nav>
+    </aside>
+
+    <main class="professor-main">
+
+        <header class="professor-topbar">
+            <div>
+                <h1>Grupos</h1>
+                <p>Gestão dos grupos associados ao professor.</p>
+            </div>
+
+            <a class="btn-primary" th:href="@{/professor/grupos/novo}">
+                Criar Grupo
+            </a>
+        </header>
+
+        <section class="professor-panel">
+            <div class="panel-header">
+                <h2>Os Meus Grupos</h2>
+            </div>
+
+            <div th:if="${#lists.isEmpty(grupos)}" class="empty-state">
+                Ainda não existem grupos criados.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(grupos)}" class="table-wrapper">
+                <table class="professor-table">
+                    <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Estado</th>
+                        <th>Criado em</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="grupo : ${grupos}">
+                        <td th:text="${grupo.nome}">Grupo A</td>
+
+                        <td th:text="${grupo.descricao != null ? grupo.descricao : '-'}">
+                            Descrição
+                        </td>
+
+                        <td>
+                            <span th:if="${grupo.ativo}" class="status-badge status-active">
+                                Ativo
+                            </span>
+
+                            <span th:if="${!grupo.ativo}" class="status-badge status-inactive">
+                                Inativo
+                            </span>
+                        </td>
+
+                        <td th:text="${#temporals.format(grupo.criadoEm, 'dd/MM/yyyy HH:mm')}">
+                            19/06/2026 15:00
+                        </td>
+
+                        <td class="actions-cell">
+                            <a class="btn-small" th:href="@{/professor/grupos/{id}(id=${grupo.id})}">
+                                Ver
+                            </a>
+
+                            <a class="btn-small btn-secondary" th:href="@{/professor/grupos/{id}/editar(id=${grupo.id})}">
+                                Editar
+                            </a>
+
+                            <form th:action="@{/professor/grupos/{id}/alternar-estado(id=${grupo.id})}" method="post">
+                                <button type="submit" class="btn-small btn-warning"
+                                        th:text="${grupo.ativo ? 'Desativar' : 'Ativar'}">
+                                    Alterar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<script th:src="@{/js/professor.js}"></script>
+</body>
+</html>

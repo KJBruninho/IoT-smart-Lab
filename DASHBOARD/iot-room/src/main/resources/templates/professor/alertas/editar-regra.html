@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Regra - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/professor}">Dashboard</a>
+            <a th:href="@{/professor/grupos}">Grupos</a>
+            <a th:href="@{/professor/experiencias}">Experiências</a>
+            <a th:href="@{/professor/dados}">Dados e Gráficos</a>
+            <a th:href="@{/professor/avisos}">Avisos</a>
+            <a th:href="@{/professor/alertas}" class="active">Alertas</a>
+            <a th:href="@{/professor/forum}">Fórum</a>
+        </nav>
+    </aside>
+
+    <main class="professor-main">
+
+        <header class="professor-topbar">
+            <div>
+                <h1>Nova Regra de Alerta</h1>
+                <p>Define uma condição automática para gerar alertas.</p>
+            </div>
+        </header>
+
+        <section class="professor-panel">
+			<form th:action="@{/professor/alertas/regras/{id}/editar(id=${regraForm.id})}"
+			      th:object="${regraForm}"
+			      method="post"
+			      class="professor-form">
+
+                <div class="form-grid-2">
+
+                    <div class="form-group">
+                        <label for="titulo">Título</label>
+                        <input id="titulo" type="text" th:field="*{titulo}" maxlength="150" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="severidade">Severidade</label>
+                        <select id="severidade" th:field="*{severidade}" required>
+                            <option value="INFO">INFO</option>
+                            <option value="AVISO">AVISO</option>
+                            <option value="CRITICO">CRITICO</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipoSensor">Sensor</label>
+                        <select id="tipoSensor" th:field="*{tipoSensor}" required>
+                            <option value="TEMPERATURA">Temperatura</option>
+                            <option value="TDS">TDS</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operador">Condição</label>
+                        <select id="operador" th:field="*{operador}" required>
+                            <option value="ACIMA_DE">Acima de</option>
+                            <option value="ABAIXO_DE">Abaixo de</option>
+                            <option value="ENTRE">Entre</option>
+                            <option value="FORA_INTERVALO">Fora do intervalo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valorMin">Valor mínimo</label>
+                        <input id="valorMin" type="number" step="0.01" th:field="*{valorMin}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valorMax">Valor máximo</label>
+                        <input id="valorMax" type="number" step="0.01" th:field="*{valorMax}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grupoId">Grupo</label>
+                        <select id="grupoId" th:field="*{grupoId}">
+                            <option value="">Todos</option>
+                            <option th:each="grupo : ${grupos}"
+                                    th:value="${grupo.id}"
+                                    th:text="${grupo.nome}">
+                                Grupo
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experienciaId">Experiência</label>
+                        <select id="experienciaId" th:field="*{experienciaId}">
+                            <option value="">Todas</option>
+                            <option th:each="experiencia : ${experiencias}"
+                                    th:value="${experiencia.id}"
+                                    th:text="${experiencia.nome}">
+                                Experiência
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estacaoId">Estação</label>
+                        <select id="estacaoId" th:field="*{estacaoId}">
+                            <option value="">Todas</option>
+                            <option th:each="estacao : ${estacoes}"
+                                    th:value="${estacao.id}"
+                                    th:text="${estacao.nome + ' - ' + estacao.deviceId}">
+                                Estação
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cooldownMinutos">Cooldown em minutos</label>
+                        <input id="cooldownMinutos" type="number" min="0" th:field="*{cooldownMinutos}">
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="mensagem">Mensagem</label>
+                    <textarea id="mensagem" th:field="*{mensagem}" rows="4"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        Guardar Alterações
+                    </button>
+
+                    <a class="btn-link" th:href="@{/professor/alertas/regras}">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

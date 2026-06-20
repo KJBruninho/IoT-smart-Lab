@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Alertas - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/professor}">Dashboard</a>
+            <a th:href="@{/professor/grupos}">Grupos</a>
+            <a th:href="@{/professor/experiencias}">Experiências</a>
+            <a th:href="@{/professor/dados}">Dados e Gráficos</a>
+            <a th:href="@{/professor/avisos}">Avisos</a>
+            <a th:href="@{/professor/alertas}" class="active">Alertas</a>
+            <a th:href="@{/professor/forum}">Fórum</a>
+        </nav>
+    </aside>
+
+    <main class="professor-main">
+
+        <header class="professor-topbar">
+            <div>
+                <h1>Alertas de Sensor</h1>
+                <p>Alertas automáticos gerados pelas regras dos sensores.</p>
+            </div>
+
+            <a class="btn-primary" th:href="@{/professor/alertas/regras}">
+                Gerir Regras
+            </a>
+        </header>
+
+        <section class="professor-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Alertas gerados</h2>
+                    <span>Ocorrências detetadas pelas leituras dos sensores.</span>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(alertas)}" class="empty-state">
+                Ainda não existem alertas gerados.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(alertas)}" class="table-wrapper">
+                <table class="professor-table">
+                    <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Título</th>
+                        <th>Sensor</th>
+                        <th>Valor</th>
+                        <th>Severidade</th>
+                        <th>Estado</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="alerta : ${alertas}">
+                        <td th:text="${alerta.criadoEm != null ? #temporals.format(alerta.criadoEm, 'dd/MM/yyyy HH:mm:ss') : '-'}">-</td>
+
+                        <td>
+                            <strong th:text="${alerta.titulo}">Título</strong>
+                            <small th:text="${alerta.mensagem != null ? alerta.mensagem : ''}">Mensagem</small>
+                        </td>
+
+                        <td th:text="${alerta.tipoSensor}">Sensor</td>
+
+                        <td>
+                            <strong th:text="${alerta.valorLido}">0</strong>
+                        </td>
+
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${alerta.severidade == 'CRITICO'} ? ' status-inactive' : (${alerta.severidade == 'AVISO'} ? ' status-created' : ' status-active')"
+                                  th:text="${alerta.severidade}">
+                                AVISO
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${alerta.estado == 'NOVO'} ? ' status-created' : (${alerta.estado == 'RESOLVIDO'} ? ' status-active' : ' status-inactive')"
+                                  th:text="${alerta.estado}">
+                                NOVO
+                            </span>
+                        </td>
+
+                        <td class="actions-cell">
+                            <form th:if="${alerta.estado == 'NOVO'}"
+                                  th:action="@{/professor/alertas/{id}/marcar-lido(id=${alerta.id})}"
+                                  method="post">
+                                <button class="btn-small" type="submit">Lido</button>
+                            </form>
+
+                            <form th:if="${alerta.estado != 'RESOLVIDO'}"
+                                  th:action="@{/professor/alertas/{id}/resolver(id=${alerta.id})}"
+                                  method="post">
+                                <button class="btn-small btn-success" type="submit">Resolver</button>
+                            </form>
+
+                            <form th:if="${alerta.estado != 'IGNORADO'}"
+                                  th:action="@{/professor/alertas/{id}/ignorar(id=${alerta.id})}"
+                                  method="post">
+                                <button class="btn-small btn-warning" type="submit">Ignorar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>
