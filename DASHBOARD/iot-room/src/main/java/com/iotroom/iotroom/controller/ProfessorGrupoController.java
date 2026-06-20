@@ -3,6 +3,7 @@ package com.iotroom.iotroom.controller;
 import com.iotroom.iotroom.dto.GrupoMembroFormDTO;
 import com.iotroom.iotroom.dto.GrupoFormDTO;
 import com.iotroom.iotroom.model.Grupo;
+import com.iotroom.iotroom.service.PermissaoGrupoEstacaoService;
 import com.iotroom.iotroom.service.ProfessorGrupoMembroService;
 import com.iotroom.iotroom.service.ProfessorGrupoService;
 import org.springframework.stereotype.Controller;
@@ -16,12 +17,18 @@ import java.util.List;
 public class ProfessorGrupoController {
 
 	private final ProfessorGrupoMembroService professorGrupoMembroService;
-    private final ProfessorGrupoService professorGrupoService;
+	private final ProfessorGrupoService professorGrupoService;
+	private final PermissaoGrupoEstacaoService permissaoGrupoEstacaoService;
 
-    public ProfessorGrupoController(ProfessorGrupoService professorGrupoService, ProfessorGrupoMembroService professorGrupoMembroService) {
-        this.professorGrupoMembroService = professorGrupoMembroService;
-		this.professorGrupoService = professorGrupoService;
-    }
+	public ProfessorGrupoController(
+	        ProfessorGrupoService professorGrupoService,
+	        ProfessorGrupoMembroService professorGrupoMembroService,
+	        PermissaoGrupoEstacaoService permissaoGrupoEstacaoService
+	) {
+	    this.professorGrupoMembroService = professorGrupoMembroService;
+	    this.professorGrupoService = professorGrupoService;
+	    this.permissaoGrupoEstacaoService = permissaoGrupoEstacaoService;
+	}
 
     @GetMapping
     public String index(Model model) {
@@ -99,6 +106,34 @@ public class ProfessorGrupoController {
         professorGrupoService.alternarEstado(id, professorId);
 
         return "redirect:/professor/grupos";
+    }
+    
+    @GetMapping("/{id}/estacoes")
+    public String gerirEstacoesDoGrupo(@PathVariable Long id, Model model) {
+        Long professorId = obterProfessorIdTemporario();
+
+        Grupo grupo = professorGrupoService.obterGrupoDoProfessor(id, professorId);
+
+        model.addAttribute("grupo", grupo);
+        model.addAttribute("estacoes", permissaoGrupoEstacaoService.listarEstacoesAtivas());
+        model.addAttribute("estacoesComAcesso", permissaoGrupoEstacaoService.listarIdsEstacoesComAcesso(id));
+        model.addAttribute("paginaAtual", "grupos");
+
+        return "professor/grupos/estacoes";
+    }
+
+    @PostMapping("/{id}/estacoes")
+    public String guardarEstacoesDoGrupo(
+            @PathVariable Long id,
+            @RequestParam(required = false) List<Long> estacaoIds
+    ) {
+        Long professorId = obterProfessorIdTemporario();
+
+        professorGrupoService.obterGrupoDoProfessor(id, professorId);
+
+        permissaoGrupoEstacaoService.atualizarEstacoesDoGrupo(id, estacaoIds);
+
+        return "redirect:/professor/grupos/" + id + "/estacoes";
     }
     
     @PostMapping("/{id}/membros/adicionar")

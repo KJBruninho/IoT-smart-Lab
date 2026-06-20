@@ -18,4 +18,6 @@ public interface EstacaoRepository extends JpaRepository<Estacao, Long> {
             ORDER BY e.nome ASC
             """, nativeQuery = true)
     List<Estacao> findEstacoesDoProfessor(@Param("professorId") Long professorId);
+    
+    List<Estacao> findByAtivaTrue();
 }
