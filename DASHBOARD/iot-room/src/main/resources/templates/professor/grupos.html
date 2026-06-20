@@ -12,15 +12,15 @@
     <aside class="professor-sidebar">
         <div class="sidebar-logo">IoT Room</div>
 
-		<nav class="sidebar-nav">
-		    <a th:href="@{/professor}">Dashboard</a>
-		    <a th:href="@{/professor/grupos}" class="active">Grupos</a>
-		    <a th:href="@{/professor/experiencias}">Experiências</a>
-		    <a th:href="@{/professor/dados}">Dados e Gráficos</a>
-		    <a th:href="@{/professor/avisos}">Avisos</a>
-		    <a th:href="@{/professor/alertas}">Alertas</a>
-		    <a th:href="@{/professor/forum}">Fórum</a>
-		</nav>
+        <nav class="sidebar-nav">
+            <a th:href="@{/professor}">Dashboard</a>
+            <a th:href="@{/professor/grupos}" class="active">Grupos</a>
+            <a th:href="@{/professor/experiencias}">Experiências</a>
+            <a th:href="@{/professor/dados}">Dados e Gráficos</a>
+            <a th:href="@{/professor/avisos}">Avisos</a>
+            <a th:href="@{/professor/alertas}">Alertas</a>
+            <a th:href="@{/professor/forum}">Fórum</a>
+        </nav>
     </aside>
 
     <main class="professor-main">
@@ -34,10 +34,45 @@
         <section class="professor-panel">
             <div class="panel-header">
                 <h2>Os Meus Grupos</h2>
-                <button class="btn-primary">Criar Grupo</button>
+
+                <a class="btn-primary" th:href="@{/professor/grupos/novo}">
+                    Criar Grupo
+                </a>
             </div>
 
-            <p>Esta página será ligada à base de dados no próximo passo.</p>
+            <div th:if="${mensagemSucesso}" class="alert-success">
+                <p th:text="${mensagemSucesso}">Operação realizada com sucesso.</p>
+            </div>
+
+            <div th:if="${mensagemErro}" class="alert-error">
+                <p th:text="${mensagemErro}">Ocorreu um erro.</p>
+            </div>
+
+            <div th:if="${#lists.isEmpty(grupos)}">
+                <p>Ainda não existem grupos associados.</p>
+            </div>
+
+            <table class="professor-table" th:if="${!#lists.isEmpty(grupos)}">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="grupo : ${grupos}">
+                        <td th:text="${grupo.id}">1</td>
+                        <td th:text="${grupo.nome}">Nome do grupo</td>
+                        <td>
+                            <a th:href="@{/professor/grupos/{id}/estacoes(id=${grupo.id})}">
+                                Gerir estações
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
     </main>
 
