@@ -50,6 +50,7 @@ DROP TRIGGER IF EXISTS trg_log_validar_nivel_insert;
 
 DROP TABLE IF EXISTS logs_detalhes;
 DROP TABLE IF EXISTS logs;
+DROP TABLE IF EXISTS security_audit_logs;
 DROP TABLE IF EXISTS configuracoes_sistema;
 DROP TABLE IF EXISTS configuracoes_modo_sensor;
 DROP TABLE IF EXISTS comandos_sensor;
@@ -68,11 +69,14 @@ DROP TABLE IF EXISTS permissoes_grupo_estacao;
 DROP TABLE IF EXISTS utilizador_grupos;
 DROP TABLE IF EXISTS roles_grupo;
 DROP TABLE IF EXISTS grupos;
+DROP TABLE IF EXISTS dispositivos_confiaveis;
+DROP TABLE IF EXISTS refresh_tokens;
 DROP TABLE IF EXISTS utilizadores;
 DROP TABLE IF EXISTS sensores;
 DROP TABLE IF EXISTS estacoes;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
 
 -- =========================================================
 -- 01. ESTAÇÕES E SENSORES
@@ -122,6 +126,61 @@ CREATE TABLE utilizadores (
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP NULL DEFAULT NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =========================================================
+-- 02.1 TOKENS, DISPOSITIVOS E SESSÕES
+-- =========================================================
+CREATE TABLE refresh_tokens (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    utilizador_id BIGINT NOT NULL,
+
+    token_hash VARCHAR(255) NOT NULL UNIQUE,
+
+    device_id_hash VARCHAR(255) NULL,
+    app_client VARCHAR(50) NOT NULL DEFAULT 'WEB',
+
+    ip VARCHAR(100) NULL,
+    user_agent VARCHAR(255) NULL,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expira_em TIMESTAMP NOT NULL,
+    ultimo_uso_em TIMESTAMP NULL,
+    revogado_em TIMESTAMP NULL,
+
+    CONSTRAINT fk_refresh_tokens_utilizador
+        FOREIGN KEY (utilizador_id)
+        REFERENCES utilizadores(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE dispositivos_confiaveis (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    utilizador_id BIGINT NOT NULL,
+
+    device_id_hash VARCHAR(255) NOT NULL,
+    nome_dispositivo VARCHAR(150) NULL,
+    plataforma VARCHAR(50) NULL,
+    app_client VARCHAR(50) NOT NULL DEFAULT 'WEB',
+
+    biometria_ativa BOOLEAN NOT NULL DEFAULT FALSE,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ultimo_acesso_em TIMESTAMP NULL,
+
+    CONSTRAINT fk_dispositivos_utilizador
+        FOREIGN KEY (utilizador_id)
+        REFERENCES utilizadores(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT uk_dispositivo_utilizador_client
+        UNIQUE (utilizador_id, device_id_hash, app_client)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE grupos (
@@ -672,11 +731,34 @@ CREATE TABLE logs_detalhes (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE security_audit_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    utilizador_id BIGINT NULL,
+    tipo VARCHAR(80) NOT NULL,
+    detalhe VARCHAR(255) NULL,
+    app_client VARCHAR(50) NULL,
+    ip VARCHAR(100) NULL,
+    user_agent VARCHAR(255) NULL,
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_security_audit_utilizador
+        FOREIGN KEY (utilizador_id)
+        REFERENCES utilizadores(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
 -- =========================================================
 -- 09. ÍNDICES
 -- =========================================================
 CREATE INDEX idx_estacoes_device_id ON estacoes(device_id);
 CREATE INDEX idx_estacoes_ativa ON estacoes(ativa);
+
+CREATE INDEX idx_security_logs_utilizador ON security_audit_logs(utilizador_id);
+CREATE INDEX idx_security_logs_tipo ON security_audit_logs(tipo);
+CREATE INDEX idx_security_logs_criado_em ON security_audit_logs(criado_em);
 
 CREATE INDEX idx_sensores_estacao ON sensores(estacao_id);
 CREATE INDEX idx_sensores_tipo ON sensores(tipo);
@@ -719,6 +801,15 @@ CREATE INDEX idx_leituras_experiencia_sensor_data ON leituras_sensor(experiencia
 CREATE INDEX idx_avisos_criado_por ON avisos(criado_por);
 CREATE INDEX idx_avisos_ativo ON avisos(ativo);
 CREATE INDEX idx_avisos_criado_em ON avisos(criado_em);
+
+CREATE INDEX idx_refresh_tokens_utilizador ON refresh_tokens(utilizador_id);
+CREATE INDEX idx_refresh_tokens_token_hash ON refresh_tokens(token_hash);
+CREATE INDEX idx_refresh_tokens_expira_em ON refresh_tokens(expira_em);
+CREATE INDEX idx_refresh_tokens_device_hash ON refresh_tokens(device_id_hash);
+
+CREATE INDEX idx_dispositivos_utilizador ON dispositivos_confiaveis(utilizador_id);
+CREATE INDEX idx_dispositivos_device_hash ON dispositivos_confiaveis(device_id_hash);
+CREATE INDEX idx_dispositivos_ativo ON dispositivos_confiaveis(ativo);
 
 CREATE INDEX idx_forum_topicos_criado_por ON forum_topicos(criado_por);
 CREATE INDEX idx_forum_topicos_grupo ON forum_topicos(grupo_id);
