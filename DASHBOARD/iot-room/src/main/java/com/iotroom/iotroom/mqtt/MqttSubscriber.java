@@ -3,6 +3,7 @@ package com.iotroom.iotroom.mqtt;
 import com.iotroom.iotroom.service.LeituraService;
 import com.iotroom.iotroom.service.MqttStatusService;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,8 +12,11 @@ import java.math.BigDecimal;
 
 @Component
 public class MqttSubscriber {
+
     private final LeituraService leituraService;
     private final MqttStatusService mqttStatusService;
+
+    private MqttClient client;
 
     @Value("${mqtt.broker}")
     private String broker;
@@ -35,68 +39,93 @@ public class MqttSubscriber {
     }
 
     @PostConstruct
-    public void iniciar() throws MqttException {
+    public void iniciar() {
+        try {
+            String clientIdUnico = clientId + "-" + System.currentTimeMillis();
 
-        try (MqttClient client = new MqttClient(broker, clientId + "-" + System.currentTimeMillis())) {
-			MqttConnectOptions options = new MqttConnectOptions();
-			options.setAutomaticReconnect(true);
-			options.setCleanSession(true);
-			options.setConnectionTimeout(10);
-			options.setKeepAliveInterval(20);
+            this.client = new MqttClient(broker, clientIdUnico);
 
-			client.setCallback(new MqttCallbackExtended() {
-			    @Override
-			    public void connectComplete(boolean reconnect, String serverURI) {
-			        mqttStatusService.marcarClienteLigado();
-			        try {
-			            client.subscribe(topicTemperatura);
-			            client.subscribe(topicTds);
-			            System.out.println("MQTT subscrito em " + serverURI);
-			        } catch (MqttException e) {
-			            System.err.println("Erro ao subscrever tópicos MQTT: " + e.getMessage());
-			        }
-			    }
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setAutomaticReconnect(true);
+            options.setCleanSession(true);
+            options.setConnectionTimeout(10);
+            options.setKeepAliveInterval(20);
 
-			    @Override
-			    public void connectionLost(Throwable cause) {
-			        mqttStatusService.marcarClienteDesligado();
-			        System.err.println("Ligação MQTT perdida: " + cause.getMessage());
-			    }
+            client.setCallback(new MqttCallbackExtended() {
+                @Override
+                public void connectComplete(boolean reconnect, String serverURI) {
+                    mqttStatusService.marcarClienteLigado();
 
-			    @Override
-			    public void messageArrived(String topic, MqttMessage message) {
-			        mqttStatusService.atualizarUltimaMensagem();
+                    try {
+                        if (client != null && client.isConnected()) {
+                            client.subscribe(topicTemperatura);
+                            client.subscribe(topicTds);
+                            System.out.println("MQTT subscrito em " + serverURI);
+                        }
+                    } catch (MqttException e) {
+                        System.err.println("Erro ao subscrever tópicos MQTT: " + e.getMessage());
+                    }
+                }
 
-			        try {
-			            String payload = new String(message.getPayload()).trim();
-			            BigDecimal valor = new BigDecimal(payload);
+                @Override
+                public void connectionLost(Throwable cause) {
+                    mqttStatusService.marcarClienteDesligado();
 
-			            if (topic.equals(topicTemperatura)) {
-			                leituraService.registarLeitura(deviceId, "TEMPERATURA", valor);
-			            } else if (topic.equals(topicTds)) {
-			                leituraService.registarLeitura(deviceId, "TDS", valor);
-			            }
-			        } catch (Exception e) {
-			            System.err.println("Erro ao processar MQTT: " + topic + " -> " + e.getMessage());
-			        }
-			    }
+                    String mensagem = cause != null ? cause.getMessage() : "causa desconhecida";
+                    System.err.println("Ligação MQTT perdida: " + mensagem);
+                }
 
-			    @Override
-			    public void deliveryComplete(IMqttDeliveryToken token) {
-			    }
-			});
+                @Override
+                public void messageArrived(String topic, MqttMessage message) {
+                    mqttStatusService.atualizarUltimaMensagem();
 
-			try {
-			    client.connect(options);
-			    mqttStatusService.marcarClienteLigado();
-			    System.out.println("MQTT ativo em " + broker);
-			} catch (MqttException e) {
-			    mqttStatusService.marcarClienteDesligado();
-			    System.err.println("MQTT indisponível no arranque. A reconexão automática fica ativa: " + e.getMessage());
-			}
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    try {
+                        String payload = new String(message.getPayload()).trim();
+                        BigDecimal valor = new BigDecimal(payload);
+
+                        if (topic.equals(topicTemperatura)) {
+                            leituraService.registarLeitura(deviceId, "TEMPERATURA", valor);
+                        } else if (topic.equals(topicTds)) {
+                            leituraService.registarLeitura(deviceId, "TDS", valor);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Erro ao processar MQTT: " + topic + " -> " + e.getMessage());
+                    }
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken token) {
+                    // Não usado porque este cliente só subscreve.
+                }
+            });
+
+            client.connect(options);
+            mqttStatusService.marcarClienteLigado();
+
+            System.out.println("MQTT ativo em " + broker);
+
+        } catch (MqttException e) {
+            mqttStatusService.marcarClienteDesligado();
+            System.err.println("MQTT indisponível no arranque: " + e.getMessage());
+        } catch (Exception e) {
+            mqttStatusService.marcarClienteDesligado();
+            System.err.println("Erro inesperado ao iniciar MQTT: " + e.getMessage());
+        }
+    }
+
+    @PreDestroy
+    public void parar() {
+        try {
+            if (client != null) {
+                if (client.isConnected()) {
+                    client.disconnect();
+                }
+
+                client.close();
+                System.out.println("Cliente MQTT fechado.");
+            }
+        } catch (MqttException e) {
+            System.err.println("Erro ao fechar cliente MQTT: " + e.getMessage());
+        }
     }
 }
