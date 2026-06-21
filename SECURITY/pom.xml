@@ -19,7 +19,7 @@
     <description>API de autenticação e segurança do IoT Room</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>17</java.version>
 
         <!-- Workaround para erro do Eclipse/STS/m2e com maven-jar-plugin 3.5.0 -->
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
