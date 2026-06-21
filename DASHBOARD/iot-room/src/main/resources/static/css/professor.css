@@ -1186,6 +1186,77 @@ body {
     color: #374151;
 }
 
+.sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.sensor-card {
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.sensor-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.sensor-card-header h3 {
+    margin: 0 0 4px;
+    color: #111827;
+}
+
+.sensor-card-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.sensor-card-info {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #e5e7eb;
+    padding: 10px 0;
+    gap: 12px;
+}
+
+.sensor-card-info span {
+    color: #6b7280;
+}
+
+.sensor-card-info strong {
+    color: #111827;
+}
+
+.inline-action-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.inline-action-form input {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font: inherit;
+    min-width: 180px;
+}
+
+.btn-success {
+    background: #15803d;
+}
+
+.btn-success:hover {
+    background: #166534;
+}
+
 @media (max-width: 1100px) {
     .dashboard-kpi-grid {
         grid-template-columns: repeat(2, minmax(180px, 1fr));

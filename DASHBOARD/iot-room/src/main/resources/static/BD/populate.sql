@@ -1,5 +1,8 @@
 USE iot_room;
 
+-- =========================================================
+-- DADOS INICIAIS / POPULAÇÃO
+-- =========================================================
 INSERT INTO estacoes (nome, localizacao, device_id)
 VALUES
 ('Sala IoT', 'Laboratório', 'esp32_sala_01'),
@@ -9,15 +12,17 @@ INSERT INTO sensores (nome, tipo, unidade, estacao_id)
 VALUES
 ('Sensor Temperatura', 'TEMPERATURA', 'ºC', 1),
 ('Sensor TDS', 'TDS', 'ppm', 1),
+('Sensor pH', 'PH', 'pH', 1),
 ('Sensor Temperatura', 'TEMPERATURA', 'ºC', 2),
-('Sensor TDS', 'TDS', 'ppm', 2);
+('Sensor TDS', 'TDS', 'ppm', 2),
+('Sensor pH', 'PH', 'pH', 2);
 
 -- Passwords de exemplo. Trocar por hashes reais gerados pela aplicação.
-INSERT INTO utilizadores (nome, email, password_hash, tipo_utilizador)
+INSERT INTO utilizadores (nome, email, password_hash, role)
 VALUES
 ('Administrador', 'admin@sala-iot.local', '$2y$10$exemplo_hash_admin', 'ADMIN'),
-('Bruno Marinho', 'bruno@sala-iot.local', '$2y$10$exemplo_hash_user', 'USER'),
-('Investigador', 'investigador@sala-iot.local', '$2y$10$exemplo_hash_user2', 'USER');
+('Bruno Marinho', 'bruno@sala-iot.local', '$2y$10$exemplo_hash_professor', 'PROFESSOR'),
+('Aluno Exemplo', 'aluno@sala-iot.local', '$2y$10$exemplo_hash_aluno', 'ALUNO');
 
 INSERT INTO roles_grupo (nome, descricao)
 VALUES
@@ -30,6 +35,8 @@ INSERT INTO grupos (professor_id, nome, descricao)
 VALUES
 (2, 'Grupo Ambiente', 'Grupo responsável pela monitorização ambiental'),
 (2, 'Grupo Investigacao', 'Grupo de investigação ligado à qualidade da água');
+
+UPDATE utilizadores SET grupo_id = 1 WHERE id = 3;
 
 INSERT INTO utilizador_grupos (utilizador_id, grupo_id, role_grupo_id)
 VALUES
@@ -56,7 +63,7 @@ INSERT INTO experiencias (nome, descricao, data_inicio, estado, grupo_id, criado
 VALUES
 (
     'Experiência Inicial Sala IoT',
-    'Experiência inicial para testar sensores de temperatura e TDS.',
+    'Experiência inicial para testar sensores de temperatura, TDS e pH.',
     CURRENT_TIMESTAMP,
     'CRIADA',
     1,
@@ -74,6 +81,7 @@ VALUES
 ('LOGOUT', 'Saída de utilizadores'),
 ('MQTT', 'Mensagens recebidas ou erros MQTT'),
 ('SENSOR', 'Eventos relacionados com sensores'),
+('COMANDO_SENSOR', 'Comandos remotos enviados aos sensores ou estações'),
 ('LEITURA', 'Registo de leituras dos sensores'),
 ('EXPERIENCIA', 'Eventos relacionados com experiências'),
 ('ESTACAO', 'Eventos relacionados com estações'),
@@ -147,11 +155,85 @@ VALUES (
     10
 );
 
+INSERT INTO regras_alerta_sensor (
+    professor_id,
+    grupo_id,
+    tipo_sensor,
+    operador,
+    valor_min,
+    valor_max,
+    titulo,
+    mensagem,
+    severidade,
+    cooldown_minutos
+)
+VALUES (
+    2,
+    1,
+    'PH',
+    'FORA_INTERVALO',
+    6.50,
+    8.50,
+    'pH fora do intervalo',
+    'O valor de pH está fora do intervalo esperado.',
+    'AVISO',
+    10
+);
+
+INSERT INTO configuracoes_sistema (chave, valor, tipo, descricao)
+VALUES
+('modo_manutencao', 'false', 'BOOLEAN', 'Modo manutenção'),
+('permitir_calibracao_professor', 'true', 'BOOLEAN', 'Permitir calibração por professores'),
+('permitir_controlo_remoto_professor', 'true', 'BOOLEAN', 'Permitir controlo remoto por professores'),
+('permitir_pedidos_intervalo', 'true', 'BOOLEAN', 'Permitir pedidos de alteração de intervalos'),
+
+('intervalo_minimo_ms', '1000', 'INTEIRO', 'Intervalo mínimo permitido em milissegundos'),
+('intervalo_maximo_ms', '300000', 'INTEIRO', 'Intervalo máximo permitido em milissegundos'),
+('intervalo_rapido_padrao_ms', '1000', 'INTEIRO', 'Intervalo rápido padrão'),
+('intervalo_estavel_padrao_ms', '30000', 'INTEIRO', 'Intervalo estável padrão'),
+('duracao_modo_rapido_padrao_ms', '120000', 'INTEIRO', 'Duração padrão do modo rápido'),
+
+('retencao_leituras_dias', '365', 'INTEIRO', 'Dias de retenção das leituras'),
+('retencao_logs_dias', '180', 'INTEIRO', 'Dias de retenção dos logs'),
+
+('mqtt_host', '192.168.4.1', 'TEXTO', 'Host do broker MQTT'),
+('mqtt_porta', '1883', 'INTEIRO', 'Porta do broker MQTT'),
+('mqtt_topico_base', 'esp32', 'TEXTO', 'Tópico base MQTT'),
+
+('timeout_sem_comunicacao_segundos', '120', 'INTEIRO', 'Tempo até considerar sensor sem comunicação')
+ON DUPLICATE KEY UPDATE
+    valor = VALUES(valor),
+    tipo = VALUES(tipo),
+    descricao = VALUES(descricao),
+    atualizado_em = CURRENT_TIMESTAMP;
+    
+INSERT IGNORE INTO configuracoes_modo_sensor (
+    sensor_id,
+    intervalo_rapido_ms,
+    intervalo_estavel_ms,
+    duracao_modo_rapido_ms,
+    delta_significativo
+)
+SELECT
+    s.id,
+    1000,
+    30000,
+    120000,
+    CASE
+        WHEN s.tipo = 'TEMPERATURA' THEN 0.20
+        WHEN s.tipo = 'TDS' THEN 5.00
+        WHEN s.tipo = 'PH' THEN 0.10
+        ELSE 1.00
+    END
+FROM sensores s;
+
 -- Leituras dummy dos sensores. Todos os valores começam a 0.00.
 CALL sp_registar_leitura_ativa('esp32_sala_01', 'TEMPERATURA', 0.00);
 CALL sp_registar_leitura_ativa('esp32_sala_01', 'TDS', 0.00);
+CALL sp_registar_leitura_ativa('esp32_sala_01', 'PH', 0.00);
 CALL sp_registar_leitura_ativa('esp32_movel_02', 'TEMPERATURA', 0.00);
 CALL sp_registar_leitura_ativa('esp32_movel_02', 'TDS', 0.00);
+CALL sp_registar_leitura_ativa('esp32_movel_02', 'PH', 0.00);
 
 CALL sp_registar_log(
     'SISTEMA',
@@ -162,8 +244,8 @@ CALL sp_registar_log(
     'DATABASE_INIT',
     'Base de dados inicializada com sucesso.',
     NULL,
-    'init_iot_room_reorganizado.sql',
-    JSON_OBJECT('database', 'iot_room', 'version', 'reorganizado')
+    'init_iot_room_completo.sql',
+    JSON_OBJECT('database', 'iot_room', 'version', 'completo_ph_comandos')
 );
 
 CALL sp_registar_log(
@@ -175,37 +257,9 @@ CALL sp_registar_log(
     'EXPERIENCIA_CRIADA',
     'Experiência inicial criada e associada a duas estações.',
     NULL,
-    'init_iot_room_reorganizado.sql',
+    'init_iot_room_completo.sql',
     JSON_OBJECT('experiencia_id', 1, 'total_estacoes', 2)
 );
 
-SELECT * FROM estacoes;
-SELECT * FROM sensores;
-SELECT * FROM utilizadores;
-SELECT * FROM grupos;
-SELECT * FROM roles_grupo;
-SELECT * FROM utilizador_grupos;
-SELECT * FROM permissoes_grupo_estacao;
-SELECT * FROM permissoes_utilizador_estacao;
-SELECT * FROM experiencias;
-SELECT * FROM experiencia_estacoes;
-SELECT * FROM leituras_sensor;
-SELECT * FROM avisos;
-SELECT * FROM forum_topicos;
-SELECT * FROM forum_respostas;
-SELECT * FROM regras_alerta_sensor;
-SELECT * FROM alertas_sensor;
-SELECT * FROM tipos_log;
-SELECT * FROM logs;
-SELECT * FROM logs_detalhes;
-
-SELECT * FROM vw_sensores_estacoes;
-SELECT * FROM vw_experiencias_estacoes;
-SELECT * FROM vw_experiencias_ativas_estacoes;
-SELECT * FROM vw_historico_leituras;
-SELECT * FROM vw_ultimas_leituras;
-SELECT * FROM vw_experiencias_resumo;
-SELECT * FROM vw_utilizadores_grupos;
-SELECT * FROM vw_acessos_estacoes;
-SELECT * FROM vw_alertas_sensor_resumo;
-SELECT * FROM vw_logs_completos;
+-- Verificação rápida
+SELECT 'POPULATE_OK' AS estado, COUNT(*) AS total_sensores FROM sensores;

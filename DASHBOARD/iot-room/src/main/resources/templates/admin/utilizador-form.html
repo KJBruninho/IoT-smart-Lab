@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${modo == 'editar'} ? 'Admin | Editar utilizador' : 'Admin | Novo utilizador'">
+        Admin | Utilizador
+    </title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1 th:text="${modo == 'editar'} ? 'Editar utilizador' : 'Novo utilizador'">
+                    Utilizador
+                </h1>
+                <p th:text="${modo == 'editar'} ? 'Atualiza os dados do utilizador.' : 'Cria um novo utilizador na plataforma.'">
+                    Gestão de utilizador.
+                </p>
+            </div>
+
+            <a class="btn btn-secondary" th:href="@{/admin/utilizadores}">
+                Voltar
+            </a>
+        </header>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="admin-panel form-panel">
+
+            <form th:object="${form}"
+                  th:action="${modo == 'editar'} ? @{/admin/utilizadores/{id}(id=${form.id})} : @{/admin/utilizadores}"
+                  method="post">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="nome">Nome</label>
+                        <input id="nome"
+                               type="text"
+                               th:field="*{nome}"
+                               placeholder="Nome do utilizador"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input id="email"
+                               type="email"
+                               th:field="*{email}"
+                               placeholder="email@exemplo.com"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" th:field="*{role}" required>
+                            <option value="ADMIN">Admin</option>
+                            <option value="PROFESSOR">Professor</option>
+                            <option value="ALUNO">Aluno</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" th:field="*{ativo}">
+                            Utilizador ativo
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"
+                            th:text="${modo == 'editar'} ? 'Guardar alterações' : 'Criar utilizador'">
+                        Guardar
+                    </button>
+
+                    <a th:href="@{/admin/utilizadores}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

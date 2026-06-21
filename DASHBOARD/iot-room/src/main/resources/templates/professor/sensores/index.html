@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sensores - Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body>
+
+<div class="professor-layout">
+
+    <aside class="professor-sidebar">
+        <div class="sidebar-logo">IoT Room</div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/professor}">Dashboard</a>
+            <a th:href="@{/professor/grupos}">Grupos</a>
+            <a th:href="@{/professor/experiencias}">Experiências</a>
+            <a th:href="@{/professor/dados}">Dados e Gráficos</a>
+            <a th:href="@{/professor/avisos}">Avisos</a>
+            <a th:href="@{/professor/alertas}">Alertas</a>
+            <a th:href="@{/professor/forum}">Fórum</a>
+            <a th:href="@{/professor/sensores}" class="active">Sensores</a>
+        </nav>
+    </aside>
+
+    <main class="professor-main">
+
+        <header class="professor-topbar">
+            <div>
+                <h1>Controlo de Sensores</h1>
+                <p>Calibração, ativação remota e configuração dos modos de envio.</p>
+            </div>
+
+            <a class="btn-primary" th:href="@{/professor/sensores/pedidos}">
+                Pedidos Pendentes
+            </a>
+        </header>
+
+        <section class="professor-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Sensores acessíveis</h2>
+                    <span>Sensores das estações atribuídas ao professor.</span>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(sensores)}" class="empty-state">
+                Não existem sensores disponíveis.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(sensores)}" class="sensor-grid">
+                <article th:each="sensor : ${sensores}" class="sensor-card">
+                    <div class="sensor-card-header">
+                        <div>
+                            <h3 th:text="${sensor.nome}">Sensor</h3>
+                            <p th:text="${sensor.estacao.nome + ' · ' + sensor.estacao.deviceId}">
+                                Estação
+                            </p>
+                        </div>
+
+                        <span class="status-badge"
+                              th:classappend="${sensor.remotoAtivo} ? ' status-active' : ' status-inactive'"
+                              th:text="${sensor.remotoAtivo} ? 'REMOTO ON' : 'REMOTO OFF'">
+                            Estado
+                        </span>
+                    </div>
+
+                    <div class="sensor-card-info">
+                        <span>Tipo</span>
+                        <strong th:text="${sensor.tipo}">TIPO</strong>
+                    </div>
+
+                    <div class="sensor-card-info">
+                        <span>Unidade</span>
+                        <strong th:text="${sensor.unidade}">unidade</strong>
+                    </div>
+
+                    <div class="sensor-card-info">
+                        <span>Fator</span>
+                        <strong th:text="${sensor.fatorCalibracao}">1.0000</strong>
+                    </div>
+
+                    <div class="sensor-card-info">
+                        <span>Offset</span>
+                        <strong th:text="${sensor.offsetCalibracao}">0.0000</strong>
+                    </div>
+
+                    <div class="form-actions">
+                        <a class="btn-small" th:href="@{/professor/sensores/{id}(id=${sensor.id})}">
+                            Gerir
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

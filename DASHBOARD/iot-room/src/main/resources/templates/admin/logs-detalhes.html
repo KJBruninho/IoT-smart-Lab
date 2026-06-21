@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin | Detalhe do log</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1>Detalhe do log</h1>
+                <p>
+                    Registo #
+                    <strong th:text="${log.id()}">1</strong>
+                </p>
+            </div>
+
+            <a class="btn btn-secondary" th:href="@{/admin/logs}">
+                Voltar aos logs
+            </a>
+        </header>
+
+        <section class="admin-panel">
+
+            <div class="log-detail-header">
+
+                <div>
+                    <span class="stat-label">Tipo</span>
+                    <strong th:text="${log.tipoLog()}">TIPO</strong>
+                </div>
+
+                <div>
+                    <span class="stat-label">Nível</span>
+                    <span class="badge"
+                          th:classappend="${log.nivel() == 'ERROR' || log.nivel() == 'CRITICAL'} ? 'badge-error' :
+                                          (${log.nivel() == 'WARNING'} ? 'badge-warning' :
+                                          (${log.nivel() == 'INFO'} ? 'badge-info' : 'badge-muted'))"
+                          th:text="${log.nivel()}">
+                        INFO
+                    </span>
+                </div>
+
+                <div>
+                    <span class="stat-label">Data</span>
+                    <strong th:text="${log.criadoEm() != null ? #temporals.format(log.criadoEm(), 'dd/MM/yyyy HH:mm:ss') : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div>
+                    <span class="stat-label">Ação</span>
+                    <strong th:text="${log.acao()}">AÇÃO</strong>
+                </div>
+
+            </div>
+
+            <div class="log-detail-section">
+                <h2>Mensagem</h2>
+                <p th:text="${log.mensagem() != null ? log.mensagem() : 'Sem mensagem.'}">
+                    Mensagem
+                </p>
+            </div>
+
+            <div class="log-detail-grid">
+
+                <div class="log-detail-box">
+                    <h3>Utilizador</h3>
+
+                    <p th:if="${log.utilizadorId() != null}">
+                        <strong>ID:</strong>
+                        <span th:text="${log.utilizadorId()}">1</span>
+                    </p>
+
+                    <p th:if="${log.utilizadorEmail() != null}">
+                        <strong>Email:</strong>
+                        <span th:text="${log.utilizadorEmail()}">email</span>
+                    </p>
+
+                    <p class="muted" th:if="${log.utilizadorId() == null && log.utilizadorEmail() == null}">
+                        Sem utilizador associado.
+                    </p>
+                </div>
+
+                <div class="log-detail-box">
+                    <h3>Estação</h3>
+
+                    <p th:if="${log.estacaoId() != null}">
+                        <strong>ID:</strong>
+                        <span th:text="${log.estacaoId()}">1</span>
+                    </p>
+
+                    <p th:if="${log.deviceId() != null}">
+                        <strong>Device ID:</strong>
+                        <code th:text="${log.deviceId()}">esp32</code>
+                    </p>
+
+                    <p class="muted" th:if="${log.estacaoId() == null && log.deviceId() == null}">
+                        Sem estação associada.
+                    </p>
+                </div>
+
+                <div class="log-detail-box">
+                    <h3>Experiência</h3>
+
+                    <p th:if="${log.experienciaId() != null}">
+                        <strong>ID:</strong>
+                        <span th:text="${log.experienciaId()}">1</span>
+                    </p>
+
+                    <p th:if="${log.experiencia() != null}">
+                        <strong>Nome:</strong>
+                        <span th:text="${log.experiencia()}">Experiência</span>
+                    </p>
+
+                    <p class="muted" th:if="${log.experienciaId() == null && log.experiencia() == null}">
+                        Sem experiência associada.
+                    </p>
+                </div>
+
+                <div class="log-detail-box">
+                    <h3>Origem técnica</h3>
+
+                    <p th:if="${log.ip() != null}">
+                        <strong>IP:</strong>
+                        <span th:text="${log.ip()}">127.0.0.1</span>
+                    </p>
+
+                    <p th:if="${log.dispositivo() != null}">
+                        <strong>Dispositivo:</strong>
+                        <span th:text="${log.dispositivo()}">dispositivo</span>
+                    </p>
+
+                    <p class="muted" th:if="${log.ip() == null && log.dispositivo() == null}">
+                        Sem dados técnicos.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="log-detail-section" th:if="${log.dados() != null && !log.dados().isBlank()}">
+                <h2>Dados adicionais</h2>
+                <pre class="json-box" th:text="${log.dados()}">{}</pre>
+            </div>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

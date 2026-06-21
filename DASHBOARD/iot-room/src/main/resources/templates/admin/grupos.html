@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin | Grupos</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1>Grupos</h1>
+                <p>Gestão dos grupos de alunos e respetivas permissões.</p>
+            </div>
+
+            <a class="btn btn-primary" th:href="@{/admin/grupos/novo}">
+                Novo grupo
+            </a>
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}"></span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="admin-panel">
+            <form class="filter-form" th:action="@{/admin/grupos}" method="get">
+
+                <div class="form-group">
+                    <label for="termo">Pesquisar</label>
+                    <input id="termo"
+                           type="text"
+                           name="termo"
+                           placeholder="Nome ou descrição"
+                           th:value="${termo}">
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado">
+                        <option value="">Todos</option>
+                        <option value="ativo" th:selected="${estado == 'ativo'}">Ativos</option>
+                        <option value="inativo" th:selected="${estado == 'inativo'}">Inativos</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a th:href="@{/admin/grupos}" class="btn btn-secondary">Limpar</a>
+                </div>
+
+            </form>
+        </section>
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+                <h2>Lista de grupos</h2>
+                <span class="muted">
+                    Total:
+                    <strong th:text="${#lists.size(grupos)}">0</strong>
+                </span>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(grupos)}">
+                Nenhum grupo encontrado.
+            </div>
+
+            <table class="admin-table" th:if="${!#lists.isEmpty(grupos)}">
+                <thead>
+                <tr>
+                    <th>Grupo</th>
+                    <th>Descrição</th>
+                    <th>Alunos</th>
+                    <th>Estações</th>
+                    <th>Estado</th>
+                    <th>Criado em</th>
+                    <th class="actions-column">Ações</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="grupo : ${grupos}">
+                    <td>
+                        <strong th:text="${grupo.nome()}">Grupo</strong>
+                    </td>
+
+                    <td class="muted"
+                        th:text="${grupo.descricao() != null && !grupo.descricao().isBlank() ? grupo.descricao() : '-'}">
+                        -
+                    </td>
+
+                    <td>
+                        <span class="badge badge-info" th:text="${grupo.totalAlunos()}">0</span>
+                    </td>
+
+                    <td>
+                        <span class="badge badge-warning" th:text="${grupo.totalEstacoes()}">0</span>
+                    </td>
+
+                    <td>
+                        <span class="status-pill"
+                              th:classappend="${grupo.ativo()} ? 'status-active' : 'status-inactive'"
+                              th:text="${grupo.ativo()} ? 'Ativo' : 'Inativo'">
+                            Ativo
+                        </span>
+                    </td>
+
+                    <td th:text="${grupo.criadoEm() != null ? #temporals.format(grupo.criadoEm(), 'dd/MM/yyyy HH:mm') : '-'}">
+                        -
+                    </td>
+
+                    <td class="table-actions">
+						<td class="table-actions">
+						    <a class="btn btn-small btn-primary"
+						       th:href="@{/admin/grupos/{id}/estacoes(id=${grupo.id()})}">
+						        Estações
+						    </a>
+
+						    <a class="btn btn-small btn-secondary"
+						       th:href="@{/admin/grupos/{id}/editar(id=${grupo.id()})}">
+						        Editar
+						    </a>
+
+						    <form th:action="@{/admin/grupos/{id}/estado(id=${grupo.id()})}"
+						          method="post"
+						          class="inline-form">
+						        <button type="submit"
+						                class="btn btn-small"
+						                th:classappend="${grupo.ativo()} ? 'btn-danger' : 'btn-success'"
+						                th:text="${grupo.ativo()} ? 'Desativar' : 'Ativar'">
+						            Alterar
+						        </button>
+						    </form>
+						</td>
+                        <form th:action="@{/admin/grupos/{id}/estado(id=${grupo.id()})}"
+                              method="post"
+                              class="inline-form">
+                            <button type="submit"
+                                    class="btn btn-small"
+                                    th:classappend="${grupo.ativo()} ? 'btn-danger' : 'btn-success'"
+                                    th:text="${grupo.ativo()} ? 'Desativar' : 'Ativar'">
+                                Alterar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

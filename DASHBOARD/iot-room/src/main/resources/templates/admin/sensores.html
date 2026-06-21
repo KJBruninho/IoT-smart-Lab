@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin | Sensores</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1>Sensores</h1>
+                <p>Gestão dos sensores, calibração e configuração de envio adaptativo.</p>
+            </div>
+
+            <a class="btn btn-primary" th:href="@{/admin/sensores/novo}">
+                Novo sensor
+            </a>
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}"></span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="admin-panel">
+            <form class="filter-form" th:action="@{/admin/sensores}" method="get">
+
+                <div class="form-group">
+                    <label for="estacaoId">Estação</label>
+                    <select id="estacaoId" name="estacaoId">
+                        <option value="">Todas</option>
+                        <option th:each="estacao : ${estacoes}"
+                                th:value="${estacao.id()}"
+                                th:selected="${estacaoId != null && estacaoId == estacao.id()}"
+                                th:text="${estacao.nome() + ' (' + estacao.deviceId() + ')'}">
+                            Estação
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo">
+                        <option value="">Todos</option>
+                        <option value="TEMPERATURA" th:selected="${tipo == 'TEMPERATURA'}">Temperatura</option>
+                        <option value="TDS" th:selected="${tipo == 'TDS'}">TDS</option>
+                        <option value="PH" th:selected="${tipo == 'PH'}">pH</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado">
+                        <option value="">Todos</option>
+                        <option value="ativo" th:selected="${estado == 'ativo'}">Ativos na BD</option>
+                        <option value="inativo" th:selected="${estado == 'inativo'}">Inativos na BD</option>
+                        <option value="remoto_ativo" th:selected="${estado == 'remoto_ativo'}">Ativos no ESP32</option>
+                        <option value="remoto_inativo" th:selected="${estado == 'remoto_inativo'}">Desligados no ESP32</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a th:href="@{/admin/sensores}" class="btn btn-secondary">Limpar</a>
+                </div>
+
+            </form>
+        </section>
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+                <h2>Lista de sensores</h2>
+                <span class="muted">
+                    Total:
+                    <strong th:text="${#lists.size(sensores)}">0</strong>
+                </span>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(sensores)}">
+                Nenhum sensor encontrado.
+            </div>
+
+            <table class="admin-table" th:if="${!#lists.isEmpty(sensores)}">
+                <thead>
+                <tr>
+                    <th>Sensor</th>
+                    <th>Tipo</th>
+                    <th>Estação</th>
+                    <th>Última leitura</th>
+                    <th>Calibração</th>
+                    <th>Intervalos</th>
+                    <th>Estado</th>
+                    <th class="actions-column actions-column-wide">Ações</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="sensor : ${sensores}">
+                    <td>
+                        <strong th:text="${sensor.nome()}">Sensor</strong>
+                        <div class="muted">
+                            ID:
+                            <span th:text="${sensor.id()}">1</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="badge"
+                              th:classappend="${sensor.tipo() == 'TEMPERATURA'} ? 'badge-info' : (${sensor.tipo() == 'TDS'} ? 'badge-warning' : 'badge-success-soft')"
+                              th:text="${sensor.tipo()}">
+                            TIPO
+                        </span>
+                        <div class="muted" th:text="${sensor.unidade()}">unidade</div>
+                    </td>
+
+                    <td>
+                        <strong th:text="${sensor.estacaoNome()}">Estação</strong>
+                        <div>
+                            <code th:text="${sensor.deviceId()}">esp32</code>
+                        </div>
+                    </td>
+
+					<td>
+					    <strong th:if="${sensor.ultimaLeituraValor() != null}"
+					            th:text="${#numbers.formatDecimal(sensor.ultimaLeituraValor(), 1, 2) + ' ' + sensor.unidade()}">
+					        Sem dados
+					    </strong>
+
+					    <strong th:if="${sensor.ultimaLeituraValor() == null}" class="muted">
+					        Sem dados
+					    </strong>
+
+					    <div class="muted"
+					         th:text="${sensor.ultimaLeituraEm() != null ? #temporals.format(sensor.ultimaLeituraEm(), 'dd/MM/yyyy HH:mm:ss') : '-'}">
+					        -
+					    </div>
+					</td>
+
+                    <td>
+                        <div>
+                            Fator:
+                            <strong th:text="${sensor.fatorCalibracao()}">1.000000</strong>
+                        </div>
+                        <div class="muted">
+                            Offset:
+                            <span th:text="${sensor.offsetCalibracao()}">0.000000</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div>
+                            Rápido:
+                            <strong th:text="${sensor.intervaloRapidoMs() != null ? sensor.intervaloRapidoMs() + ' ms' : '-'}">
+                                -
+                            </strong>
+                        </div>
+                        <div class="muted">
+                            Estável:
+                            <span th:text="${sensor.intervaloEstavelMs() != null ? sensor.intervaloEstavelMs() + ' ms' : '-'}">
+                                -
+                            </span>
+                        </div>
+                    </td>
+
+					<td>
+					    <span class="status-pill"
+					          th:classappend="${sensor.estadoOperacional() == 'ONLINE'} ? 'status-active' :
+					                          (${sensor.estadoOperacional() == 'SEM_COMUNICACAO'} ? 'status-warning' :
+					                          (${sensor.estadoOperacional() == 'SEM_DADOS'} ? 'status-warning' :
+					                          'status-inactive'))"
+					          th:text="${sensor.estadoOperacional() == 'ONLINE'} ? 'Online' :
+					                   (${sensor.estadoOperacional() == 'SEM_COMUNICACAO'} ? 'Sem comunicação' :
+					                   (${sensor.estadoOperacional() == 'SEM_DADOS'} ? 'Sem dados' :
+					                   (${sensor.estadoOperacional() == 'INATIVO_BD'} ? 'Inativo na BD' :
+					                   'Desligado no ESP32')))">
+					        Estado
+					    </span>
+
+					    <div class="muted margin-top-small"
+					         th:if="${sensor.ultimaLeituraEm() != null}"
+					         th:text="${sensor.segundosDesdeUltimaLeitura() != null ? 'Última leitura há ' + sensor.segundosDesdeUltimaLeitura() + 's' : ''}">
+					        Última leitura
+					    </div>
+
+					    <div class="muted margin-top-small"
+					         th:if="${sensor.ultimaLeituraEm() == null}">
+					        Nunca recebeu leitura.
+					    </div>
+					</td>
+
+                    <td class="table-actions table-actions-wrap">
+                        <a class="btn btn-small btn-secondary"
+                           th:href="@{/admin/sensores/{id}/editar(id=${sensor.id()})}">
+                            Editar
+                        </a>
+
+                        <form th:action="@{/admin/sensores/{id}/estado(id=${sensor.id()})}"
+                              method="post"
+                              class="inline-form">
+                            <button type="submit"
+                                    class="btn btn-small"
+                                    th:classappend="${sensor.ativo()} ? 'btn-danger' : 'btn-success'"
+                                    th:text="${sensor.ativo()} ? 'Desativar BD' : 'Ativar BD'">
+                                Estado
+                            </button>
+                        </form>
+
+                        <form th:action="@{/admin/sensores/{id}/remoto(id=${sensor.id()})}"
+                              method="post"
+                              class="inline-form">
+                            <button type="submit"
+                                    class="btn btn-small"
+                                    th:classappend="${sensor.remotoAtivo()} ? 'btn-danger' : 'btn-success'"
+                                    th:text="${sensor.remotoAtivo()} ? 'Desligar ESP32' : 'Ligar ESP32'">
+                                Remoto
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

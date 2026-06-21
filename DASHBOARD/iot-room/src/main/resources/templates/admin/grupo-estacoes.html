@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin | Estações do grupo</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1>Estações do grupo</h1>
+                <p>
+                    Grupo:
+                    <strong th:text="${grupo.nome()}">Grupo</strong>
+                </p>
+            </div>
+
+            <a class="btn btn-secondary" th:href="@{/admin/grupos}">
+                Voltar aos grupos
+            </a>
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}"></span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Permissões de acesso</h2>
+                    <p class="muted">
+                        Seleciona as estações que este grupo pode usar ou visualizar.
+                    </p>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(estacoes)}">
+                Ainda não existem estações registadas.
+            </div>
+
+            <form th:if="${!#lists.isEmpty(estacoes)}"
+                  th:action="@{/admin/grupos/{id}/estacoes(id=${grupo.id()})}"
+                  method="post">
+
+                <div class="permission-grid">
+
+                    <label class="permission-card"
+                           th:each="estacao : ${estacoes}"
+                           th:classappend="${estacao.permitida()} ? 'permission-card-selected' : ''">
+
+                        <div class="permission-card-main">
+                            <input type="checkbox"
+                                   name="estacaoIds"
+                                   th:value="${estacao.id()}"
+                                   th:checked="${estacao.permitida()}">
+
+                            <div>
+                                <strong th:text="${estacao.nome()}">Estação</strong>
+
+                                <p class="muted">
+                                    Device ID:
+                                    <span th:text="${estacao.deviceId()}">ESP32</span>
+                                </p>
+
+                                <p class="muted">
+                                    Localização:
+                                    <span th:text="${estacao.localizacao() != null && !estacao.localizacao().isBlank() ? estacao.localizacao() : '-'}">
+                                        -
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="permission-card-footer">
+                            <span class="status-pill"
+                                  th:classappend="${estacao.ativa()} ? 'status-active' : 'status-inactive'"
+                                  th:text="${estacao.ativa()} ? 'Ativa' : 'Inativa'">
+                                Ativa
+                            </span>
+
+                            <span class="badge badge-info">
+                                <span th:text="${estacao.totalSensores()}">0</span>
+                                sensores
+                            </span>
+                        </div>
+
+                    </label>
+
+                </div>
+
+                <div class="form-actions margin-top">
+                    <button type="submit" class="btn btn-primary">
+                        Guardar permissões
+                    </button>
+
+                    <a th:href="@{/admin/grupos}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>
