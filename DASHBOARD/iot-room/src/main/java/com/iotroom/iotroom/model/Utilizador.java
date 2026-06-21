@@ -17,7 +17,7 @@ public class Utilizador {
     @Column(nullable = false, length = 150)
     private String email;
 
-    @Column(name = "tipo_utilizador")
+    @Column(name = "role")
     private String tipoUtilizador;
 
     @Column(nullable = false)
