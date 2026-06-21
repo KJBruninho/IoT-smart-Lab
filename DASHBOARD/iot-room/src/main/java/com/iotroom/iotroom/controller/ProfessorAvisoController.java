@@ -2,7 +2,9 @@ package com.iotroom.iotroom.controller;
 
 import com.iotroom.iotroom.dto.AvisoFormDTO;
 import com.iotroom.iotroom.model.Aviso;
+import com.iotroom.iotroom.security.AuthenticatedUser;
 import com.iotroom.iotroom.service.ProfessorAvisoService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +22,8 @@ public class ProfessorAvisoController {
     }
 
     @GetMapping
-    public String index(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String index(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         List<Aviso> avisos = professorAvisoService.listarAvisosDoProfessor(professorId);
 
@@ -40,8 +42,11 @@ public class ProfessorAvisoController {
     }
 
     @PostMapping("/novo")
-    public String criar(@ModelAttribute("avisoForm") AvisoFormDTO avisoForm) {
-        Long professorId = obterProfessorIdTemporario();
+    public String criar(
+            @ModelAttribute("avisoForm") AvisoFormDTO avisoForm,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Aviso avisoCriado = professorAvisoService.criarAviso(professorId, avisoForm);
 
@@ -49,8 +54,12 @@ public class ProfessorAvisoController {
     }
 
     @GetMapping("/{id}")
-    public String ver(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String ver(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Aviso aviso = professorAvisoService.obterAvisoDoProfessor(id, professorId);
 
@@ -61,8 +70,12 @@ public class ProfessorAvisoController {
     }
 
     @GetMapping("/{id}/editar")
-    public String editar(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String editar(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Aviso aviso = professorAvisoService.obterAvisoDoProfessor(id, professorId);
 
@@ -75,9 +88,10 @@ public class ProfessorAvisoController {
     @PostMapping("/{id}/editar")
     public String atualizar(
             @PathVariable Long id,
-            @ModelAttribute("avisoForm") AvisoFormDTO avisoForm
+            @ModelAttribute("avisoForm") AvisoFormDTO avisoForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAvisoService.atualizarAviso(id, professorId, avisoForm);
 
@@ -85,15 +99,19 @@ public class ProfessorAvisoController {
     }
 
     @PostMapping("/{id}/alternar-estado")
-    public String alternarEstado(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String alternarEstado(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAvisoService.alternarEstado(id, professorId);
 
         return "redirect:/professor/avisos";
     }
 
-    private Long obterProfessorIdTemporario() {
-        return 1L;
+    private Long obterUtilizadorId(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return user.getId();
     }
 }

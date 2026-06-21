@@ -47,4 +47,33 @@ public interface SensorRepository extends JpaRepository<Sensor, Long> {
             @Param("sensorId") Long sensorId,
             @Param("professorId") Long professorId
     );
+    
+
+    @Query("""
+           SELECT s
+           FROM Sensor s
+           LEFT JOIN FETCH s.estacao
+           ORDER BY s.id
+           """)
+    List<Sensor> findAllComEstacao();
+
+    @Query("""
+           SELECT s
+           FROM Sensor s
+           LEFT JOIN FETCH s.estacao
+           WHERE s.tipo = :tipo
+           ORDER BY s.id
+           """)
+    List<Sensor> findByTipoComEstacao(String tipo);
+
+    @Query("""
+           SELECT s
+           FROM Sensor s
+           LEFT JOIN FETCH s.estacao
+           WHERE s.estacao.id = :estacaoId
+           ORDER BY s.id
+           """)
+    List<Sensor> findByEstacaoIdComEstacao(Long estacaoId);
 }
+
+

@@ -1,7 +1,9 @@
 package com.iotroom.iotroom.controller;
 
 import com.iotroom.iotroom.dto.ProfessorDashboardResumoDTO;
+import com.iotroom.iotroom.security.AuthenticatedUser;
 import com.iotroom.iotroom.service.ProfessorDashboardService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +18,11 @@ public class ProfessorController {
     }
 
     @GetMapping("/professor")
-    public String dashboardProfessor(Model model) {
-        Long professorId = 2L;
+    public String dashboardProfessor(
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         ProfessorDashboardResumoDTO dashboard =
                 professorDashboardService.obterDashboard(professorId);
@@ -26,5 +31,10 @@ public class ProfessorController {
         model.addAttribute("paginaAtual", "dashboard");
 
         return "professor/index";
+    }
+
+    private Long obterUtilizadorId(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return user.getId();
     }
 }

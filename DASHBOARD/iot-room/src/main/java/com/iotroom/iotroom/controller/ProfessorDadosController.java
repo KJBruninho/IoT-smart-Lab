@@ -2,7 +2,9 @@ package com.iotroom.iotroom.controller;
 
 import com.iotroom.iotroom.dto.ComparacaoFiltroDTO;
 import com.iotroom.iotroom.dto.ComparacaoSerieDTO;
+import com.iotroom.iotroom.security.AuthenticatedUser;
 import com.iotroom.iotroom.service.ProfessorDadosService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,9 +52,10 @@ public class ProfessorDadosController {
             @RequestParam(required = false, defaultValue = "TEMPERATURA") String tipoSensor4,
             @RequestParam(required = false, defaultValue = "50") Integer limite4,
 
-            Model model
+            Model model,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         int totalComparacoes = normalizarNumeroComparacoes(numeroComparacoes);
 
@@ -103,7 +106,8 @@ public class ProfessorDadosController {
         return numeroComparacoes;
     }
 
-    private Long obterProfessorIdTemporario() {
-        return 1L;
+    private Long obterUtilizadorId(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return user.getId();
     }
 }

@@ -3,7 +3,9 @@ package com.iotroom.iotroom.controller;
 import com.iotroom.iotroom.dto.ForumRespostaFormDTO;
 import com.iotroom.iotroom.dto.ForumTopicoFormDTO;
 import com.iotroom.iotroom.model.ForumTopico;
+import com.iotroom.iotroom.security.AuthenticatedUser;
 import com.iotroom.iotroom.service.ProfessorForumService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +21,8 @@ public class ProfessorForumController {
     }
 
     @GetMapping
-    public String index(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String index(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         model.addAttribute("topicos", professorForumService.listarTopicos(professorId));
         model.addAttribute("nomesGrupos", professorForumService.obterNomesGrupos(professorId));
@@ -31,8 +33,8 @@ public class ProfessorForumController {
     }
 
     @GetMapping("/novo")
-    public String novo(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String novo(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         model.addAttribute("topicoForm", professorForumService.criarFormVazio());
         model.addAttribute("grupos", professorForumService.listarGrupos(professorId));
@@ -43,8 +45,11 @@ public class ProfessorForumController {
     }
 
     @PostMapping("/novo")
-    public String criar(@ModelAttribute("topicoForm") ForumTopicoFormDTO topicoForm) {
-        Long professorId = obterProfessorIdTemporario();
+    public String criar(
+            @ModelAttribute("topicoForm") ForumTopicoFormDTO topicoForm,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         ForumTopico topico = professorForumService.criarTopico(professorId, topicoForm);
 
@@ -52,8 +57,12 @@ public class ProfessorForumController {
     }
 
     @GetMapping("/{id}")
-    public String ver(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String ver(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         ForumTopico topico = professorForumService.obterTopico(id, professorId);
 
@@ -68,8 +77,12 @@ public class ProfessorForumController {
     }
 
     @GetMapping("/{id}/editar")
-    public String editar(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String editar(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         ForumTopico topico = professorForumService.obterTopico(id, professorId);
 
@@ -84,9 +97,10 @@ public class ProfessorForumController {
     @PostMapping("/{id}/editar")
     public String atualizar(
             @PathVariable Long id,
-            @ModelAttribute("topicoForm") ForumTopicoFormDTO topicoForm
+            @ModelAttribute("topicoForm") ForumTopicoFormDTO topicoForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorForumService.atualizarTopico(id, professorId, topicoForm);
 
@@ -96,9 +110,10 @@ public class ProfessorForumController {
     @PostMapping("/{id}/responder")
     public String responder(
             @PathVariable Long id,
-            @ModelAttribute("respostaForm") ForumRespostaFormDTO respostaForm
+            @ModelAttribute("respostaForm") ForumRespostaFormDTO respostaForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorForumService.responder(id, professorId, respostaForm);
 
@@ -106,8 +121,11 @@ public class ProfessorForumController {
     }
 
     @PostMapping("/{id}/fechar")
-    public String fechar(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String fechar(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorForumService.fecharTopico(id, professorId);
 
@@ -115,15 +133,19 @@ public class ProfessorForumController {
     }
 
     @PostMapping("/{id}/reabrir")
-    public String reabrir(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String reabrir(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorForumService.reabrirTopico(id, professorId);
 
         return "redirect:/professor/forum/" + id;
     }
 
-    private Long obterProfessorIdTemporario() {
-        return 1L;
+    private Long obterUtilizadorId(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return user.getId();
     }
 }

@@ -1,11 +1,13 @@
 package com.iotroom.iotroom.controller;
 
-import com.iotroom.iotroom.dto.GrupoMembroFormDTO;
 import com.iotroom.iotroom.dto.GrupoFormDTO;
+import com.iotroom.iotroom.dto.GrupoMembroFormDTO;
 import com.iotroom.iotroom.model.Grupo;
+import com.iotroom.iotroom.security.AuthenticatedUser;
 import com.iotroom.iotroom.service.PermissaoGrupoEstacaoService;
 import com.iotroom.iotroom.service.ProfessorGrupoMembroService;
 import com.iotroom.iotroom.service.ProfessorGrupoService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,23 +18,23 @@ import java.util.List;
 @RequestMapping("/professor/grupos")
 public class ProfessorGrupoController {
 
-	private final ProfessorGrupoMembroService professorGrupoMembroService;
-	private final ProfessorGrupoService professorGrupoService;
-	private final PermissaoGrupoEstacaoService permissaoGrupoEstacaoService;
+    private final ProfessorGrupoMembroService professorGrupoMembroService;
+    private final ProfessorGrupoService professorGrupoService;
+    private final PermissaoGrupoEstacaoService permissaoGrupoEstacaoService;
 
-	public ProfessorGrupoController(
-	        ProfessorGrupoService professorGrupoService,
-	        ProfessorGrupoMembroService professorGrupoMembroService,
-	        PermissaoGrupoEstacaoService permissaoGrupoEstacaoService
-	) {
-	    this.professorGrupoMembroService = professorGrupoMembroService;
-	    this.professorGrupoService = professorGrupoService;
-	    this.permissaoGrupoEstacaoService = permissaoGrupoEstacaoService;
-	}
+    public ProfessorGrupoController(
+            ProfessorGrupoService professorGrupoService,
+            ProfessorGrupoMembroService professorGrupoMembroService,
+            PermissaoGrupoEstacaoService permissaoGrupoEstacaoService
+    ) {
+        this.professorGrupoMembroService = professorGrupoMembroService;
+        this.professorGrupoService = professorGrupoService;
+        this.permissaoGrupoEstacaoService = permissaoGrupoEstacaoService;
+    }
 
     @GetMapping
-    public String index(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String index(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         List<Grupo> grupos = professorGrupoService.listarGruposDoProfessor(professorId);
 
@@ -51,8 +53,11 @@ public class ProfessorGrupoController {
     }
 
     @PostMapping("/novo")
-    public String criar(@ModelAttribute("grupoForm") GrupoFormDTO grupoForm) {
-        Long professorId = obterProfessorIdTemporario();
+    public String criar(
+            @ModelAttribute("grupoForm") GrupoFormDTO grupoForm,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Grupo grupoCriado = professorGrupoService.criarGrupo(professorId, grupoForm);
 
@@ -60,8 +65,12 @@ public class ProfessorGrupoController {
     }
 
     @GetMapping("/{id}")
-    public String ver(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String ver(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Grupo grupo = professorGrupoService.obterGrupoDoProfessor(id, professorId);
 
@@ -76,8 +85,12 @@ public class ProfessorGrupoController {
     }
 
     @GetMapping("/{id}/editar")
-    public String editar(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String editar(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Grupo grupo = professorGrupoService.obterGrupoDoProfessor(id, professorId);
 
@@ -90,9 +103,10 @@ public class ProfessorGrupoController {
     @PostMapping("/{id}/editar")
     public String atualizar(
             @PathVariable Long id,
-            @ModelAttribute("grupoForm") GrupoFormDTO grupoForm
+            @ModelAttribute("grupoForm") GrupoFormDTO grupoForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorGrupoService.atualizarGrupo(id, professorId, grupoForm);
 
@@ -100,17 +114,24 @@ public class ProfessorGrupoController {
     }
 
     @PostMapping("/{id}/alternar-estado")
-    public String alternarEstado(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String alternarEstado(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorGrupoService.alternarEstado(id, professorId);
 
         return "redirect:/professor/grupos";
     }
-    
+
     @GetMapping("/{id}/estacoes")
-    public String gerirEstacoesDoGrupo(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String gerirEstacoesDoGrupo(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Grupo grupo = professorGrupoService.obterGrupoDoProfessor(id, professorId);
 
@@ -125,9 +146,10 @@ public class ProfessorGrupoController {
     @PostMapping("/{id}/estacoes")
     public String guardarEstacoesDoGrupo(
             @PathVariable Long id,
-            @RequestParam(required = false) List<Long> estacaoIds
+            @RequestParam(required = false) List<Long> estacaoIds,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorGrupoService.obterGrupoDoProfessor(id, professorId);
 
@@ -135,13 +157,14 @@ public class ProfessorGrupoController {
 
         return "redirect:/professor/grupos/" + id + "/estacoes";
     }
-    
+
     @PostMapping("/{id}/membros/adicionar")
     public String adicionarMembro(
             @PathVariable Long id,
-            @ModelAttribute("membroForm") GrupoMembroFormDTO membroForm
+            @ModelAttribute("membroForm") GrupoMembroFormDTO membroForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorGrupoMembroService.adicionarMembro(id, professorId, membroForm);
 
@@ -152,9 +175,10 @@ public class ProfessorGrupoController {
     public String alterarRoleMembro(
             @PathVariable Long id,
             @PathVariable Long utilizadorId,
-            @RequestParam Long roleGrupoId
+            @RequestParam Long roleGrupoId,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorGrupoMembroService.alterarRole(id, utilizadorId, professorId, roleGrupoId);
 
@@ -164,20 +188,18 @@ public class ProfessorGrupoController {
     @PostMapping("/{id}/membros/{utilizadorId}/remover")
     public String removerMembro(
             @PathVariable Long id,
-            @PathVariable Long utilizadorId
+            @PathVariable Long utilizadorId,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorGrupoMembroService.removerMembro(id, utilizadorId, professorId);
 
         return "redirect:/professor/grupos/" + id;
     }
 
-    private Long obterProfessorIdTemporario() {
-        /*
-         * Temporário.
-         * Depois substituímos pelo utilizador autenticado.
-         */
-        return 1L;
+    private Long obterUtilizadorId(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return user.getId();
     }
 }

@@ -3,7 +3,9 @@ package com.iotroom.iotroom.controller;
 import com.iotroom.iotroom.dto.ExperienciaEstacaoFormDTO;
 import com.iotroom.iotroom.dto.ExperienciaFormDTO;
 import com.iotroom.iotroom.model.Experiencia;
+import com.iotroom.iotroom.security.AuthenticatedUser;
 import com.iotroom.iotroom.service.ProfessorExperienciaService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +23,8 @@ public class ProfessorExperienciaController {
     }
 
     @GetMapping
-    public String index(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String index(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         List<Experiencia> experiencias = professorExperienciaService.listarExperienciasDoProfessor(professorId);
 
@@ -34,8 +36,8 @@ public class ProfessorExperienciaController {
     }
 
     @GetMapping("/nova")
-    public String nova(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String nova(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         model.addAttribute("experienciaForm", professorExperienciaService.criarFormVazio());
         model.addAttribute("grupos", professorExperienciaService.listarGruposDisponiveis(professorId));
@@ -45,52 +47,46 @@ public class ProfessorExperienciaController {
     }
 
     @PostMapping("/nova")
-    public String criar(@ModelAttribute("experienciaForm") ExperienciaFormDTO experienciaForm) {
-        Long professorId = obterProfessorIdTemporario();
+    public String criar(
+            @ModelAttribute("experienciaForm") ExperienciaFormDTO experienciaForm,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
-        Experiencia experienciaCriada = professorExperienciaService.criarExperiencia(
-                professorId,
-                experienciaForm
-        );
+        Experiencia experienciaCriada =
+                professorExperienciaService.criarExperiencia(professorId, experienciaForm);
 
         return "redirect:/professor/experiencias/" + experienciaCriada.getId();
     }
 
     @GetMapping("/{id}")
-    public String ver(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String ver(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Experiencia experiencia = professorExperienciaService.obterExperienciaDoProfessor(id, professorId);
 
         model.addAttribute("experiencia", experiencia);
         model.addAttribute("nomesGrupos", professorExperienciaService.obterNomesDosGrupos(professorId));
         model.addAttribute("paginaAtual", "experiencias");
-        model.addAttribute(
-                "estacoesAssociadas",
-                professorExperienciaService.listarEstacoesDaExperiencia(id, professorId)
-        );
-
-        model.addAttribute(
-                "estacoesDisponiveis",
-                professorExperienciaService.listarEstacoesDisponiveisParaExperiencia(id, professorId)
-        );
-
-        model.addAttribute(
-                "estacoesMap",
-                professorExperienciaService.obterMapaEstacoes(id, professorId)
-        );
-
+        model.addAttribute("estacoesAssociadas", professorExperienciaService.listarEstacoesDaExperiencia(id, professorId));
+        model.addAttribute("estacoesDisponiveis", professorExperienciaService.listarEstacoesDisponiveisParaExperiencia(id, professorId));
+        model.addAttribute("estacoesMap", professorExperienciaService.obterMapaEstacoes(id, professorId));
         model.addAttribute("estacaoForm", new ExperienciaEstacaoFormDTO());
 
         return "professor/experiencias/ver";
     }
-    
+
     @PostMapping("/{id}/estacoes/adicionar")
     public String adicionarEstacao(
             @PathVariable Long id,
-            @ModelAttribute("estacaoForm") ExperienciaEstacaoFormDTO estacaoForm
+            @ModelAttribute("estacaoForm") ExperienciaEstacaoFormDTO estacaoForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorExperienciaService.associarEstacao(id, professorId, estacaoForm);
 
@@ -100,9 +96,10 @@ public class ProfessorExperienciaController {
     @PostMapping("/{id}/estacoes/{estacaoId}/remover")
     public String removerEstacao(
             @PathVariable Long id,
-            @PathVariable Long estacaoId
+            @PathVariable Long estacaoId,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorExperienciaService.removerEstacao(id, estacaoId, professorId);
 
@@ -110,8 +107,12 @@ public class ProfessorExperienciaController {
     }
 
     @GetMapping("/{id}/editar")
-    public String editar(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String editar(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         Experiencia experiencia = professorExperienciaService.obterExperienciaDoProfessor(id, professorId);
 
@@ -125,9 +126,10 @@ public class ProfessorExperienciaController {
     @PostMapping("/{id}/editar")
     public String atualizar(
             @PathVariable Long id,
-            @ModelAttribute("experienciaForm") ExperienciaFormDTO experienciaForm
+            @ModelAttribute("experienciaForm") ExperienciaFormDTO experienciaForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorExperienciaService.atualizarExperiencia(id, professorId, experienciaForm);
 
@@ -135,8 +137,11 @@ public class ProfessorExperienciaController {
     }
 
     @PostMapping("/{id}/iniciar")
-    public String iniciar(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String iniciar(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorExperienciaService.iniciarExperiencia(id, professorId);
 
@@ -144,8 +149,11 @@ public class ProfessorExperienciaController {
     }
 
     @PostMapping("/{id}/finalizar")
-    public String finalizar(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String finalizar(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorExperienciaService.finalizarExperiencia(id, professorId);
 
@@ -153,15 +161,19 @@ public class ProfessorExperienciaController {
     }
 
     @PostMapping("/{id}/cancelar")
-    public String cancelar(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String cancelar(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorExperienciaService.cancelarExperiencia(id, professorId);
 
         return "redirect:/professor/experiencias/" + id;
     }
 
-    private Long obterProfessorIdTemporario() {
-        return 1L;
+    private Long obterUtilizadorId(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return user.getId();
     }
 }

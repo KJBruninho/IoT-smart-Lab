@@ -2,7 +2,9 @@ package com.iotroom.iotroom.controller;
 
 import com.iotroom.iotroom.dto.RegraAlertaSensorFormDTO;
 import com.iotroom.iotroom.model.RegraAlertaSensor;
+import com.iotroom.iotroom.security.AuthenticatedUser;
 import com.iotroom.iotroom.service.ProfessorAlertaService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +20,8 @@ public class ProfessorAlertaController {
     }
 
     @GetMapping
-    public String index(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String index(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         model.addAttribute("alertas", professorAlertaService.listarAlertas(professorId));
         model.addAttribute("paginaAtual", "alertas");
@@ -28,8 +30,8 @@ public class ProfessorAlertaController {
     }
 
     @GetMapping("/regras")
-    public String regras(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String regras(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         model.addAttribute("regras", professorAlertaService.listarRegras(professorId));
         model.addAttribute("paginaAtual", "alertas");
@@ -38,8 +40,8 @@ public class ProfessorAlertaController {
     }
 
     @GetMapping("/regras/nova")
-    public String novaRegra(Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String novaRegra(Model model, Authentication authentication) {
+        Long professorId = obterUtilizadorId(authentication);
 
         prepararFormulario(model, professorId);
         model.addAttribute("regraForm", professorAlertaService.criarFormVazio());
@@ -48,8 +50,11 @@ public class ProfessorAlertaController {
     }
 
     @PostMapping("/regras/nova")
-    public String criarRegra(@ModelAttribute("regraForm") RegraAlertaSensorFormDTO regraForm) {
-        Long professorId = obterProfessorIdTemporario();
+    public String criarRegra(
+            @ModelAttribute("regraForm") RegraAlertaSensorFormDTO regraForm,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAlertaService.criarRegra(professorId, regraForm);
 
@@ -57,8 +62,12 @@ public class ProfessorAlertaController {
     }
 
     @GetMapping("/regras/{id}/editar")
-    public String editarRegra(@PathVariable Long id, Model model) {
-        Long professorId = obterProfessorIdTemporario();
+    public String editarRegra(
+            @PathVariable Long id,
+            Model model,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         RegraAlertaSensor regra = professorAlertaService.obterRegra(id, professorId);
 
@@ -71,9 +80,10 @@ public class ProfessorAlertaController {
     @PostMapping("/regras/{id}/editar")
     public String atualizarRegra(
             @PathVariable Long id,
-            @ModelAttribute("regraForm") RegraAlertaSensorFormDTO regraForm
+            @ModelAttribute("regraForm") RegraAlertaSensorFormDTO regraForm,
+            Authentication authentication
     ) {
-        Long professorId = obterProfessorIdTemporario();
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAlertaService.atualizarRegra(id, professorId, regraForm);
 
@@ -81,8 +91,11 @@ public class ProfessorAlertaController {
     }
 
     @PostMapping("/regras/{id}/alternar-estado")
-    public String alternarEstadoRegra(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String alternarEstadoRegra(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAlertaService.alternarEstadoRegra(id, professorId);
 
@@ -90,8 +103,11 @@ public class ProfessorAlertaController {
     }
 
     @PostMapping("/{id}/marcar-lido")
-    public String marcarLido(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String marcarLido(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAlertaService.marcarLido(id, professorId);
 
@@ -99,8 +115,11 @@ public class ProfessorAlertaController {
     }
 
     @PostMapping("/{id}/resolver")
-    public String resolver(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String resolver(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAlertaService.resolver(id, professorId);
 
@@ -108,8 +127,11 @@ public class ProfessorAlertaController {
     }
 
     @PostMapping("/{id}/ignorar")
-    public String ignorar(@PathVariable Long id) {
-        Long professorId = obterProfessorIdTemporario();
+    public String ignorar(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        Long professorId = obterUtilizadorId(authentication);
 
         professorAlertaService.ignorar(id, professorId);
 
@@ -123,7 +145,8 @@ public class ProfessorAlertaController {
         model.addAttribute("paginaAtual", "alertas");
     }
 
-    private Long obterProfessorIdTemporario() {
-        return 2L;
+    private Long obterUtilizadorId(Authentication authentication) {
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return user.getId();
     }
 }
