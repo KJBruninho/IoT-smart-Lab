@@ -1,6 +1,7 @@
 USE iot_room;
 
 -- =========================================================
+-- POPULATE MELHORADO - IoT Room
 -- Utilizadores de teste:
 --   ADMIN     -> a@a / password
 --   PROFESSOR -> p@p / password
@@ -8,6 +9,7 @@ USE iot_room;
 --   ALUNOS    -> b@b, c@c, d@d, e@e / password
 -- =========================================================
 
+SET SQL_SAFE_UPDATES = 0;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DELETE FROM logs_detalhes;
@@ -60,7 +62,7 @@ ALTER TABLE logs AUTO_INCREMENT = 1;
 ALTER TABLE security_audit_logs AUTO_INCREMENT = 1;
 
 SET FOREIGN_KEY_CHECKS = 1;
-
+SET SQL_SAFE_UPDATES = 1;
 -- =========================================================
 -- 01. ESTAÇÕES
 -- =========================================================
