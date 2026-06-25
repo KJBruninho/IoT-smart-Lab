@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<aside th:fragment="adminSidebar(paginaAtiva)" class="admin-sidebar">
+
+    <div class="admin-sidebar-header">
+		<div class="sidebar-brand">
+		    <div class="brand-mark">IoT</div>
+		    <div><strong>Admin Console</strong><span>Smart Lab</span></div>
+		</div>
+    </div>
+
+    <nav class="admin-sidebar-nav" aria-label="Navegação Admin">
+
+        <a th:href="@{/admin}"
+           th:classappend="${paginaAtiva == 'dashboard'} ? 'active' : ''">
+            <span>Dashboard</span>
+        </a>
+
+        <a th:href="@{/admin/utilizadores}"
+           th:classappend="${paginaAtiva == 'utilizadores'} ? 'active' : ''">
+            <span>Utilizadores</span>
+        </a>
+
+        <a th:href="@{/admin/grupos}"
+           th:classappend="${paginaAtiva == 'grupos'} ? 'active' : ''">
+            <span>Grupos</span>
+        </a>
+
+        <a th:href="@{/admin/estacoes}"
+           th:classappend="${paginaAtiva == 'estacoes'} ? 'active' : ''">
+            <span>Estações</span>
+        </a>
+
+        <a th:href="@{/admin/sensores}"
+           th:classappend="${paginaAtiva == 'sensores'} ? 'active' : ''">
+            <span>Sensores</span>
+        </a>
+
+        <a th:href="@{/admin/experiencias}"
+           th:classappend="${paginaAtiva == 'experiencias'} ? 'active' : ''">
+            <span>Experiências</span>
+        </a>
+
+        <a th:href="@{/admin/pedidos}"
+           th:classappend="${paginaAtiva == 'pedidos'} ? 'active' : ''">
+            <span>Pedidos</span>
+        </a>
+
+        <a th:href="@{/admin/comandos}"
+           th:classappend="${paginaAtiva == 'comandos'} ? 'active' : ''">
+            <span>Comandos MQTT</span>
+        </a>
+
+        <a th:href="@{/admin/logs}"
+           th:classappend="${paginaAtiva == 'logs'} ? 'active' : ''">
+            <span>Logs</span>
+        </a>
+
+        <a th:href="@{/admin/configuracoes}"
+           th:classappend="${paginaAtiva == 'configuracoes'} ? 'active' : ''">
+            <span>Configurações</span>
+        </a>
+
+    </nav>
+
+    <div class="admin-sidebar-footer">
+
+        <a class="sidebar-switch-link"
+           th:href="@{/aluno}">
+            <span>Dashboard geral</span>
+        </a>
+
+        <a class="sidebar-switch-link"
+           th:href="@{/professor}"
+           sec:authorize="hasAnyAuthority('ROLE_PROFESSOR','ROLE_ADMIN','PROFESSOR','ADMIN')">
+            <span>Área Professor</span>
+        </a>
+
+		<a th:href="@{/auth/logout}" class="sidebar-logout-button">
+		    <span class="nav-icon">⏻</span>
+		    <span>Sair</span>
+		</a>
+
+    </div>
+
+</aside>
+
+</body>
+</html>

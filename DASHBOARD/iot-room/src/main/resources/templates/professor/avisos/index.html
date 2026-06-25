@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avisos | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('avisos')}"></div>
+    <main class="professor-main">
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Avisos</h1>
+                <p>Comunicação do professor para os grupos.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-primary" th:href="@{/professor/avisos/novo}">Novo aviso</a></div>
+        </header>
+
+        <section class="professor-panel"><div class="empty-state" th:if="${avisos == null or #lists.isEmpty(avisos)}">Sem avisos.</div><div class="card-grid" th:if="${avisos != null and !#lists.isEmpty(avisos)}"><article class="info-card" th:each="aviso : ${avisos}"><div class="panel-header"><h3 th:text="${aviso.titulo}">Aviso</h3><span class="status-pill" th:text="${aviso.ativo ? 'Ativo' : 'Inativo'}">Estado</span></div><p th:text="${aviso.mensagem}">Mensagem</p><small th:text="${aviso.criadoEm != null ? #temporals.format(aviso.criadoEm, 'dd/MM/yyyy HH:mm') : '-'}">-</small><div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/avisos/{id}(id=${aviso.id})}">Ver</a><a class="btn btn-secondary" th:href="@{/professor/avisos/{id}/editar(id=${aviso.id})}">Editar</a><form method="post" th:action="@{/professor/avisos/{id}/alternar-estado(id=${aviso.id})}"><button class="btn btn-warning" type="submit">Alternar</button></form></div></article></div></section>
+
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Logs</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-page">
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1>Logs</h1>
+                <p>Auditoria de ações, erros, comandos, sensores, MQTT e eventos internos.</p>
+            </div>
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}"></span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="admin-panel">
+            <form class="filter-form filter-form-wide" th:action="@{/admin/logs}" method="get">
+
+                <div class="form-group">
+                    <label for="termo">Pesquisar</label>
+                    <input id="termo"
+                           type="text"
+                           name="termo"
+                           placeholder="Ação, mensagem, email, device ID ou experiência"
+                           th:value="${termo}">
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo">
+                        <option value="">Todos</option>
+                        <option th:each="tipoItem : ${tiposLog}"
+                                th:value="${tipoItem}"
+                                th:selected="${tipo == tipoItem}"
+                                th:text="${tipoItem}">
+                            TIPO
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nivel">Nível</label>
+                    <select id="nivel" name="nivel">
+                        <option value="">Todos</option>
+                        <option th:each="nivelItem : ${niveisLog}"
+                                th:value="${nivelItem}"
+                                th:selected="${nivel == nivelItem}"
+                                th:text="${nivelItem}">
+                            INFO
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataInicio">De</label>
+                    <input id="dataInicio"
+                           type="date"
+                           name="dataInicio"
+                           th:value="${dataInicio}">
+                </div>
+
+                <div class="form-group">
+                    <label for="dataFim">Até</label>
+                    <input id="dataFim"
+                           type="date"
+                           name="dataFim"
+                           th:value="${dataFim}">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a th:href="@{/admin/logs}" class="btn btn-secondary">Limpar</a>
+                </div>
+
+            </form>
+        </section>
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Registos encontrados</h2>
+                    <p class="muted">A listagem mostra no máximo os 300 logs mais recentes.</p>
+                </div>
+
+                <span class="muted">
+                    Total:
+                    <strong th:text="${#lists.size(logs)}">0</strong>
+                </span>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(logs)}">
+                Nenhum log encontrado.
+            </div>
+
+            <table class="admin-table" th:if="${!#lists.isEmpty(logs)}">
+                <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Nível</th>
+                    <th>Ação</th>
+                    <th>Mensagem</th>
+                    <th>Origem</th>
+                    <th class="actions-column">Ações</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="log : ${logs}">
+                    <td>
+                        <strong th:text="${log.criadoEm() != null ? #temporals.format(log.criadoEm(), 'dd/MM/yyyy') : '-'}">
+                            -
+                        </strong>
+                        <div class="muted"
+                             th:text="${log.criadoEm() != null ? #temporals.format(log.criadoEm(), 'HH:mm:ss') : '-'}">
+                            -
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="badge badge-info" th:text="${log.tipoLog()}">TIPO</span>
+                    </td>
+
+                    <td>
+                        <span class="badge"
+                              th:classappend="${log.nivel() == 'ERROR' || log.nivel() == 'CRITICAL'} ? 'badge-error' :
+                                              (${log.nivel() == 'WARNING'} ? 'badge-warning' :
+                                              (${log.nivel() == 'INFO'} ? 'badge-info' : 'badge-muted'))"
+                              th:text="${log.nivel()}">
+                            INFO
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong th:text="${log.acao()}">AÇÃO</strong>
+                    </td>
+
+                    <td class="log-message-cell"
+                        th:text="${log.mensagem() != null && log.mensagem().length() > 120 ? log.mensagem().substring(0, 120) + '...' : log.mensagem()}">
+                        Mensagem
+                    </td>
+
+                    <td>
+                        <div th:if="${log.utilizadorEmail() != null}">
+                            <strong>Utilizador</strong>
+                            <div class="muted" th:text="${log.utilizadorEmail()}">email</div>
+                        </div>
+
+                        <div th:if="${log.deviceId() != null}">
+                            <strong>Estação</strong>
+                            <div>
+                                <code th:text="${log.deviceId()}">esp32</code>
+                            </div>
+                        </div>
+
+                        <div th:if="${log.experiencia() != null}">
+                            <strong>Experiência</strong>
+                            <div class="muted" th:text="${log.experiencia()}">Experiência</div>
+                        </div>
+
+                        <span class="muted"
+                              th:if="${log.utilizadorEmail() == null && log.deviceId() == null && log.experiencia() == null}">
+                            Sistema
+                        </span>
+                    </td>
+
+                    <td class="table-actions">
+                        <a class="btn btn-small btn-secondary"
+                           th:href="@{/admin/logs/{id}(id=${log.id()})}">
+                            Detalhe
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

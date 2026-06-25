@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupos | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('grupos')}"></div>
+    <main class="professor-main">
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Grupos</h1>
+                <p>Gerir grupos sob responsabilidade do professor.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-primary" th:href="@{/professor/grupos/novo}">Novo grupo</a></div>
+        </header>
+
+        <section class="professor-panel">
+            <div class="empty-state" th:if="${grupos == null or #lists.isEmpty(grupos)}">Ainda não existem grupos.</div>
+            <div class="table-wrap" th:if="${grupos != null and !#lists.isEmpty(grupos)}"><table class="professor-table"><thead><tr><th>Nome</th><th>Estado</th><th>Criado em</th><th>Ações</th></tr></thead><tbody>
+                <tr th:each="grupo : ${grupos}"><td><strong th:text="${grupo.nome}">Grupo</strong><small th:text="${grupo.descricao}">Descrição</small></td><td><span class="status-pill" th:text="${grupo.ativo ? 'Ativo' : 'Inativo'}">Ativo</span></td><td th:text="${grupo.criadoEm != null ? #temporals.format(grupo.criadoEm, 'dd/MM/yyyy HH:mm') : '-'}">-</td><td class="table-actions"><a class="btn btn-secondary" th:href="@{/professor/grupos/{id}(id=${grupo.id})}">Ver</a><a class="btn btn-secondary" th:href="@{/professor/grupos/{id}/editar(id=${grupo.id})}">Editar</a><a class="btn btn-secondary" th:href="@{/professor/grupos/{id}/estacoes(id=${grupo.id})}">Estações</a></td></tr>
+            </tbody></table></div>
+        </section>
+
+    </main>
+</div>
+</body>
+</html>

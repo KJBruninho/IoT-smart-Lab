@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('dados')}"></div>
+    <main class="professor-main">
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Dados e gráficos</h1>
+                <p>Leituras e histórico disponível.</p>
+            </div>
+            <div class="professor-actions"></div>
+        </header>
+
+        <section class="professor-panel"><div class="panel-header"><h2>Leituras</h2></div><div class="empty-state" th:if="${leituras == null or #lists.isEmpty(leituras)}">Sem leituras.</div><div class="card-grid" th:if="${leituras != null and !#lists.isEmpty(leituras)}"><article class="info-card" th:each="leitura : ${leituras}"><p th:text="${leitura}">Leitura</p></article></div></section>
+
+    </main>
+</div>
+</body>
+</html>

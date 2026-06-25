@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-page">
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar">
+            <div>
+                <h1>Dashboard Admin</h1>
+                <p>Visão geral da plataforma IoT Room.</p>
+            </div>
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}"></span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <span class="stat-label">Utilizadores</span>
+                <strong th:text="${stats.totalUtilizadores()}">0</strong>
+                <small>
+                    Admins:
+                    <span th:text="${stats.totalAdmins()}">0</span>
+                    · Professores:
+                    <span th:text="${stats.totalProfessores()}">0</span>
+                    · Alunos:
+                    <span th:text="${stats.totalAlunos()}">0</span>
+                </small>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Grupos</span>
+                <strong th:text="${stats.totalGrupos()}">0</strong>
+                <small>Grupos registados no sistema</small>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Estações</span>
+                <strong th:text="${stats.totalEstacoes()}">0</strong>
+                <small>
+                    Ativas:
+                    <span th:text="${stats.estacoesAtivas()}">0</span>
+                    · Inativas:
+                    <span th:text="${stats.estacoesInativas()}">0</span>
+                </small>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Sensores</span>
+                <strong th:text="${stats.totalSensores()}">0</strong>
+				<small>
+				    Ativos:
+				    <span th:text="${stats.sensoresAtivos()}">0</span>
+				    · Inativos:
+				    <span th:text="${stats.sensoresInativos()}">0</span>
+				    <br>
+				    Sem dados:
+				    <span th:text="${stats.sensoresSemDados()}">0</span>
+				    · Sem comunicação:
+				    <span th:text="${stats.sensoresSemComunicacao()}">0</span>
+				</small>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Experiências</span>
+                <strong th:text="${stats.totalExperiencias()}">0</strong>
+                <small>
+                    Ativas:
+                    <span th:text="${stats.experienciasAtivas()}">0</span>
+                </small>
+            </article>
+
+            <article class="stat-card warning">
+                <span class="stat-label">Pedidos pendentes</span>
+                <strong th:text="${stats.pedidosPendentes()}">0</strong>
+                <small>Pedidos à espera de aprovação</small>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Leituras de hoje</span>
+                <strong th:text="${stats.leiturasHoje()}">0</strong>
+                <small>Registos recebidos hoje</small>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">Última leitura</span>
+                <strong class="small-value"
+                        th:text="${stats.ultimaLeituraEm() != null ? #temporals.format(stats.ultimaLeituraEm(), 'dd/MM/yyyy HH:mm:ss') : 'Sem dados'}">
+                    Sem dados
+                </strong>
+                <small>Último registo recebido da BD</small>
+            </article>
+
+        </section>
+
+        <section class="admin-content-grid">
+
+            <article class="admin-panel">
+                <div class="panel-header">
+                    <h2>Ações rápidas</h2>
+                </div>
+
+                <div class="quick-actions">
+                    <a th:href="@{/admin/utilizadores}" class="quick-action">
+                        Gerir utilizadores
+                    </a>
+
+                    <a th:href="@{/admin/grupos}" class="quick-action">
+                        Gerir grupos
+                    </a>
+
+                    <a th:href="@{/admin/estacoes}" class="quick-action">
+                        Gerir estações
+                    </a>
+
+                    <a th:href="@{/admin/sensores}" class="quick-action">
+                        Gerir sensores
+                    </a>
+
+                    <a th:href="@{/admin/pedidos}" class="quick-action danger"
+                       th:classappend="${stats.pedidosPendentes() > 0} ? 'has-pending' : ''">
+                        Ver pedidos pendentes
+                    </a>
+					
+					<a th:href="@{/admin/comandos}" class="quick-action">
+					    Ver comandos MQTT
+					</a>
+
+                    <a th:href="@{/admin/logs}" class="quick-action">
+                        Ver logs
+                    </a>
+                </div>
+            </article>
+
+            <article class="admin-panel">
+                <div class="panel-header">
+                    <h2>Logs recentes</h2>
+                    <a th:href="@{/admin/logs}">Ver todos</a>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(logsRecentes)}">
+                    Ainda não existem logs recentes.
+                </div>
+
+                <table class="admin-table" th:if="${!#lists.isEmpty(logsRecentes)}">
+                    <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th>Gravidade</th>
+                        <th>Data</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="log : ${logsRecentes}">
+                        <td th:text="${log.tipo()}">TIPO</td>
+                        <td th:text="${log.descricao()}">Descrição</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${log.gravidade() == 'ERRO'} ? 'badge-error' : (${log.gravidade() == 'AVISO'} ? 'badge-warning' : 'badge-info')"
+                                  th:text="${log.gravidade()}">
+                                INFO
+                            </span>
+                        </td>
+                        <td th:text="${log.criadoEm() != null ? #temporals.format(log.criadoEm(), 'dd/MM/yyyy HH:mm') : '-'}">
+                            -
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </article>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

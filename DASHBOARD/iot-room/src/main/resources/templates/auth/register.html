@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar conta | IoT Room</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+
+<main class="auth-container">
+    <section class="auth-card">
+        <h1 class="auth-title">Criar conta</h1>
+        <p class="auth-subtitle">Regista uma nova conta de aluno.</p>
+
+        <p class="auth-message error" th:if="${erro}" th:text="${erro}"></p>
+
+        <form th:action="@{/auth/register}" method="post" th:object="${registerDTO}">
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}" />
+
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <input id="nome" th:field="*{nome}" type="text" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" th:field="*{email}" type="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" th:field="*{password}" type="password" required minlength="8">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmarPassword">Confirmar password</label>
+                <input id="confirmarPassword" th:field="*{confirmarPassword}" type="password" required minlength="8">
+            </div>
+
+            <button class="auth-button" type="submit">Registar</button>
+        </form>
+
+        <a class="auth-link" th:href="@{/auth/login}">Já tenho conta</a>
+    </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('dashboard')}"></div>
+    <main class="professor-main">
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Dashboard Operacional</h1>
+                <p>Resumo atual das estações, sensores, leituras e alertas.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/dados}">Ver dados</a><a class="btn btn-primary" th:href="@{/professor/alertas/regras/nova}">Nova regra</a></div>
+        </header>
+
+        <section class="stats-grid">
+            <article class="stat-card"><span class="stat-label">Estações online</span><strong th:text="${dashboard != null ? dashboard.estacoesOnline : 0}">0</strong><small>Receberam dados recentemente.</small></article>
+            <article class="stat-card"><span class="stat-label">Sensores ativos</span><strong th:text="${dashboard != null ? dashboard.sensoresAtivos : 0}">0</strong><small>Sensores disponíveis para acompanhamento.</small></article>
+            <article class="stat-card"><span class="stat-label">Alertas novos</span><strong th:text="${dashboard != null ? dashboard.alertasNovos : 0}">0</strong><small>Alertas ainda não tratados.</small></article>
+            <article class="stat-card"><span class="stat-label">Última leitura</span><strong th:text="${dashboard != null and dashboard.ultimaLeituraTexto != null ? dashboard.ultimaLeituraTexto : 'Sem dados'}">Sem dados</strong><small th:text="${dashboard != null and dashboard.ultimaLeituraEm != null ? #temporals.format(dashboard.ultimaLeituraEm, 'dd/MM/yyyy HH:mm') : '-'}">-</small></article>
+        </section>
+
+        <section class="professor-panel">
+            <div class="panel-header"><div><h2>Últimas leituras</h2><p>Valores mais recentes recebidos.</p></div><a class="btn btn-secondary" th:href="@{/professor/dados}">Abrir gráficos</a></div>
+            <div class="empty-state" th:if="${dashboard == null or dashboard.ultimasLeituras == null or #lists.isEmpty(dashboard.ultimasLeituras)}">Ainda não existem leituras registadas.</div>
+            <div class="card-grid" th:if="${dashboard != null and dashboard.ultimasLeituras != null and !#lists.isEmpty(dashboard.ultimasLeituras)}">
+                <article class="info-card" th:each="leitura : ${dashboard.ultimasLeituras}"><h3>Leitura</h3><p th:text="${leitura}">Leitura</p></article>
+            </div>
+        </section>
+
+        <section class="content-grid two-columns">
+            <article class="professor-panel">
+                <div class="panel-header"><div><h2>Alertas recentes</h2><p>Alertas gerados por regras.</p></div><a class="btn btn-secondary" th:href="@{/professor/alertas}">Ver todos</a></div>
+                <div class="empty-state" th:if="${dashboard == null or dashboard.alertasRecentes == null or #lists.isEmpty(dashboard.alertasRecentes)}">Não existem alertas recentes.</div>
+                <div class="card-stack" th:if="${dashboard != null and dashboard.alertasRecentes != null and !#lists.isEmpty(dashboard.alertasRecentes)}">
+                    <div class="info-card" th:each="alerta : ${dashboard.alertasRecentes}"><strong th:text="${alerta}">Alerta</strong></div>
+                </div>
+            </article>
+            <article class="professor-panel">
+                <div class="panel-header"><div><h2>Experiências ativas</h2><p>Experiências criadas ou em execução.</p></div><a class="btn btn-secondary" th:href="@{/professor/experiencias}">Gerir</a></div>
+                <div class="empty-state" th:if="${dashboard == null or dashboard.experienciasAtivas == null or #lists.isEmpty(dashboard.experienciasAtivas)}">Não existem experiências ativas.</div>
+                <div class="card-stack" th:if="${dashboard != null and dashboard.experienciasAtivas != null and !#lists.isEmpty(dashboard.experienciasAtivas)}">
+                    <div class="info-card" th:each="experiencia : ${dashboard.experienciasAtivas}"><strong th:text="${experiencia}">Experiência</strong></div>
+                </div>
+            </article>
+        </section>
+
+        <section class="professor-panel">
+            <div class="panel-header"><div><h2>Estado das estações</h2><p>Resumo das estações acessíveis ao professor.</p></div><a class="btn btn-secondary" th:href="@{/professor/grupos}">Gerir grupos</a></div>
+            <div class="empty-state" th:if="${dashboard == null or dashboard.estadoEstacoes == null or #lists.isEmpty(dashboard.estadoEstacoes)}">Não existem estações acessíveis.</div>
+            <div class="card-grid" th:if="${dashboard != null and dashboard.estadoEstacoes != null and !#lists.isEmpty(dashboard.estadoEstacoes)}">
+                <article class="info-card" th:each="estado : ${dashboard.estadoEstacoes}"><p th:text="${estado}">Estação</p></article>
+            </div>
+        </section>
+
+    </main>
+</div>
+</body>
+</html>

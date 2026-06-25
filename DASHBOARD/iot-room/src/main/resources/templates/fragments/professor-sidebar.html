@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<aside th:fragment="professorSidebar(paginaAtual)" class="professor-sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-mark">IoT</div>
+        <div><strong>Professor/Utilizador Privilegiado</strong><span>Smart Lab</span></div>
+    </div>
+    <nav class="sidebar-nav" aria-label="Navegação Professor">
+        <a th:href="@{/professor}" th:classappend="${paginaAtual == 'dashboard'} ? ' active' : ''">Dashboard</a>
+        <a th:href="@{/professor/experiencias}" th:classappend="${paginaAtual == 'experiencias'} ? ' active' : ''">Experiências</a>
+        <a th:href="@{/professor/grupos}" th:classappend="${paginaAtual == 'grupos'} ? ' active' : ''">Grupos</a>
+        <a th:href="@{/professor/dados}" th:classappend="${paginaAtual == 'dados'} ? ' active' : ''">Dados</a>
+        <a th:href="@{/professor/avisos}" th:classappend="${paginaAtual == 'avisos'} ? ' active' : ''">Avisos</a>
+        <a th:href="@{/professor/alertas}" th:classappend="${paginaAtual == 'alertas'} ? ' active' : ''">Alertas</a>
+        <a th:href="@{/professor/forum}" th:classappend="${paginaAtual == 'forum'} ? ' active' : ''">Fórum</a>
+        <a th:href="@{/professor/sensores}" th:classappend="${paginaAtual == 'sensores'} ? ' active' : ''">Sensores</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a th:href="@{/aluno}">Dashboard global</a>
+		
+		<a class="sidebar-switch-link"
+		   th:href="@{/admin}"
+		   sec:authorize="hasAnyAuthority('ROLE_PROFESSOR','ROLE_ADMIN','PROFESSOR','ADMIN')">
+		    <span>Área Admin</span>
+		</a>
+		
+		<a th:href="@{/auth/logout}" class="sidebar-logout-button">
+		    <span class="nav-icon">⏻</span>
+		    <span>Sair</span>
+		</a>
+    </div>
+</aside>
+</body>
+</html>

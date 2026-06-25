@@ -1,0 +1,716 @@
+:root {
+    --azul-950: #081a32;
+    --azul-900: #0b2447;
+    --azul-700: #1d4ed8;
+    --azul-600: #2563eb;
+    --azul-100: #dbeafe;
+    --verde-400: #74d99f;
+    --verde-500: #22c55e;
+    --verde-100: #dcfce7;
+    --bg: #eefaf6;
+    --panel: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #d7e7ef;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --shadow: 0 18px 45px rgba(8, 26, 50, 0.10);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(116, 217, 159, 0.28), transparent 35%),
+        linear-gradient(135deg, #eefaf6 0%, #eaf3ff 100%);
+    color: var(--text);
+}
+
+.aluno-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.aluno-sidebar {
+    width: 260px;
+    padding: 24px 18px;
+    background: linear-gradient(180deg, var(--azul-950), var(--azul-900));
+    color: #ffffff;
+    border-right: 1px solid rgba(116, 217, 159, 0.28);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 34px;
+    font-size: 22px;
+}
+
+.logo-mark {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: rgba(116, 217, 159, 0.14);
+    border: 1px solid rgba(116, 217, 159, 0.7);
+    color: var(--verde-400);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-nav a {
+    color: #dbeafe;
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    color: #ffffff;
+    background: rgba(37, 99, 235, 0.42);
+    border-color: rgba(116, 217, 159, 0.55);
+    box-shadow: inset 4px 0 0 var(--verde-400);
+}
+
+.sidebar-nav .logout-link {
+    margin-top: 18px;
+    color: #fecaca;
+}
+
+.sidebar-nav .logout-link:hover {
+    border-color: rgba(220, 38, 38, 0.6);
+    background: rgba(220, 38, 38, 0.14);
+    box-shadow: inset 4px 0 0 var(--danger);
+}
+
+.aluno-main {
+    flex: 1;
+    padding: 30px;
+    min-width: 0;
+}
+
+.hero-panel {
+    background:
+        linear-gradient(135deg, rgba(29, 78, 216, 0.96), rgba(8, 26, 50, 0.96)),
+        linear-gradient(90deg, rgba(116, 217, 159, 0.28), transparent);
+    color: #ffffff;
+    border: 1px solid rgba(116, 217, 159, 0.32);
+}
+
+.aluno-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    padding: 26px;
+    border-radius: 22px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.aluno-topbar h1 {
+    margin: 6px 0 8px;
+    font-size: 34px;
+}
+
+.aluno-topbar p {
+    margin: 0;
+    color: #dbeafe;
+}
+
+.eyebrow {
+    display: inline-flex;
+    color: var(--verde-400);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+}
+
+.topbar-actions,
+.form-actions,
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 16px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+.btn-primary {
+    background: var(--verde-500);
+    color: #052e16;
+}
+
+.btn-primary:hover {
+    filter: brightness(0.96);
+}
+
+.btn-secondary {
+    background: #ffffff;
+    color: var(--azul-900);
+}
+
+.btn-secondary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.btn-light {
+    background: var(--azul-100);
+    color: var(--azul-900);
+}
+
+.btn-link {
+    color: var(--azul-700);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.kpi-card,
+.aluno-panel {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(215, 231, 239, 0.95);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.kpi-card {
+    padding: 20px;
+    border-left: 5px solid var(--azul-600);
+}
+
+.kpi-card.accent-card {
+    border-left-color: var(--verde-500);
+}
+
+.kpi-card span,
+.panel-header span,
+.form-group small,
+.aluno-table small,
+.item-row small,
+.latest-reading-card p,
+.latest-reading-card small,
+.profile-card p {
+    color: var(--muted);
+}
+
+.kpi-card strong {
+    display: block;
+    margin: 8px 0;
+    font-size: 34px;
+    color: var(--azul-950);
+}
+
+.content-grid,
+.profile-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.8fr);
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.aluno-panel {
+    padding: 22px;
+    margin-bottom: 24px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.panel-header h2 {
+    margin: 0 0 5px;
+    color: var(--azul-950);
+}
+
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+}
+
+.quick-card {
+    display: block;
+    padding: 18px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f8fbff, #effcf5);
+    border: 1px solid var(--line);
+    text-decoration: none;
+    transition: 0.16s ease;
+}
+
+.quick-card:hover {
+    border-color: var(--verde-400);
+    transform: translateY(-2px);
+}
+
+.quick-card strong {
+    display: block;
+    color: var(--azul-950);
+    margin-bottom: 8px;
+}
+
+.quick-card span {
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.latest-reading-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 18px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f8fbff, #f0fff7);
+    border: 1px solid var(--line);
+}
+
+.latest-reading-card h3 {
+    margin: 12px 0 4px;
+}
+
+.latest-reading-card > strong {
+    font-size: 34px;
+    color: var(--azul-700);
+    text-align: right;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--azul-100);
+    color: var(--azul-900);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.status-pendente {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-aprovado,
+.status-aplicado {
+    background: var(--verde-100);
+    color: #166534;
+}
+
+.status-rejeitado,
+.status-erro {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.empty-state {
+    padding: 18px;
+    background: #f8fbff;
+    border: 1px dashed #b8d8e5;
+    border-radius: 16px;
+    color: var(--muted);
+}
+
+.filters-form,
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.filters-form .filter-actions {
+    align-self: end;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--azul-950);
+    font-weight: 800;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    border: 1px solid #b8d8e5;
+    border-radius: 12px;
+    padding: 11px 12px;
+    background: #ffffff;
+    color: var(--text);
+    font: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--azul-600);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.compact-input {
+    max-width: 240px;
+}
+
+.chart-box {
+    height: 360px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #fbfdff;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.aluno-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.aluno-table th,
+.aluno-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+}
+
+.aluno-table th {
+    color: var(--azul-950);
+    background: #f4fbff;
+    font-weight: 900;
+}
+
+.aluno-table tr:hover td {
+    background: #fbfdff;
+}
+
+.aluno-table small {
+    display: block;
+    margin-top: 4px;
+}
+
+.alert {
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    font-weight: 800;
+}
+
+.alert-success {
+    background: var(--verde-100);
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.alert-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.aluno-form {
+    max-width: 980px;
+}
+
+.profile-grid {
+    grid-template-columns: 320px minmax(0, 1fr);
+}
+
+.profile-card {
+    text-align: center;
+}
+
+.avatar-circle {
+    width: 82px;
+    height: 82px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--azul-600), var(--verde-400));
+    color: #ffffff;
+    font-size: 34px;
+    font-weight: 900;
+}
+
+.profile-card h2 {
+    margin: 0 0 6px;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    display: inline-flex;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--verde-100);
+    color: #166534;
+    font-weight: 800;
+}
+
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfdff;
+}
+
+.item-row strong,
+.item-row small {
+    display: block;
+}
+
+@media (max-width: 1120px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    .content-grid,
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 860px) {
+    .aluno-layout {
+        flex-direction: column;
+    }
+
+    .aluno-sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .sidebar-nav {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .aluno-main {
+        padding: 18px;
+    }
+
+    .aluno-topbar,
+    .panel-header,
+    .item-row {
+        flex-direction: column;
+    }
+
+    .filters-form,
+    .form-grid-2,
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .compact-input {
+        max-width: none;
+    }
+}
+
+
+/* =========================================================
+   FIX SIDEBAR ALUNO - GLOBAL
+   O bloco anterior estava dentro do @media (max-width: 860px),
+   por isso no desktop o rodapé ficava sem estilo.
+   ========================================================= */
+
+.aluno-sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.aluno-sidebar .sidebar-logo {
+    flex: 0 0 auto;
+}
+
+.aluno-sidebar .sidebar-nav {
+    flex: 0 0 auto;
+}
+
+.aluno-sidebar .sidebar-nav a,
+.aluno-sidebar .sidebar-footer a,
+.aluno-sidebar .sidebar-footer button,
+.aluno-sidebar .sidebar-logout-button {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 13px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #dbeafe;
+    text-decoration: none;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1.2;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.aluno-sidebar .sidebar-nav a:hover,
+.aluno-sidebar .sidebar-nav a.active,
+.aluno-sidebar .sidebar-footer a:hover {
+    color: #ffffff;
+    background: rgba(37, 99, 235, 0.42);
+    border-color: rgba(116, 217, 159, 0.55);
+    box-shadow: inset 4px 0 0 var(--verde-400);
+    transform: translateX(2px);
+}
+
+.aluno-sidebar .nav-icon {
+    width: 18px;
+    min-width: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--verde-400);
+    font-size: 13px;
+    line-height: 1;
+}
+
+.aluno-sidebar .sidebar-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(116, 217, 159, 0.22);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.aluno-sidebar .sidebar-footer-link,
+.aluno-sidebar .sidebar-switch-link {
+    color: #dbeafe;
+    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(116, 217, 159, 0.14);
+}
+
+.aluno-sidebar .sidebar-footer-link:hover,
+.aluno-sidebar .sidebar-switch-link:hover {
+    color: #ffffff;
+    background: rgba(37, 99, 235, 0.42);
+    border-color: rgba(116, 217, 159, 0.55);
+    box-shadow: inset 4px 0 0 var(--verde-400);
+}
+
+.aluno-sidebar .sidebar-logout-form {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.aluno-sidebar .sidebar-logout-button {
+    appearance: none;
+    -webkit-appearance: none;
+    justify-content: flex-start;
+    color: #fecaca;
+    background: rgba(220, 38, 38, 0.10);
+    border-color: rgba(220, 38, 38, 0.28);
+}
+
+.aluno-sidebar .sidebar-logout-button .nav-icon {
+    color: #fca5a5;
+}
+
+.aluno-sidebar .sidebar-logout-button:hover {
+    color: #ffffff;
+    background: rgba(220, 38, 38, 0.22);
+    border-color: rgba(248, 113, 113, 0.68);
+    box-shadow:
+        inset 4px 0 0 var(--danger),
+        0 0 18px rgba(220, 38, 38, 0.18);
+    transform: translateX(2px);
+}
+
+@media (max-width: 860px) {
+    .aluno-sidebar {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        position: relative;
+    }
+
+    .aluno-sidebar .sidebar-nav,
+    .aluno-sidebar .sidebar-footer {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .aluno-sidebar .sidebar-footer {
+        margin-top: 14px;
+    }
+}

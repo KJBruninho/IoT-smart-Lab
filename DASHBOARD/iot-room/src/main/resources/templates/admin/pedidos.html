@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Pedidos</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-page">
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1>Pedidos</h1>
+                <p>Pedidos de alteração dos intervalos e configuração adaptativa dos sensores.</p>
+            </div>
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}"></span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="admin-panel">
+            <form class="filter-form" th:action="@{/admin/pedidos}" method="get">
+
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado">
+                        <option value="">Todos</option>
+                        <option value="PENDENTE" th:selected="${estado == 'PENDENTE'}">Pendentes</option>
+                        <option value="APROVADO" th:selected="${estado == 'APROVADO'}">Aprovados</option>
+                        <option value="APLICADO" th:selected="${estado == 'APLICADO'}">Aplicados</option>
+                        <option value="REJEITADO" th:selected="${estado == 'REJEITADO'}">Rejeitados</option>
+                        <option value="ERRO" th:selected="${estado == 'ERRO'}">Erro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="origem">Origem</label>
+                    <select id="origem" name="origem">
+                        <option value="">Todas</option>
+                        <option value="PROFESSOR" th:selected="${origem == 'PROFESSOR'}">Professor</option>
+                        <option value="RESEARCHER" th:selected="${origem == 'RESEARCHER'}">Researcher</option>
+                        <option value="ESP32" th:selected="${origem == 'ESP32'}">ESP32</option>
+                        <option value="SISTEMA" th:selected="${origem == 'SISTEMA'}">Sistema</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo de sensor</label>
+                    <select id="tipo" name="tipo">
+                        <option value="">Todos</option>
+                        <option value="TEMPERATURA" th:selected="${tipo == 'TEMPERATURA'}">Temperatura</option>
+                        <option value="TDS" th:selected="${tipo == 'TDS'}">TDS</option>
+                        <option value="PH" th:selected="${tipo == 'PH'}">pH</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a th:href="@{/admin/pedidos}" class="btn btn-secondary">Limpar</a>
+                </div>
+
+            </form>
+        </section>
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+                <h2>Lista de pedidos</h2>
+                <span class="muted">
+                    Total:
+                    <strong th:text="${#lists.size(pedidos)}">0</strong>
+                </span>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(pedidos)}">
+                Nenhum pedido encontrado.
+            </div>
+
+            <div class="pedido-list" th:if="${!#lists.isEmpty(pedidos)}">
+
+                <article class="pedido-card" th:each="pedido : ${pedidos}">
+
+                    <div class="pedido-card-header">
+                        <div>
+                            <h3>
+                                <span th:text="${pedido.sensorNome()}">Sensor</span>
+                                <span class="muted">·</span>
+                                <span th:text="${pedido.tipoSensor()}">TIPO</span>
+                            </h3>
+
+                            <p class="muted">
+                                Estação:
+                                <strong th:text="${pedido.estacaoNome()}">Estação</strong>
+                                ·
+                                <code th:text="${pedido.deviceId()}">esp32</code>
+                            </p>
+                        </div>
+
+                        <div class="pedido-status-area">
+                            <span class="badge"
+                                  th:classappend="${pedido.estado() == 'PENDENTE'} ? 'badge-warning' :
+                                                  (${pedido.estado() == 'REJEITADO'} ? 'badge-error' :
+                                                  (${pedido.estado() == 'APROVADO' || pedido.estado() == 'APLICADO'} ? 'badge-success-soft' : 'badge-info'))"
+                                  th:text="${pedido.estado()}">
+                                PENDENTE
+                            </span>
+
+                            <span class="badge badge-info" th:text="${pedido.origem()}">
+                                ORIGEM
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="pedido-grid">
+
+                        <div>
+                            <span class="stat-label">Intervalo rápido</span>
+                            <strong th:text="${pedido.intervaloRapidoMs() + ' ms'}">1000 ms</strong>
+                        </div>
+
+                        <div>
+                            <span class="stat-label">Intervalo estável</span>
+                            <strong th:text="${pedido.intervaloEstavelMs() + ' ms'}">30000 ms</strong>
+                        </div>
+
+                        <div>
+                            <span class="stat-label">Duração modo rápido</span>
+                            <strong th:text="${pedido.duracaoModoRapidoMs() + ' ms'}">120000 ms</strong>
+                        </div>
+
+                        <div>
+                            <span class="stat-label">Delta significativo</span>
+                            <strong th:text="${pedido.deltaSignificativo() + ' ' + pedido.unidade()}">1.0000</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="pedido-meta">
+                        <p>
+                            <strong>Solicitado por:</strong>
+                            <span th:text="${pedido.solicitadoPorNome() != null ? pedido.solicitadoPorNome() : pedido.origem()}">
+                                Sistema
+                            </span>
+                        </p>
+
+                        <p>
+                            <strong>Criado em:</strong>
+                            <span th:text="${pedido.criadoEm() != null ? #temporals.format(pedido.criadoEm(), 'dd/MM/yyyy HH:mm:ss') : '-'}">
+                                -
+                            </span>
+                        </p>
+
+                        <p th:if="${pedido.analisadoEm() != null}">
+                            <strong>Analisado em:</strong>
+                            <span th:text="${#temporals.format(pedido.analisadoEm(), 'dd/MM/yyyy HH:mm:ss')}">
+                                -
+                            </span>
+                        </p>
+
+                        <p th:if="${pedido.comandoId() != null}">
+                            <strong>Comando:</strong>
+                            <span>#</span><span th:text="${pedido.comandoId()}">1</span>
+                        </p>
+                    </div>
+
+                    <div class="pedido-text" th:if="${pedido.motivo() != null && !pedido.motivo().isBlank()}">
+                        <strong>Motivo:</strong>
+                        <p th:text="${pedido.motivo()}">Motivo do pedido</p>
+                    </div>
+
+                    <div class="pedido-text" th:if="${pedido.respostaProfessor() != null && !pedido.respostaProfessor().isBlank()}">
+                        <strong>Resposta:</strong>
+                        <p th:text="${pedido.respostaProfessor()}">Resposta</p>
+                    </div>
+
+                    <div class="pedido-actions" th:if="${pedido.estado() == 'PENDENTE'}">
+
+                        <form th:action="@{/admin/pedidos/{id}/aprovar(id=${pedido.id()})}"
+                              method="post"
+                              class="pedido-action-form">
+                            <input type="text"
+                                   name="resposta"
+                                   placeholder="Resposta opcional ao pedido">
+                            <button type="submit" class="btn btn-success">
+                                Aprovar
+                            </button>
+                        </form>
+
+                        <form th:action="@{/admin/pedidos/{id}/rejeitar(id=${pedido.id()})}"
+                              method="post"
+                              class="pedido-action-form">
+                            <input type="text"
+                                   name="resposta"
+                                   placeholder="Motivo opcional da rejeição">
+                            <button type="submit" class="btn btn-danger">
+                                Rejeitar
+                            </button>
+                        </form>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

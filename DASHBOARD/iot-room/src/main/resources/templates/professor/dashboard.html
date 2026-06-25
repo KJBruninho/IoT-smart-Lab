@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor | Dashboard operacional</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto ">
+
+<div th:replace="~{fragments/app-nav :: appNav('professor')}"></div>
+
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('dashboard')}"></div>
+
+    <main class="professor-main">
+        <header class="professor-topbar professor-topbar-actions">
+            <div>
+                <h1>Dashboard Operacional</h1>
+                <p>Estado atual das estações, sensores, experiências e alertas.</p>
+            </div>
+            
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}">Operação concluída.</span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}">Erro ao executar operação.</span>
+        </section>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <span class="stat-label">Estações online</span>
+                <strong th:text="${estacoesOnline != null ? estacoesOnline : 0}">0</strong>
+                <small>Estações com dados recentes nos últimos minutos.</small>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Sensores ativos</span>
+                <strong th:text="${sensoresAtivos != null ? sensoresAtivos : 0}">0</strong>
+                <small>Sensores ativos nas estações acessíveis.</small>
+            </article>
+            <article class="stat-card warning">
+                <span class="stat-label">Alertas novos</span>
+                <strong th:text="${alertasNovos != null ? alertasNovos : 0}">0</strong>
+                <small>Alertas ainda não lidos ou resolvidos.</small>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Última leitura</span>
+                <strong class="small-value" th:text="${ultimaLeituraTexto != null ? ultimaLeituraTexto : 'Sem dados'}">Sem dados</strong>
+                <small>Último registo recebido.</small>
+            </article>
+        </section>
+
+        <section class="professor-content-grid">
+            <article class="professor-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Ações rápidas</h2>
+                        <p class="muted">Atalhos operacionais. A gestão global fica no Admin.</p>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <a class="quick-action" th:href="@{/professor/dados}">Abrir dados e gráficos</a>
+                    <a class="quick-action" th:href="@{/professor/experiencias/nova}">Nova experiência</a>
+                    <a class="quick-action" th:href="@{/professor/alertas/nova-regra}">Nova regra de alerta</a>
+                    <a class="quick-action" th:href="@{/professor/sensores}">Ver sensores</a>
+                    <a class="quick-action" th:href="@{/professor/avisos/novo}">Criar aviso</a>
+                    <a class="quick-action" th:href="@{/professor/forum/novo}">Criar tópico no fórum</a>
+                </div>
+            </article>
+
+            <article class="professor-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Últimas leituras</h2>
+                        <p class="muted">Leituras mais recentes recebidas pelo sistema.</p>
+                    </div>
+                    <a th:href="@{/professor/dados}">Ver dados</a>
+                </div>
+                <div class="empty-state" th:if="${ultimasLeituras == null or #lists.isEmpty(ultimasLeituras)}">Ainda não existem leituras recentes.</div>
+                <table class="professor-table" th:if="${ultimasLeituras != null and !#lists.isEmpty(ultimasLeituras)}">
+                    <thead><tr><th>Sensor</th><th>Valor</th><th>Estação</th><th>Quando</th></tr></thead>
+                    <tbody>
+                    <tr th:each="leitura : ${ultimasLeituras}">
+                        <td><strong th:text="${leitura.sensorNome}">Sensor</strong><div class="muted" th:text="${leitura.tipoSensor}">Tipo</div></td>
+                        <td><strong th:text="${leitura.valor}">0</strong> <span th:text="${leitura.unidade}">un.</span></td>
+                        <td><strong th:text="${leitura.estacaoNome}">Estação</strong><div class="muted" th:text="${leitura.contexto}">Contexto</div></td>
+                        <td><strong th:text="${leitura.tempoRelativo}">agora</strong><div class="muted" th:text="${leitura.dataRegisto}">data</div></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+
+        <section class="professor-panel margin-top">
+            <div class="panel-header">
+                <div>
+                    <h2>Alertas recentes</h2>
+                    <p class="muted">Últimos alertas gerados pelas regras dos sensores.</p>
+                </div>
+                <a th:href="@{/professor/alertas}">Ver todos</a>
+            </div>
+            <div class="empty-state" th:if="${alertasRecentes == null or #lists.isEmpty(alertasRecentes)}">Sem alertas recentes.</div>
+            <div class="feed-list" th:if="${alertasRecentes != null and !#lists.isEmpty(alertasRecentes)}">
+                <article class="feed-item" th:each="alerta : ${alertasRecentes}">
+                    <div class="feed-item-header">
+                        <div>
+                            <span class="badge badge-warning" >AVISO</span>
+                            <h3 th:text="${alerta}">Alerta</h3>
+                            <p class="muted" >Descrição do alerta.</p>
+                        </div>
+                        <span class="muted" >data</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

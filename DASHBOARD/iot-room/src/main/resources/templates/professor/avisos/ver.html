@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviso | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('avisos')}"></div>
+    <main class="professor-main">
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Aviso</h1>
+                <p>Detalhe do aviso.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/avisos}">Voltar</a></div>
+        </header>
+
+        <section class="professor-panel" th:if="${aviso != null}"><div class="panel-header"><div><h2 th:text="${aviso.titulo}">Aviso</h2><p th:text="${aviso.mensagem}">Mensagem</p></div><span class="status-pill" th:text="${aviso.ativo ? 'Ativo' : 'Inativo'}">Estado</span></div><div class="detail-grid"><div><span>Criado em</span><strong th:text="${aviso.criadoEm != null ? #temporals.format(aviso.criadoEm, 'dd/MM/yyyy HH:mm') : '-'}">-</strong></div><div><span>Expira em</span><strong th:text="${aviso.expiraEm != null ? #temporals.format(aviso.expiraEm, 'dd/MM/yyyy HH:mm') : '-'}">-</strong></div></div><div class="professor-actions" style="margin-top:16px"><a class="btn btn-secondary" th:href="@{/professor/avisos/{id}/editar(id=${aviso.id})}">Editar</a></div></section>
+
+    </main>
+</div>
+</body>
+</html>

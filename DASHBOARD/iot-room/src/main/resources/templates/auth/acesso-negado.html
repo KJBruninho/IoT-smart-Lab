@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Acesso negado | IoT Room</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+
+<main class="auth-container">
+    <section class="auth-card">
+        <h1 class="auth-title">Acesso negado</h1>
+        <p class="auth-subtitle">Não tens permissões para aceder a esta página.</p>
+
+		<a class="auth-link" href="#" onclick="window.history.back(); return false;">Voltar atrás</a>
+        <a class="auth-link" th:href="@{/auth/logout}">Terminar sessão</a>
+    </section>
+</main>
+
+</body>
+</html>
