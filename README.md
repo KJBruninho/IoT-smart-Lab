@@ -1,307 +1,345 @@
-# Sala IoT — Monitorização com ESP32 e Raspberry Pi 5
+# IoT Smart Lab
 
-Projeto IoT para monitorização de sensores de **temperatura** e **TDS** numa sala, utilizando **ESP32** e **Raspberry Pi 5**.
+Sistema IoT para monitorização de uma sala/laboratório usando **ESP32**, **MQTT**, **Spring Boot**, **MySQL**, **dashboard web** e **app Android**.
 
-Os dados recolhidos são enviados para uma base de dados e posteriormente apresentados numa **dashboard web** e numa **aplicação móvel**.
+> Estado: em desenvolvimento.
 
----
+## Descrição
 
-## Objetivo
+O **IoT Smart Lab** recolhe valores de sensores ligados a um ESP32 e envia-os por MQTT para uma aplicação Spring Boot. O backend recebe as mensagens, regista as leituras numa base de dados MySQL, mantém uma cache local em SQLite para tolerância a falhas e disponibiliza dados para visualização numa dashboard web e numa aplicação Android.
 
-Este projeto tem como objetivo criar um sistema de monitorização IoT capaz de:
+O fluxo principal cobre:
 
-* Ler dados de sensores de temperatura
-* Ler dados de sensores TDS
-* Enviar os dados para uma base de dados
-* Armazenar o histórico das medições
-* Disponibilizar os dados para visualização numa dashboard
-* Servir os dados para uma app móvel
+- leitura de temperatura;
+- leitura de TDS;
+- envio de dados por MQTT;
+- armazenamento em MySQL;
+- cache local SQLite;
+- dashboard web com Thymeleaf;
+- endpoints JSON para gráficos e estado do sistema;
+- app Android para consulta dos dados;
+- comandos remotos para controlo dos sensores.
 
----
+O firmware do ESP32 também inclui suporte lógico para pH e calibração remota. A integração completa do pH no backend deve ser validada/adaptada conforme a configuração final.
 
-## Arquitetura do Sistema
+## Arquitetura
 
 ```text
 [Sensores]
-   |
-   | Temperatura / TDS
-   |
+  ├── Temperatura
+  ├── TDS
+  └── pH opcional
+        |
+        v
 [ESP32]
-   |
-   | Wi-Fi / MQTT / HTTP
-   |
-[Raspberry Pi 5]
-   |
-   | API / Broker / Backend
-   |
-[Base de Dados]
-   |
-   | Dados históricos
-   |
-[Dashboard Web] + [App Mobile]
+        |
+        | MQTT
+        v
+[Broker MQTT]
+        |
+        v
+[Backend Spring Boot]
+  ├── MySQL
+  ├── SQLite local cache
+  ├── Dashboard Web
+  └── API para App Android
 ```
 
----
+O Raspberry Pi 5 pode ser usado como servidor local para correr o broker MQTT, a base de dados e o backend.
 
-## Hardware Utilizado
+## Funcionalidades
 
-* ESP32
-* Raspberry Pi 5
-* Sensor de temperatura
-* Sensor TDS
-* Fonte de alimentação
-* Cabos jumper
-* Breadboard ou PCB
-* Rede Wi-Fi local
+- Monitorização de temperatura.
+- Monitorização de TDS.
+- Suporte no firmware para sensor de pH.
+- Publicação MQTT dos valores finais dos sensores.
+- Modo de envio adaptativo: envio rápido quando há alterações e envio estável quando os valores estabilizam.
+- Controlo remoto de sensores por comandos MQTT.
+- Confirmação de comandos por ACK.
+- Dashboard web por perfis de utilizador.
+- Endpoints JSON para gráficos.
+- Cache SQLite local para reduzir perda de dados em caso de falha na base de dados principal.
+- App Android em Gradle/Kotlin.
 
----
-
-## Tecnologias Previstas
-
-### Microcontrolador
-
-* ESP32
-* Arduino IDE ou PlatformIO
-* Wi-Fi
-* MQTT ou HTTP
-
-### Servidor Local
-
-* Raspberry Pi 5
-* Python / Node.js
-* API REST
-* MQTT Broker, por exemplo Mosquitto
-* Docker, opcional
-
-### Base de Dados
-
-* PostgreSQL
-* MySQL
-* InfluxDB
-* SQLite, para testes locais
-
-### Visualização
-
-* Dashboard web
-* App móvel
-* Gráficos em tempo real
-* Histórico de medições
-
----
-
-## Estrutura do Projeto
+## Estrutura do projeto
 
 ```text
-sala-iot/
+IoT-smart-Lab/
+├── APP/
+│   ├── app/
+│   ├── gradle/
+│   ├── build.gradle.kts
+│   └── settings.gradle.kts
 │
-├── esp32/
-│   ├── src/
-│   ├── include/
-│   └── README.md
+├── DASHBOARD/
+│   └── iot-room/
+│       ├── src/main/java/com/iotroom/iotroom/
+│       │   ├── config/
+│       │   ├── controller/
+│       │   ├── dto/
+│       │   ├── model/
+│       │   ├── mqtt/
+│       │   ├── repository/
+│       │   ├── security/
+│       │   └── service/
+│       ├── src/main/resources/
+│       │   ├── static/
+│       │   ├── templates/
+│       │   └── application.properties
+│       ├── pom.xml
+│       └── README.md
 │
-├── raspberry-pi/
-│   ├── backend/
-│   ├── database/
-│   └── README.md
+├── ESP32/
+│   └── sketch_esp32/
+│       └── sketch_esp32.ino
 │
-├── dashboard/
-│   ├── src/
-│   └── README.md
-│
-├── app/
-│   ├── src/
-│   └── README.md
-│
-├── docs/
-│   ├── arquitetura.md
-│   └── esquemas.md
-│
+├── SECURITY/
+├── LICENSE
 └── README.md
 ```
 
----
+## Tecnologias
 
-## Funcionamento
+| Componente | Tecnologias |
+|---|---|
+| Firmware | ESP32, Arduino/C++, Wi-Fi, MQTT, PubSubClient, OneWire, DallasTemperature, Preferences |
+| Backend/Dashboard | Java 17, Spring Boot, Spring Web, Thymeleaf, Spring Data JPA, Maven |
+| Comunicação | MQTT |
+| Base de dados | MySQL e SQLite local cache |
+| App móvel | Android, Kotlin, Gradle |
+| Servidor local | Raspberry Pi 5 ou outro computador na rede local |
 
-1. O ESP32 lê os valores dos sensores de temperatura e TDS.
-2. Os dados são tratados e formatados.
-3. O ESP32 envia os dados para o Raspberry Pi 5 através da rede.
-4. O Raspberry Pi recebe os dados através de uma API ou broker MQTT.
-5. Os dados são guardados numa base de dados.
-6. A dashboard e a app consultam a base de dados através do backend.
-7. O utilizador consegue visualizar os valores atuais e o histórico.
+## Tópicos MQTT
 
----
+### Dados publicados pelo ESP32
 
-## Exemplo de Dados Enviados
+| Tópico | Payload esperado | Descrição |
+|---|---|---|
+| `esp32/temperatura` | número decimal | Temperatura em ºC |
+| `esp32/tds` | número decimal | Valor TDS em ppm |
+| `esp32/ph` | número decimal | Valor de pH, opcional |
 
-```json
-{
-  "device_id": "esp32_sala_01",
-  "temperature": 24.6,
-  "tds": 438,
-  "timestamp": "2026-05-18T14:30:00Z"
-}
+Nota: o backend atual está configurado para receber temperatura e TDS. Para usar pH no backend, acrescenta a configuração do tópico, o registo da leitura e a visualização correspondente.
+
+### Controlo remoto do ESP32
+
+O firmware usa tópicos por `DEVICE_ID`:
+
+```text
+esp32/{DEVICE_ID}/cmd
+esp32/{DEVICE_ID}/ack
+esp32/{DEVICE_ID}/status
 ```
 
----
+Exemplo para `DEVICE_ID = esp32_sala_01`:
 
-## Possíveis Endpoints da API
-
-| Método | Endpoint               | Descrição                     |
-| ------ | ---------------------- | ----------------------------- |
-| `POST` | `/api/readings`        | Recebe dados dos sensores     |
-| `GET`  | `/api/readings`        | Lista medições                |
-| `GET`  | `/api/readings/latest` | Obtém a última medição        |
-| `GET`  | `/api/devices`         | Lista dispositivos registados |
-
----
-
-## Exemplo de Tabela na Base de Dados
-
-```sql
-CREATE TABLE sensor_readings (
-    id SERIAL PRIMARY KEY,
-    device_id VARCHAR(100) NOT NULL,
-    temperature FLOAT,
-    tds FLOAT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+```text
+esp32/esp32_sala_01/cmd
+esp32/esp32_sala_01/ack
+esp32/esp32_sala_01/status
 ```
 
----
+Para o backend publicar comandos no mesmo formato, define o prefixo de comando como `esp32`:
 
-## Configuração do ESP32
-
-O ESP32 deverá ser configurado com:
-
-* SSID da rede Wi-Fi
-* Palavra-passe da rede
-* Endereço IP ou domínio do Raspberry Pi
-* Intervalo de leitura dos sensores
-* Identificador do dispositivo
-
-Exemplo de variáveis:
-
-```cpp
-const char* WIFI_SSID = "NOME_DA_REDE";
-const char* WIFI_PASSWORD = "PALAVRA_PASSE";
-const char* SERVER_URL = "http://192.168.1.100:3000/api/readings";
-const char* DEVICE_ID = "esp32_sala_01";
+```properties
+mqtt.command-prefix=esp32
 ```
 
----
+## Pré-requisitos
 
-## Configuração do Raspberry Pi 5
+### Hardware
 
-No Raspberry Pi 5 será executado o backend responsável por:
+- ESP32.
+- Sensor de temperatura compatível com OneWire/DallasTemperature.
+- Sensor TDS analógico.
+- Sensor pH analógico, opcional.
+- Raspberry Pi 5 ou computador para correr backend, broker MQTT e base de dados.
+- Fonte de alimentação.
+- Cabos jumper.
+- Breadboard ou PCB.
+- Rede local Wi-Fi.
 
-* Receber os dados enviados pelo ESP32
-* Validar os dados recebidos
-* Guardar os dados na base de dados
-* Disponibilizar endpoints para dashboard e app
-* Opcionalmente gerir autenticação e permissões
+### Software
 
----
+- Java 17.
+- Maven.
+- MySQL.
+- Broker MQTT, por exemplo Mosquitto.
+- Arduino IDE ou PlatformIO.
+- Android Studio, para a app móvel.
 
 ## Instalação
 
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/teu-utilizador/sala-iot.git
-cd sala-iot
+git clone https://github.com/KJBruninho/IoT-smart-Lab.git
+cd IoT-smart-Lab
 ```
 
-### 2. Configurar o backend
+### 2. Configurar a base de dados
+
+Cria a base de dados MySQL:
+
+```sql
+CREATE DATABASE iot_room CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Se existir um ficheiro SQL de inicialização no projeto, importa-o para a base de dados:
 
 ```bash
-cd raspberry-pi/backend
+mysql -u root -p iot_room < init_iot_room.sql
 ```
 
-Instalar dependências:
+### 3. Configurar o backend Spring Boot
+
+Abre o ficheiro:
+
+```text
+DASHBOARD/iot-room/src/main/resources/application.properties
+```
+
+Exemplo de configuração segura:
+
+```properties
+spring.application.name=iot-room
+server.port=8081
+
+spring.datasource.url=jdbc:mysql://localhost:3306/iot_room
+spring.datasource.username=iot_user
+spring.datasource.password=ALTERAR_PASSWORD
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=false
+spring.jpa.open-in-view=false
+
+cache.sqlite.path=/var/lib/iot-room/cache.db
+cache.flush.delay-ms=10000
+
+mqtt.broker=tcp://localhost:1883
+mqtt.client-id=iot-room-spring
+mqtt.topic-temperatura=esp32/temperatura
+mqtt.topic-tds=esp32/tds
+mqtt.device-id=esp32_sala_01
+mqtt.command-prefix=esp32
+
+jwt.secret=ALTERAR_PARA_CHAVE_COM_32_CARACTERES_OU_MAIS
+auth.api.base-url=http://localhost:8090
+```
+
+Não coloques passwords reais, chaves JWT ou IPs privados sensíveis em commits públicos.
+
+### 4. Correr o backend/dashboard
 
 ```bash
-npm install
+cd DASHBOARD/iot-room
+mvn spring-boot:run
 ```
 
-ou, caso seja usado Python:
+Depois abre no browser:
+
+```text
+http://localhost:8081/
+```
+
+A aplicação redireciona o utilizador para a área adequada conforme o perfil configurado.
+
+### 5. Configurar o ESP32
+
+Abre o ficheiro:
+
+```text
+ESP32/sketch_esp32/sketch_esp32.ino
+```
+
+Atualiza os principais parâmetros:
+
+```cpp
+const char* DEVICE_ID = "esp32_sala_01";
+const char* WIFI_SSID = "NOME_DA_REDE";
+const char* WIFI_PASSWORD = "PALAVRA_PASSE";
+const char* MQTT_SERVER = "IP_DO_BROKER_MQTT";
+const int MQTT_PORT = 1883;
+```
+
+Confirma também os pinos usados:
+
+```cpp
+#define ONE_WIRE_BUS 18
+#define TDS_PIN 34
+#define PH_PIN 35
+```
+
+Depois carrega o firmware para o ESP32 usando Arduino IDE ou PlatformIO.
+
+### 6. Correr a app Android
+
+Abre a pasta `APP/` no Android Studio ou compila via Gradle:
 
 ```bash
-pip install -r requirements.txt
+cd APP
+./gradlew build
 ```
 
-### 3. Configurar variáveis de ambiente
+Configura o endereço da API/backend na app de acordo com o IP do servidor local usado no teu ambiente.
 
-Criar um ficheiro `.env`:
+## Endpoints principais
 
-```env
-PORT=3000
-DATABASE_URL=postgresql://user:password@localhost:5432/sala_iot
-MQTT_HOST=localhost
-MQTT_PORT=1883
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/temperatura` | Devolve dados de temperatura para gráficos |
+| `GET` | `/api/tds` | Devolve dados de TDS para gráficos |
+| `GET` | `/api/dashboard/estado` | Devolve estado geral da dashboard, MQTT e últimas leituras |
+
+## Comandos úteis do ESP32
+
+No Serial Monitor, o firmware aceita comandos locais de teste:
+
+```text
+HELP
+STATUS
+PING
+SET_REMOTE_ACTIVE:1
+SET_REMOTE_ACTIVE:0
+SET_SENSOR_ACTIVE:TEMPERATURA:1
+SET_SENSOR_ACTIVE:TDS:0
+SET_SENSOR_ACTIVE:PH:1
+SET_CONNECTED:PH:0
+RESET_CALIBRATION
 ```
 
-### 4. Iniciar o backend
+Também é possível enviar comandos de configuração e calibração, por exemplo:
 
-```bash
-npm run dev
+```text
+SET_CALIBRATION:TDS:FACTOR=1.000000
+SET_CALIBRATION:PH:FACTOR=1.000000;OFFSET=0.000000
+SET_CONFIG:TDS:FAST=1000;STABLE=30000;FAST_DURATION=120000;DELTA=5.00
 ```
-
-ou:
-
-```bash
-python app.py
-```
-
-### 5. Carregar código para o ESP32
-
-Abrir o projeto na Arduino IDE ou PlatformIO, configurar as credenciais Wi-Fi e carregar o firmware para o ESP32.
-
----
-
-## Funcionalidades Planeadas
-
-* [ ] Leitura de temperatura
-* [ ] Leitura de TDS
-* [ ] Envio de dados por HTTP
-* [ ] Envio de dados por MQTT
-* [ ] Armazenamento em base de dados
-* [ ] Dashboard web
-* [ ] App móvel
-* [ ] Alertas de valores fora do intervalo
-* [ ] Autenticação de utilizadores
-* [ ] Histórico por dia, semana e mês
-* [ ] Exportação de dados em CSV
-
----
 
 ## Segurança
 
-Algumas medidas recomendadas:
+- Não guardar credenciais Wi-Fi, passwords da base de dados ou segredos JWT diretamente no repositório.
+- Usar variáveis de ambiente ou ficheiros locais ignorados pelo Git para dados sensíveis.
+- Alterar `jwt.secret` antes de correr em produção.
+- Restringir o acesso ao broker MQTT na rede local.
+- Criar utilizadores MySQL com permissões limitadas.
+- Usar firewall no Raspberry Pi ou servidor local.
+- Ativar HTTPS quando a dashboard estiver exposta fora da rede local.
 
-* Não guardar credenciais diretamente no código
-* Utilizar ficheiro `.env` no backend
-* Proteger endpoints da API
-* Usar autenticação na dashboard e app
-* Validar todos os dados recebidos
-* Configurar firewall no Raspberry Pi
-* Usar HTTPS em ambiente de produção
+## Roadmap
 
----
-
-## Estado do Projeto
-
-Em desenvolvimento.
-
----
+- Integrar completamente o sensor pH no backend e na dashboard.
+- Adicionar documentação de ligações elétricas dos sensores.
+- Criar `docker-compose.yml` para MySQL, MQTT e backend.
+- Adicionar testes automáticos ao backend.
+- Melhorar documentação da app Android.
+- Adicionar exportação CSV.
+- Adicionar alertas configuráveis por sensor.
 
 ## Autor
 
-**Bruno Marinho**
-
----
+Bruno Marinho
 
 ## Licença
 
-Este projeto pode ser distribuído sob a licença MIT.
+Este projeto está licenciado sob a licença MIT.
