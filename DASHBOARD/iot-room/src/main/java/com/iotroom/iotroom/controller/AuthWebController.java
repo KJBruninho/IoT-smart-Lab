@@ -80,8 +80,15 @@ public class AuthWebController {
                     Duration.ofDays(30)
             );
 
+
             if ("ADMIN".equalsIgnoreCase(body.role())) {
                 return "redirect:/admin";
+            }
+            if ("PROFESSOR".equalsIgnoreCase(body.role())) {
+                return "redirect:/professor";
+            }
+            if ("ALUNO".equalsIgnoreCase(body.role())) {
+                return "redirect:/aluno";
             }
 
             return "redirect:/professor";

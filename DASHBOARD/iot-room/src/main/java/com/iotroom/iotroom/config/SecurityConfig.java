@@ -68,11 +68,17 @@ public class SecurityConfig {
                         .requestMatchers("/professor/**")
                         .hasAnyAuthority("PROFESSOR", "ADMIN")
 
+                        .requestMatchers("/aluno/**")
+                        .hasAnyAuthority("ALUNO", "PROFESSOR", "ADMIN")
+
                         .requestMatchers("/api/admin/**")
                         .hasAuthority("ADMIN")
 
                         .requestMatchers("/api/professor/**")
                         .hasAnyAuthority("PROFESSOR", "ADMIN")
+
+                        .requestMatchers("/api/aluno/**")
+                        .hasAnyAuthority("ALUNO", "PROFESSOR", "ADMIN")
 
                         .requestMatchers(
                                 "/api/estacoes/**",
