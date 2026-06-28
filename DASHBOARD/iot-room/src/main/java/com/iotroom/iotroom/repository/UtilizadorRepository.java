@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UtilizadorRepository extends JpaRepository<Utilizador, Long> {
 
@@ -20,4 +21,6 @@ public interface UtilizadorRepository extends JpaRepository<Utilizador, Long> {
             ORDER BY u.nome ASC
             """, nativeQuery = true)
     List<Utilizador> findUtilizadoresDisponiveisParaGrupo(@Param("grupoId") Long grupoId);
+    
+    Optional<Utilizador> findByEmail(String email);
 }

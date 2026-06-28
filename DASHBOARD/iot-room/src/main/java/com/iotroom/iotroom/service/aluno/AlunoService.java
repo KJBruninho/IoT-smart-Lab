@@ -31,9 +31,13 @@ import java.util.Map;
 @Service
 public class AlunoService {
 
-    private static final int LIMITE_MINIMO = 5;
-    private static final int LIMITE_PADRAO = 50;
-    private static final int LIMITE_MAXIMO = 500;
+    private static final int LIMITE_MINIMO = 1;
+    private static final int LIMITE_PADRAO = 100;
+    private static final int LIMITE_MAXIMO = 9999;
+
+    private static final int LIMITE_SERIES_MINIMO = 1;
+    private static final int LIMITE_SERIES_PADRAO = 4;
+    private static final int LIMITE_SERIES_MAXIMO = 50;
 
     private static final DateTimeFormatter GRAFICO_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM HH:mm");
 
@@ -105,6 +109,14 @@ public class AlunoService {
         );
     }
 
+    public int normalizarLimitePublico(Integer limite) {
+        return normalizarLimite(limite);
+    }
+
+    public int normalizarLimiteSeriesPublico(Integer limiteSeries) {
+        return normalizarLimiteSeries(limiteSeries);
+    }
+
     public List<AlunoLeituraDTO> listarLeituras(Long alunoId, AlunoDadosFiltroForm filtro) {
         return listarLeituras(alunoId, false, false, filtro);
     }
@@ -173,75 +185,156 @@ public class AlunoService {
             boolean professor,
             AlunoDadosFiltroForm filtro
     ) {
+        return listarGraficos(
+                utilizadorId,
+                admin,
+                professor,
+                filtro,
+                LIMITE_SERIES_PADRAO
+        );
+    }
+
+    public List<AlunoLeituraDTO> listarLeiturasSemLimite(
+            Long utilizadorId,
+            boolean admin,
+            boolean professor,
+            AlunoDadosFiltroForm filtro
+    ) {
         AlunoDadosFiltroForm f = normalizarFiltro(filtro);
-        int limitePorSerie = normalizarLimite(f.getLimite());
 
         StringBuilder sql = new StringBuilder("""
                 SELECT
-                    ranked.leitura_id,
-                    ranked.grupo_id,
-                    ranked.grupo_nome,
-                    ranked.experiencia_id,
-                    ranked.experiencia_nome,
-                    ranked.estacao_id,
-                    ranked.estacao_nome,
-                    ranked.device_id,
-                    ranked.sensor_id,
-                    ranked.sensor_nome,
-                    ranked.tipo_sensor,
-                    ranked.valor,
-                    ranked.unidade,
-                    ranked.data_registo
+                    l.id AS leitura_id,
+                    g.id AS grupo_id,
+                    g.nome AS grupo_nome,
+                    exp.id AS experiencia_id,
+                    exp.nome AS experiencia_nome,
+                    e.id AS estacao_id,
+                    e.nome AS estacao_nome,
+                    e.device_id,
+                    s.id AS sensor_id,
+                    s.nome AS sensor_nome,
+                    s.tipo AS tipo_sensor,
+                    l.valor,
+                    l.unidade,
+                    l.data_registo
+                FROM leituras_sensor l
+                INNER JOIN experiencias exp ON exp.id = l.experiencia_id
+                INNER JOIN grupos g ON g.id = exp.grupo_id
+                INNER JOIN sensores s ON s.id = l.sensor_id
+                INNER JOIN estacoes e ON e.id = s.estacao_id
+                WHERE
+                """).append(sqlAcessoLeitura(admin, professor)).append("\n");
+
+        MapSqlParameterSource params = paramsUtilizador(utilizadorId);
+
+        aplicarFiltros(sql, params, f);
+
+        sql.append(" ORDER BY l.data_registo ASC");
+
+        return jdbcTemplate.query(sql.toString(), params, leituraMapper());
+    }
+    
+    public List<AlunoGraficoDTO> listarGraficos(
+            Long utilizadorId,
+            boolean admin,
+            boolean professor,
+            AlunoDadosFiltroForm filtro,
+            Integer limiteSeries
+    ) {
+        AlunoDadosFiltroForm f = normalizarFiltro(filtro);
+
+        int limiteDadosPorSerie = normalizarLimite(f.getLimite());
+        int limiteSeriesPorGrafico = normalizarLimiteSeries(limiteSeries);
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT
+                    limited.leitura_id,
+                    limited.grupo_id,
+                    limited.grupo_nome,
+                    limited.experiencia_id,
+                    limited.experiencia_nome,
+                    limited.estacao_id,
+                    limited.estacao_nome,
+                    limited.device_id,
+                    limited.sensor_id,
+                    limited.sensor_nome,
+                    limited.tipo_sensor,
+                    limited.valor,
+                    limited.unidade,
+                    limited.data_registo
                 FROM (
                     SELECT
-                        base.*,
-                        ROW_NUMBER() OVER (
-                            PARTITION BY
-                                base.tipo_sensor,
-                                base.sensor_id,
-                                base.estacao_id,
-                                base.experiencia_id
-                            ORDER BY base.data_registo DESC
-                        ) AS rn
+                        ranked_points.*,
+                        DENSE_RANK() OVER (
+                            PARTITION BY ranked_points.tipo_sensor
+                            ORDER BY
+                                ranked_points.ultima_serie DESC,
+                                ranked_points.sensor_id ASC,
+                                ranked_points.estacao_id ASC,
+                                ranked_points.experiencia_id ASC
+                        ) AS serie_rank
                     FROM (
                         SELECT
-                            l.id AS leitura_id,
-                            g.id AS grupo_id,
-                            g.nome AS grupo_nome,
-                            exp.id AS experiencia_id,
-                            exp.nome AS experiencia_nome,
-                            e.id AS estacao_id,
-                            e.nome AS estacao_nome,
-                            e.device_id,
-                            s.id AS sensor_id,
-                            s.nome AS sensor_nome,
-                            s.tipo AS tipo_sensor,
-                            l.valor,
-                            l.unidade,
-                            l.data_registo
-                        FROM leituras_sensor l
-                        INNER JOIN experiencias exp ON exp.id = l.experiencia_id
-                        INNER JOIN grupos g ON g.id = exp.grupo_id
-                        INNER JOIN sensores s ON s.id = l.sensor_id
-                        INNER JOIN estacoes e ON e.id = s.estacao_id
-                        WHERE
-                        """).append(sqlAcessoLeitura(admin, professor)).append("\n");
+                            base.*,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY
+                                    base.tipo_sensor,
+                                    base.sensor_id,
+                                    base.estacao_id,
+                                    base.experiencia_id
+                                ORDER BY base.data_registo DESC
+                            ) AS rn,
+                            MAX(base.data_registo) OVER (
+                                PARTITION BY
+                                    base.tipo_sensor,
+                                    base.sensor_id,
+                                    base.estacao_id,
+                                    base.experiencia_id
+                            ) AS ultima_serie
+                        FROM (
+                            SELECT
+                                l.id AS leitura_id,
+                                g.id AS grupo_id,
+                                g.nome AS grupo_nome,
+                                exp.id AS experiencia_id,
+                                exp.nome AS experiencia_nome,
+                                e.id AS estacao_id,
+                                e.nome AS estacao_nome,
+                                e.device_id,
+                                s.id AS sensor_id,
+                                s.nome AS sensor_nome,
+                                s.tipo AS tipo_sensor,
+                                l.valor,
+                                l.unidade,
+                                l.data_registo
+                            FROM leituras_sensor l
+                            INNER JOIN experiencias exp ON exp.id = l.experiencia_id
+                            INNER JOIN grupos g ON g.id = exp.grupo_id
+                            INNER JOIN sensores s ON s.id = l.sensor_id
+                            INNER JOIN estacoes e ON e.id = s.estacao_id
+                            WHERE
+                            """).append(sqlAcessoLeitura(admin, professor)).append("\n");
 
         MapSqlParameterSource params = paramsUtilizador(utilizadorId)
-                .addValue("limite", limitePorSerie);
+                .addValue("limiteDados", limiteDadosPorSerie)
+                .addValue("limiteSeries", limiteSeriesPorGrafico);
 
         aplicarFiltros(sql, params, f);
 
         sql.append("""
-                    ) base
-                ) ranked
-                WHERE ranked.rn <= :limite
+                        ) base
+                    ) ranked_points
+                ) limited
+                WHERE limited.rn <= :limiteDados
+                  AND limited.serie_rank <= :limiteSeries
                 ORDER BY
-                    ranked.tipo_sensor ASC,
-                    ranked.estacao_nome ASC,
-                    ranked.sensor_nome ASC,
-                    ranked.experiencia_nome ASC,
-                    ranked.data_registo ASC
+                    limited.tipo_sensor ASC,
+                    limited.serie_rank ASC,
+                    limited.estacao_nome ASC,
+                    limited.sensor_nome ASC,
+                    limited.experiencia_nome ASC,
+                    limited.data_registo ASC
                 """);
 
         List<AlunoLeituraDTO> leiturasGrafico = jdbcTemplate.query(sql.toString(), params, leituraMapper());
@@ -343,9 +436,7 @@ public class AlunoService {
     private String nomeSerie(AlunoLeituraDTO leitura) {
         return textoOuPadrao(leitura.sensorNome(), "Sensor")
                 + " · "
-                + textoOuPadrao(leitura.estacaoNome(), "Estação")
-                + " · "
-                + textoOuPadrao(leitura.experienciaNome(), "Experiência");
+                + textoOuPadrao(leitura.estacaoNome(), "Estação");
     }
 
     public List<AlunoOpcaoDTO> listarGrupos(Long alunoId) {
@@ -575,6 +666,18 @@ public class AlunoService {
         }
 
         return Math.min(limite, LIMITE_MAXIMO);
+    }
+
+    private int normalizarLimiteSeries(Integer limiteSeries) {
+        if (limiteSeries == null) {
+            return LIMITE_SERIES_PADRAO;
+        }
+
+        if (limiteSeries < LIMITE_SERIES_MINIMO) {
+            return LIMITE_SERIES_MINIMO;
+        }
+
+        return Math.min(limiteSeries, LIMITE_SERIES_MAXIMO);
     }
 
     private void validarPedido(AlunoPedidoModoForm form) {
