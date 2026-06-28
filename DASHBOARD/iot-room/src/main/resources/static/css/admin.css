@@ -3,7 +3,8 @@
    Tema: Industrial / Tecnológico / Ultra Escuro (Pure Black)
    Ficheiro autónomo: não depende de app-shell.css
    ========================================================= */
-
+@import url("/css/app-user-topbar.css");
+@import url("/css/global-ui.css");
 :root {
     /* Tons de Fundo - Alterados para Preto Quase Absoluto */
     --bg-main: #020203;
@@ -108,6 +109,7 @@ html {
 }
 
 .admin-sidebar .brand-mark {
+    position: relative;
     display: grid;
     place-items: center;
     width: 44px;
@@ -120,6 +122,54 @@ html {
     font-weight: 950;
     letter-spacing: -0.05em;
     box-shadow: 0 0 24px var(--accent-glow);
+}
+
+/* =========================================================
+   ÍCONE DE PLANTA — Admin
+   Mesma técnica do tema Aluno: duas plantas sobrepostas em
+   crossfade. Sem toggle de fundo neste UI? Reaproveita a
+   mesma classe body.theme-light usada no resto do ficheiro.
+
+   HTML necessário dentro de .brand-mark:
+   <span class="brand-mark">
+       <span class="plant-sun"></span>
+       <span class="plant-shade"></span>
+   </span>
+   ========================================================= */
+
+.admin-sidebar .brand-mark .plant-sun,
+.admin-sidebar .brand-mark .plant-shade {
+    position: absolute;
+    inset: 0;
+    width: 26px;
+    height: 26px;
+    margin: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.admin-sidebar .brand-mark .plant-sun {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3E%3Cpath d='M20 38 C19.5 30 19.5 22 20 14' stroke='%23073427' stroke-width='1.8' stroke-linecap='round'/%3E%3Cg transform='rotate(-35 14 24)'%3E%3Cellipse cx='14' cy='24' rx='8.5' ry='6' fill='%23064e3b'/%3E%3C/g%3E%3Cg transform='rotate(35 26 24)'%3E%3Cellipse cx='26' cy='24' rx='8.5' ry='6' fill='%23073427'/%3E%3C/g%3E%3Cg transform='rotate(-28 14.5 15)'%3E%3Cellipse cx='14.5' cy='15' rx='7.2' ry='5.2' fill='%23065f46'/%3E%3C/g%3E%3Cg transform='rotate(28 25.5 15)'%3E%3Cellipse cx='25.5' cy='15' rx='7.2' ry='5.2' fill='%23064e3b'/%3E%3C/g%3E%3Cellipse cx='20' cy='9' rx='6.2' ry='6.8' fill='%23047857'/%3E%3C/svg%3E");
+    opacity: 0;
+    transform: scale(0.82) rotate(6deg);
+}
+
+.admin-sidebar .brand-mark .plant-shade {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3E%3Cpath d='M20 38 C19.7 29 19.7 18 21 6' stroke='%23073427' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M20.3 32 C14.5 30.5 10 27 7.5 22 C12.5 22 17 25 20.3 29.5 Z' fill='%23064e3b'/%3E%3Cpath d='M20.5 25.5 C15 24.3 11 21 9 16.5 C13.5 16.5 17.5 19.3 20.5 23.5 Z' fill='%23065f46'/%3E%3Cpath d='M21 19.5 C16.7 18.4 13.5 15.6 12 12 C15.8 12 19 14.2 21 17.5 Z' fill='%23064e3b'/%3E%3Cpath d='M21.3 13.5 C18 12.5 15.8 10.5 14.6 7.7 C17.4 7.7 19.8 9.5 21.3 12 Z' fill='%23047857'/%3E%3Cpath d='M20.3 32 C26.1 30.5 30.6 27 33.1 22 C28.1 22 23.6 25 20.3 29.5 Z' fill='%23073427'/%3E%3Cpath d='M20.5 25.5 C26 24.3 30 21 32 16.5 C27.5 16.5 23.5 19.3 20.5 23.5 Z' fill='%23065f46'/%3E%3Cpath d='M21 19.5 C25.3 18.4 28.5 15.6 30 12 C26.2 12 23 14.2 21 17.5 Z' fill='%23064e3b'/%3E%3Cpath d='M21.3 13.5 C24.6 12.5 26.8 10.5 28 7.7 C25.2 7.7 22.8 9.5 21.3 12 Z' fill='%23047857'/%3E%3C/svg%3E");
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+body.theme-light .admin-sidebar .brand-mark .plant-sun {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+body.theme-light .admin-sidebar .brand-mark .plant-shade {
+    opacity: 0;
+    transform: scale(0.82) rotate(-6deg);
 }
 
 .admin-sidebar .sidebar-brand strong {
@@ -1757,6 +1807,61 @@ strong {
     }
 }
 
+/* =========================================================
+   KEEP SCROLL · LOADING FRAME
+   ========================================================= */
+
+   .keep-scroll-loader {
+       position: fixed;
+       inset: 0;
+       z-index: 9999;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       padding-top: 0;
+       background: rgba(2, 6, 23, 0.72);
+       backdrop-filter: blur(7px);
+       -webkit-backdrop-filter: blur(7px);
+       opacity: 0;
+       pointer-events: none;
+       transition: opacity 140ms ease;
+   }
+
+   .keep-scroll-loader.is-active {
+       opacity: 1;
+       pointer-events: auto;
+   }
+
+   .keep-scroll-loader-card {
+       display: inline-flex;
+       align-items: center;
+       gap: 10px;
+       min-width: 170px;
+       padding: 13px 20px;
+       border-radius: 999px;
+       background: rgba(2, 6, 23, 0.96);
+       color: #f8fafc;
+       font-size: 0.88rem;
+       font-weight: 800;
+       border: 1px solid rgba(248, 250, 252, 0.12);
+       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+   }
+
+   .keep-scroll-spinner {
+       width: 18px;
+       height: 18px;
+       border-radius: 999px;
+       border: 3px solid rgba(248, 250, 252, 0.24);
+       border-top-color: #f8fafc;
+       animation: keep-scroll-spin 700ms linear infinite;
+   }
+
+   @keyframes keep-scroll-spin {
+       to {
+           transform: rotate(360deg);
+       }
+   }
+
 @media (max-width: 560px) {
     .admin-main {
         padding: 14px;
@@ -1791,4 +1896,408 @@ strong {
     .admin-table {
         min-width: 680px;
     }
+
+}
+/* =========================================================
+   TEMA CLARO — Admin
+   Ativado por: body.theme-light
+   Admin mantém-se sempre 1 nível mais escuro que o Professor,
+   tanto no fundo geral como nos painéis, em AMBOS os temas.
+   ========================================================= */
+
+body.theme-light {
+    --bg-main: #e7ede8;
+    --bg-grid: rgba(22, 163, 74, 0.05);
+    --bg-panel: #f4f7f5;
+    --bg-panel-2: #eef3ef;
+    --bg-panel-3: #e6ece7;
+    --bg-sidebar: #ffffff;
+    --bg-input: #ffffff;
+
+    --border-soft: rgba(22, 163, 74, 0.16);
+    --border-strong: rgba(22, 163, 74, 0.32);
+
+    --text-main: #142b1f;
+    --text-soft: #3f5a4b;
+    --text-muted: #6b8478;
+    --text-dark: #ffffff;
+
+    --accent: #16a34a;
+    --accent-strong: #15803d;
+    --accent-glow: rgba(22, 163, 74, 0.18);
+
+    --blue: #2563eb;
+    --green: #16a34a;
+    --yellow: #b45309;
+    --red: #dc2626;
+    --violet: #7e22ce;
+
+    --shadow-panel: 0 20px 46px rgba(20, 43, 31, 0.10);
+    --shadow-glow: 0 0 0 1px rgba(22, 163, 74, 0.06), 0 0 26px rgba(22, 163, 74, 0.05);
+
+    color-scheme: light;
+}
+
+body.theme-light {
+    background:
+        radial-gradient(circle at top left, rgba(22, 163, 74, 0.07), transparent 34rem),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(180deg, var(--bg-grid) 1px, transparent 1px),
+        var(--bg-main);
+    background-size: auto, 42px 42px, 42px 42px, auto;
+}
+
+body.theme-light::before {
+    background: linear-gradient(180deg, rgba(20, 43, 31, 0.015), transparent 18rem);
+}
+
+body.theme-light code {
+    color: #15803d;
+    background: #eef3ef;
+    border-color: rgba(22, 163, 74, 0.22);
+}
+
+body.theme-light strong {
+    color: #0c1f15;
+}
+
+/* Nav superior */
+body.theme-light .app-nav,
+body.theme-light .top-nav,
+body.theme-light .admin-global-nav {
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 16px 32px rgba(20, 43, 31, 0.08);
+}
+
+body.theme-light .app-nav-logo,
+body.theme-light .top-nav-logo,
+body.theme-light .admin-global-nav-logo {
+    background: linear-gradient(135deg, rgba(22, 163, 74, 0.16), rgba(255, 255, 255, 0.9));
+}
+
+body.theme-light .app-nav-title,
+body.theme-light .top-nav-title,
+body.theme-light .admin-global-nav-title {
+    color: #0c1f15;
+}
+
+body.theme-light .app-nav-links a:hover,
+body.theme-light .top-nav-links a:hover,
+body.theme-light .admin-global-nav-links a:hover,
+body.theme-light .app-nav-links a.active,
+body.theme-light .top-nav-links a.active,
+body.theme-light .admin-global-nav-links a.active {
+    color: #0c1f15;
+}
+
+/* Sidebar */
+body.theme-light .admin-sidebar {
+    background:
+        linear-gradient(180deg, rgba(22, 163, 74, 0.045), transparent 16rem),
+        linear-gradient(135deg, #ffffff, #f4f7f5 60%, #ffffff);
+    border-right: 1px solid rgba(22, 163, 74, 0.16);
+    box-shadow: 18px 0 40px rgba(20, 43, 31, 0.08);
+}
+
+body.theme-light .admin-sidebar::before {
+    background: linear-gradient(180deg, transparent, rgba(22, 163, 74, 0.35), transparent);
+}
+
+body.theme-light .admin-sidebar-title,
+body.theme-light .admin-sidebar-nav a:hover,
+body.theme-light .admin-sidebar-nav a.active,
+body.theme-light .admin-sidebar-footer a:hover {
+    color: #0c1f15;
+}
+
+body.theme-light .admin-sidebar-nav a:hover,
+body.theme-light .admin-sidebar-nav a.active,
+body.theme-light .admin-sidebar-footer a:hover {
+    background: linear-gradient(90deg, rgba(22, 163, 74, 0.14), rgba(255, 255, 255, 0.3));
+}
+
+body.theme-light .admin-sidebar-footer .sidebar-logout-button:hover {
+    color: #fff5f5;
+}
+
+/* Topbar / painéis / cards */
+body.theme-light .admin-topbar,
+body.theme-light .admin-panel,
+body.theme-light .stat-card,
+body.theme-light .pedido-card,
+body.theme-light .log-detail-box {
+    background:
+        linear-gradient(135deg, rgba(22, 163, 74, 0.04), transparent 42%),
+        linear-gradient(180deg, rgba(20, 43, 31, 0.015), rgba(20, 43, 31, 0.003)),
+        var(--bg-panel);
+}
+
+body.theme-light .admin-topbar h1,
+body.theme-light .panel-header h2,
+body.theme-light .stat-card strong,
+body.theme-light .checkbox-card strong,
+body.theme-light .setting-toggle strong,
+body.theme-light .form-section-title,
+body.theme-light .pedido-card-header h3,
+body.theme-light .log-detail-section h2,
+body.theme-light .log-detail-box h3 {
+    color: #0c1f15;
+}
+
+/* Alertas */
+body.theme-light .alert-success {
+    color: #14532d;
+    border-color: rgba(22, 163, 74, 0.32);
+    background: rgba(22, 163, 74, 0.10);
+}
+
+body.theme-light .alert-error {
+    color: #7f1d1d;
+    border-color: rgba(220, 38, 38, 0.30);
+    background: rgba(220, 38, 38, 0.08);
+}
+
+/* Badges / status */
+body.theme-light .badge {
+    color: #14532d;
+    border-color: rgba(22, 163, 74, 0.30);
+    background: rgba(22, 163, 74, 0.12);
+}
+
+body.theme-light .badge-info {
+    color: #0c4a6e;
+    border-color: rgba(14, 165, 233, 0.28);
+    background: rgba(14, 165, 233, 0.12);
+}
+
+body.theme-light .badge-warning {
+    color: #78350f;
+    border-color: rgba(245, 158, 11, 0.32);
+    background: rgba(245, 158, 11, 0.14);
+}
+
+body.theme-light .badge-error {
+    color: #7f1d1d;
+    border-color: rgba(220, 38, 38, 0.28);
+    background: rgba(220, 38, 38, 0.10);
+}
+
+body.theme-light .badge-success-soft {
+    color: #14532d;
+    border-color: rgba(22, 163, 74, 0.32);
+    background: rgba(22, 163, 74, 0.12);
+}
+
+body.theme-light .badge-muted {
+    color: #334155;
+    border-color: rgba(100, 116, 139, 0.22);
+    background: rgba(100, 116, 139, 0.10);
+}
+
+body.theme-light .status-active {
+    color: #14532d;
+    border-color: rgba(22, 163, 74, 0.32);
+    background: rgba(22, 163, 74, 0.12);
+}
+
+body.theme-light .status-inactive {
+    color: #334155;
+    border-color: rgba(100, 116, 139, 0.22);
+    background: rgba(100, 116, 139, 0.10);
+}
+
+body.theme-light .status-warning {
+    color: #78350f;
+    border-color: rgba(245, 158, 11, 0.32);
+    background: rgba(245, 158, 11, 0.14);
+}
+
+body.theme-light .text-danger {
+    color: #b91c1c !important;
+}
+
+body.theme-light .empty-state {
+    border-color: rgba(22, 163, 74, 0.26);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Botões */
+body.theme-light .btn {
+    color: var(--text-main);
+    background: #ffffff;
+    border-color: rgba(20, 43, 31, 0.12);
+}
+
+body.theme-light .btn:hover {
+    border-color: rgba(22, 163, 74, 0.40);
+    box-shadow: 0 10px 20px rgba(20, 43, 31, 0.10);
+}
+
+body.theme-light .btn-primary {
+    color: #ffffff;
+    border-color: rgba(22, 163, 74, 0.5);
+    background: linear-gradient(135deg, #22c55e, #15803d);
+}
+
+body.theme-light .btn-primary:hover {
+    background: linear-gradient(135deg, #16a34a, #166534);
+}
+
+body.theme-light .btn-secondary {
+    color: #142b1f;
+    border-color: rgba(20, 43, 31, 0.14);
+    background: #f4f7f5;
+}
+
+body.theme-light .btn-secondary:hover {
+    background: #e9efe9;
+}
+
+body.theme-light .btn-danger {
+    color: #ffffff;
+    border-color: rgba(220, 38, 38, 0.4);
+    background: rgba(220, 38, 38, 0.85);
+}
+
+body.theme-light .btn-danger:hover {
+    background: rgba(185, 28, 28, 0.92);
+}
+
+body.theme-light .btn-success {
+    color: #ffffff;
+    border-color: rgba(22, 163, 74, 0.45);
+    background: rgba(21, 128, 61, 0.9);
+}
+
+body.theme-light .quick-action {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+body.theme-light .quick-action:hover {
+    background: rgba(22, 163, 74, 0.08);
+}
+
+/* Formulários */
+body.theme-light .form-group label {
+    color: #1f3a2c;
+}
+
+body.theme-light .form-group input,
+body.theme-light .form-group select,
+body.theme-light .form-group textarea,
+body.theme-light .pedido-action-form input {
+    color: var(--text-main);
+    background: #ffffff;
+    border-color: rgba(20, 43, 31, 0.16);
+}
+
+body.theme-light .form-group input::placeholder,
+body.theme-light .form-group textarea::placeholder,
+body.theme-light .pedido-action-form input::placeholder {
+    color: rgba(20, 43, 31, 0.32);
+}
+
+body.theme-light .form-group select {
+    background-image:
+        linear-gradient(45deg, transparent 50%, #15803d 50%),
+        linear-gradient(135deg, #15803d 50%, transparent 50%);
+}
+
+body.theme-light .form-group input:focus,
+body.theme-light .form-group select:focus,
+body.theme-light .form-group textarea:focus,
+body.theme-light .pedido-action-form input:focus {
+    border-color: rgba(22, 163, 74, 0.55);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.10);
+}
+
+body.theme-light .checkbox-label,
+body.theme-light .checkbox-card,
+body.theme-light .setting-toggle {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.65);
+}
+
+body.theme-light .checkbox-card:has(input:checked),
+body.theme-light .setting-toggle:has(input:checked) {
+    border-color: rgba(22, 163, 74, 0.4);
+    background: rgba(22, 163, 74, 0.08);
+}
+
+/* Tabelas */
+body.theme-light .admin-table th {
+    color: #3f5a4b;
+    background: rgba(244, 247, 245, 0.97);
+}
+
+body.theme-light .admin-table th,
+body.theme-light .admin-table td {
+    border-bottom-color: rgba(22, 163, 74, 0.12);
+}
+
+body.theme-light .admin-table tbody tr:hover {
+    background: rgba(22, 163, 74, 0.06);
+}
+
+body.theme-light .admin-table td {
+    color: #142b1f;
+}
+
+body.theme-light code {
+    color: #15803d;
+}
+
+body.theme-light .command-cell code,
+body.theme-light .json-box {
+    color: #15803d;
+    background: #f4f7f5;
+    border-color: rgba(22, 163, 74, 0.20);
+}
+
+/* Cartões de seleção */
+body.theme-light .selection-card,
+body.theme-light .permission-card {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+body.theme-light .selection-card:hover,
+body.theme-light .permission-card:hover {
+    border-color: rgba(22, 163, 74, 0.32);
+    background: rgba(22, 163, 74, 0.06);
+    box-shadow: 0 16px 30px rgba(20, 43, 31, 0.10);
+}
+
+body.theme-light .selection-card-selected,
+body.theme-light .permission-card-selected {
+    border-color: rgba(22, 163, 74, 0.4);
+    background: rgba(22, 163, 74, 0.10);
+}
+
+/* Pedidos / Logs */
+body.theme-light .pedido-grid > div,
+body.theme-light .pedido-text,
+body.theme-light .log-detail-header > div {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+body.theme-light .keep-scroll-loader {
+    background: rgba(233, 239, 233, 0.82);
+}
+
+body.theme-light .keep-scroll-loader-card {
+    color: #142b1f;
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(20, 43, 31, 0.12);
+}
+
+body.theme-light .keep-scroll-spinner {
+    border-color: rgba(22, 163, 74, 0.22);
+    border-top-color: #142b1f;
+}
+
+/* Marca de fundo (watermark) mais discreta no claro */
+body.theme-light .admin-main::before {
+    color: rgba(20, 43, 31, 0.025);
 }

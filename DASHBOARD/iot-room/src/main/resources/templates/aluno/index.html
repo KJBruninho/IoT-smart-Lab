@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aluno · IoT Room</title>
+    <link rel="stylesheet" th:href="@{/css/aluno.css}">
+</head>
+<body>
+<div class="aluno-layout">
+    <div th:replace="~{fragments/aluno-sidebar :: sidebar(${paginaAtual})}"></div>
+
+    <main class="aluno-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Aluno', ${paginaAtual})}"></div>
+        <section class="aluno-topbar hero-panel">
+            <div>
+                <span class="eyebrow">Área de aluno</span>
+                <h1>Dashboard</h1>
+                <p>Resumo dos teus grupos, experiências, estações e leituras disponíveis.</p>
+            </div>
+            <div class="topbar-actions">
+                <a class="btn btn-primary" th:href="@{/aluno/dados}">Ver dados</a>
+                <a class="btn btn-secondary" th:href="@{/aluno/pedidos}">Pedir alteração</a>
+            </div>
+        </section>
+
+        <section class="kpi-grid">
+            <article class="kpi-card">
+                <span>Grupos</span>
+                <strong th:text="${dashboard.totalGrupos()}">0</strong>
+                <small>Grupos onde estás associado.</small>
+            </article>
+            <article class="kpi-card">
+                <span>Experiências ativas</span>
+                <strong th:text="${dashboard.experienciasAtivas()}">0</strong>
+                <small>Experiências em curso ou criadas.</small>
+            </article>
+            <article class="kpi-card">
+                <span>Estações disponíveis</span>
+                <strong th:text="${dashboard.estacoesDisponiveis()}">0</strong>
+                <small>Estações acessíveis por grupo ou permissão direta.</small>
+            </article>
+            <article class="kpi-card accent-card">
+                <span>Pedidos pendentes</span>
+                <strong th:text="${dashboard.pedidosPendentes()}">0</strong>
+                <small>Pedidos ainda por analisar.</small>
+            </article>
+        </section>
+
+        <section class="content-grid">
+            <article class="aluno-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Última leitura</h2>
+                        <span>Leitura mais recente que podes consultar.</span>
+                    </div>
+                    <a class="btn-link" th:href="@{/aluno/dados}">Abrir histórico</a>
+                </div>
+
+                <div th:if="${dashboard.ultimaLeitura() == null}" class="empty-state">
+                    Ainda não existem leituras disponíveis para este aluno.
+                </div>
+
+                <div th:if="${dashboard.ultimaLeitura() != null}" class="latest-reading-card">
+                    <div>
+                        <span class="status-pill" th:text="${dashboard.ultimaLeitura().tipoSensor()}">TEMPERATURA</span>
+                        <h3 th:text="${dashboard.ultimaLeitura().sensorNome()}">Sensor</h3>
+                        <p th:text="${dashboard.ultimaLeitura().experienciaNome() + ' · ' + dashboard.ultimaLeitura().estacaoNome()}">Experiência · Estação</p>
+                    </div>
+                    <strong>
+                        <span th:text="${dashboard.ultimaLeitura().valor()}">0</span>
+                        <small th:text="${dashboard.ultimaLeitura().unidade()}">un</small>
+                    </strong>
+                    <small th:text="${#temporals.format(dashboard.ultimaLeitura().dataRegisto(), 'dd/MM/yyyy HH:mm')}">data</small>
+                </div>
+            </article>
+
+            <article class="aluno-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Ações rápidas</h2>
+                        <span>Acessos diretos às áreas novas.</span>
+                    </div>
+                </div>
+                <div class="quick-grid">
+                    <a class="quick-card" th:href="@{/aluno/dados}">
+                        <strong>Filtrar dados</strong>
+                        <span>Escolher quantidade, datas, estação, experiência e tipo de sensor.</span>
+                    </a>
+                    <a class="quick-card" th:href="@{/aluno/pedidos}">
+                        <strong>Alterar modos</strong>
+                        <span>Enviar pedidos para mudar intervalos de leitura dos sensores.</span>
+                    </a>
+                    <a class="quick-card" th:href="@{/aluno/pessoal}">
+                        <strong>Área pessoal</strong>
+                        <span>Ver perfil, grupos, experiências e últimas leituras.</span>
+                    </a>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

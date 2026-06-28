@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<header th:fragment="topbar(areaAtual, paginaAtual)" class="app-user-topbar">
+
+    <div class="app-user-topbar-title">
+
+
+    </div>
+
+    <nav class="app-user-topbar-actions" aria-label="Ações globais">
+
+        <button type="button"
+                class="app-user-theme-button js-app-theme-toggle"
+                aria-pressed="false">
+            <span class="theme-toggle-icon">
+                <span class="plant-sun"></span>
+                <span class="plant-shade"></span>
+            </span>
+            <span class="theme-toggle-label">Modo escuro</span>
+        </button>
+
+        <a class="app-user-profile-link"
+           th:href="@{/aluno/pessoal}"
+           th:classappend="${paginaAtual == 'pessoal'} ? ' active' : ''">
+            <span class="profile-icon">●</span>
+            <span>Página pessoal</span>
+        </a>
+	
+		<a th:href="@{/auth/logout}" class="sidebar-logout-button">
+		    <span class="nav-icon">⏻</span>
+		    <span>Sair</span>
+		</a>
+
+    </nav>
+
+    <script th:src="@{/js/app-theme-topbar.js}"></script>
+
+</header>
+
+</body>
+</html>

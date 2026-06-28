@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Área pessoal · Aluno</title>
+    <link rel="stylesheet" th:href="@{/css/aluno.css}">
+</head>
+
+<body>
+
+<div class="aluno-layout">
+
+    <div th:replace="~{fragments/aluno-sidebar :: sidebar('pessoal')}"></div>
+
+    <main class="aluno-main">
+
+        <div th:replace="~{fragments/app-user-topbar :: topbar('Área Aluno', 'pessoal')}"></div>
+
+        <div th:replace="~{fragments/global-alerts :: alerts}"></div>
+
+        <section class="aluno-topbar hero-panel">
+            <div>
+                <span class="eyebrow">Perfil</span>
+                <h1>Área pessoal</h1>
+                <p>Consulta os teus dados, acessos e atalhos principais da área de aluno.</p>
+            </div>
+
+            <div class="topbar-actions">
+                <a class="btn btn-secondary keep-scroll" th:href="@{/aluno}">
+                    Voltar ao dashboard
+                </a>
+                <a class="btn btn-primary keep-scroll" th:href="@{/aluno/dados}">
+                    Ver dados
+                </a>
+            </div>
+        </section>
+
+        <section class="profile-grid aluno-profile-page">
+
+            <article class="profile-card aluno-profile-identity">
+                <div class="avatar-circle"
+                     th:text="${#strings.substring(nomeUtilizador, 0, 1).toUpperCase()}">
+                    U
+                </div>
+
+                <h2 th:text="${nomeUtilizador}">Utilizador</h2>
+                <p th:text="${emailUtilizador}">email@exemplo.pt</p>
+
+                <div class="tag-list">
+                    <span class="tag" th:text="${roleUtilizador}">ALUNO</span>
+                </div>
+            </article>
+
+            <article class="aluno-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Resumo da conta</h2>
+                        <span>Informação principal associada à tua sessão.</span>
+                    </div>
+                </div>
+
+                <div class="personal-info-grid">
+
+                    <div class="personal-info-item">
+                        <span>Nome</span>
+                        <strong th:text="${nomeUtilizador}">Utilizador</strong>
+                    </div>
+
+                    <div class="personal-info-item">
+                        <span>Email</span>
+                        <strong th:text="${emailUtilizador}">email@exemplo.pt</strong>
+                    </div>
+
+                    <div class="personal-info-item">
+                        <span>Tipo de conta</span>
+                        <strong th:text="${roleUtilizador}">ALUNO</strong>
+                    </div>
+
+                    <div class="personal-info-item">
+                        <span>Estado</span>
+                        <strong>Ativo</strong>
+                    </div>
+
+                </div>
+            </article>
+
+        </section>
+
+        <section class="content-grid">
+
+            <article class="aluno-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Acessos rápidos</h2>
+                        <span>Atalhos para as ações mais usadas.</span>
+                    </div>
+                </div>
+
+                <div class="quick-grid">
+
+                    <a class="quick-card keep-scroll" th:href="@{/aluno/dados}">
+                        <strong>Dados</strong>
+                        <span>Consultar leituras disponíveis para o teu perfil.</span>
+                    </a>
+
+                    <a class="quick-card keep-scroll" th:href="@{/aluno/pedidos}">
+                        <strong>Pedidos de modos</strong>
+                        <span>Criar ou acompanhar pedidos de alteração de modo.</span>
+                    </a>
+
+                    <a class="quick-card keep-scroll" th:href="@{/aluno}">
+                        <strong>Dashboard</strong>
+                        <span>Voltar ao painel inicial do aluno.</span>
+                    </a>
+
+                </div>
+            </article>
+
+            <article class="aluno-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Estado da sessão</h2>
+                        <span>Dados guardados depois do login.</span>
+                    </div>
+                </div>
+
+                <div class="item-list">
+
+                    <div class="item-row">
+                        <div>
+                            <strong>Login ativo</strong>
+                            <small>A sessão atual tem dados de utilizador guardados.</small>
+                        </div>
+                        <span class="badge badge-success-soft">OK</span>
+                    </div>
+
+                    <div class="item-row">
+                        <div>
+                            <strong>Área pessoal</strong>
+                            <small>Esta página redireciona sempre para a área de aluno.</small>
+                        </div>
+                        <span class="badge badge-info">Aluno</span>
+                    </div>
+
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

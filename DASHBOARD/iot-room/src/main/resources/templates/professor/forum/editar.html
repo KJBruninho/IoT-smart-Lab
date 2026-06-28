@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar tópico | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('forum')}"></div>
+    <main class="professor-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Editar tópico</h1>
+                <p>Mensagem inicial do tópico.</p>
+            </div>
+            <div class="professor-actions"></div>
+        </header>
+
+        <section class="professor-panel"><form method="post" th:action="@{/professor/forum/{id}/editar(id=${topicoForm.id})}"><input type="hidden" name="id" th:value="${topicoForm != null ? topicoForm.id : ''}"><div class="form-grid"><div class="form-group"><label for="titulo">Título</label><input id="titulo" name="titulo" type="text" th:value="${topicoForm != null ? topicoForm.titulo : ''}" required></div><div class="form-group"><label for="grupoId">Grupo</label><select id="grupoId" name="grupoId"><option value="">Sem grupo</option><option th:each="grupo : ${grupos}" th:value="${grupo.id}" th:selected="${topicoForm != null and topicoForm.grupoId == grupo.id}" th:text="${grupo.nome}">Grupo</option></select></div><div class="form-group"><label for="experienciaId">Experiência</label><select id="experienciaId" name="experienciaId"><option value="">Sem experiência</option><option th:each="experiencia : ${experiencias}" th:value="${experiencia.id}" th:selected="${topicoForm != null and topicoForm.experienciaId == experiencia.id}" th:text="${experiencia.nome}">Experiência</option></select></div><div class="form-group full-width"><label for="mensagem">Mensagem</label><textarea id="mensagem" name="mensagem" required th:text="${topicoForm != null ? topicoForm.mensagem : ''}"></textarea></div></div><div class="form-actions" style="margin-top:16px"><button class="btn btn-primary" type="submit">Guardar</button><a class="btn btn-secondary" th:href="@{/professor/forum}">Cancelar</a></div></form></section>
+
+    </main>
+</div>
+</body>
+</html>

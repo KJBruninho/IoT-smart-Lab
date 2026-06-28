@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alertas | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('alertas')}"></div>
+    <main class="professor-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Alertas</h1>
+                <p>Alertas gerados pelas regras dos sensores.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/alertas/regras}">Regras</a><a class="btn btn-primary" th:href="@{/professor/alertas/regras/nova}">Nova regra</a></div>
+        </header>
+
+        <section class="professor-panel"><div class="empty-state" th:if="${alertas == null or #lists.isEmpty(alertas)}">Sem alertas.</div><div class="card-grid" th:if="${alertas != null and !#lists.isEmpty(alertas)}"><article class="info-card" th:each="alerta : ${alertas}"><div class="panel-header"><h3 th:text="${alerta.titulo}">Alerta</h3><span class="status-pill" th:text="${alerta.estado}">Estado</span></div><p th:text="${alerta.mensagem}">Mensagem</p><p><strong th:text="${alerta.tipoSensor}">Tipo</strong> <span th:text="${alerta.valorLido}">0</span></p><small th:text="${alerta.criadoEm != null ? #temporals.format(alerta.criadoEm, 'dd/MM/yyyy HH:mm') : '-'}">-</small><div class="professor-actions"><form method="post" th:action="@{/professor/alertas/{id}/marcar-lido(id=${alerta.id})}"><button class="btn btn-secondary" type="submit">Marcar lido</button></form><form method="post" th:action="@{/professor/alertas/{id}/resolver(id=${alerta.id})}"><button class="btn btn-success" type="submit">Resolver</button></form><form method="post" th:action="@{/professor/alertas/{id}/ignorar(id=${alerta.id})}"><button class="btn btn-warning" type="submit">Ignorar</button></form></div></article></div></section>
+
+    </main>
+</div>
+</body>
+</html>

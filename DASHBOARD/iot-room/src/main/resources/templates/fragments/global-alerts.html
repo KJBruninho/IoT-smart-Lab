@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="alerts" class="global-alert-stack">
+
+    <div th:if="${sucesso}" class="global-alert global-alert-success">
+        <div class="global-alert-icon">✓</div>
+        <div class="global-alert-content">
+            <strong class="global-alert-title">Sucesso</strong>
+            <p class="global-alert-message" th:text="${sucesso}">Operação concluída.</p>
+        </div>
+        <button type="button" class="global-alert-close" aria-label="Fechar alerta">×</button>
+    </div>
+
+    <div th:if="${erro}" class="global-alert global-alert-error">
+        <div class="global-alert-icon">!</div>
+        <div class="global-alert-content">
+            <strong class="global-alert-title">Erro</strong>
+            <p class="global-alert-message" th:text="${erro}">Ocorreu um erro.</p>
+        </div>
+        <button type="button" class="global-alert-close" aria-label="Fechar alerta">×</button>
+    </div>
+
+    <div th:if="${aviso}" class="global-alert global-alert-warning">
+        <div class="global-alert-icon">⚠</div>
+        <div class="global-alert-content">
+            <strong class="global-alert-title">Aviso</strong>
+            <p class="global-alert-message" th:text="${aviso}">Atenção.</p>
+        </div>
+        <button type="button" class="global-alert-close" aria-label="Fechar alerta">×</button>
+    </div>
+
+    <div th:if="${info}" class="global-alert global-alert-info">
+        <div class="global-alert-icon">i</div>
+        <div class="global-alert-content">
+            <strong class="global-alert-title">Informação</strong>
+            <p class="global-alert-message" th:text="${info}">Informação.</p>
+        </div>
+        <button type="button" class="global-alert-close" aria-label="Fechar alerta">×</button>
+    </div>
+
+</div>
+
+</body>
+</html>

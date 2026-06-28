@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fórum | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('forum')}"></div>
+    <main class="professor-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Fórum</h1>
+                <p>Tópicos associados a grupos e experiências.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-primary" th:href="@{/professor/forum/novo}">Novo tópico</a></div>
+        </header>
+
+        <section class="professor-panel"><div class="empty-state" th:if="${topicos == null or #lists.isEmpty(topicos)}">Sem tópicos.</div><div class="card-grid" th:if="${topicos != null and !#lists.isEmpty(topicos)}"><article class="info-card" th:each="topico : ${topicos}"><div class="panel-header"><h3 th:text="${topico.titulo}">Tópico</h3><span class="status-pill" th:text="${topico.estado}">Estado</span></div><p th:text="${topico.mensagem}">Mensagem</p><small th:text="${topico.criadoEm != null ? #temporals.format(topico.criadoEm, 'dd/MM/yyyy HH:mm') : '-'}">-</small><div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/forum/{id}(id=${topico.id})}">Ver</a><a class="btn btn-secondary" th:href="@{/professor/forum/{id}/editar(id=${topico.id})}">Editar</a></div></article></div></section>
+
+    </main>
+</div>
+</body>
+</html>

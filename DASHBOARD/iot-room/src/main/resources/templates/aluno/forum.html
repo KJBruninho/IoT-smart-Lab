@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aluno | Fórum</title>
+    <link rel="stylesheet" th:href="@{/css/aluno.css}">
+</head>
+
+<body class="aluno-page theme-auto">
+
+<div class="aluno-layout">
+
+    <div th:replace="~{fragments/aluno-sidebar :: sidebar('forum')}"></div>
+
+    <main class="aluno-main">
+
+        <div th:replace="~{fragments/app-user-topbar :: topbar('Área Aluno', ${paginaAtual})}"></div>
+
+        <div th:replace="~{fragments/global-alerts :: alerts}"></div>
+
+        <section class="aluno-topbar hero-panel">
+            <div>
+                <span class="eyebrow">Fórum</span>
+
+                <h1 th:if="${modo == 'lista'}">Fórum do aluno</h1>
+                <h1 th:if="${modo == 'novo'}">Novo tópico</h1>
+                <h1 th:if="${modo == 'ver'}">Tópico</h1>
+
+                <p th:if="${modo == 'lista'}">Tópicos dos teus grupos e experiências.</p>
+                <p th:if="${modo == 'novo'}">Cria uma discussão para o teu grupo ou experiência.</p>
+                <p th:if="${modo == 'ver'}">Consulta a discussão e envia uma resposta.</p>
+            </div>
+
+            <div class="topbar-actions">
+                <a th:if="${modo != 'lista'}"
+                   class="btn btn-secondary keep-scroll"
+                   th:href="@{/aluno/forum}">
+                    Voltar ao fórum
+                </a>
+
+                <a th:if="${modo == 'lista'}"
+                   class="btn btn-primary keep-scroll"
+                   th:href="@{/aluno/forum/novo}">
+                    Novo tópico
+                </a>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             LISTA
+             ========================================================= -->
+        <section th:if="${modo == 'lista'}" class="aluno-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Tópicos</h2>
+                    <span th:text="${topicos != null ? #lists.size(topicos) + ' tópico(s)' : '0 tópicos'}">
+                        0 tópicos
+                    </span>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${topicos == null or #lists.isEmpty(topicos)}">
+                Ainda não existem tópicos disponíveis para ti.
+            </div>
+
+            <div class="aluno-forum-list"
+                 th:if="${topicos != null and !#lists.isEmpty(topicos)}">
+
+                <article class="aluno-forum-card"
+                         th:each="topico : ${topicos}">
+
+                    <div class="aluno-forum-card-header">
+                        <div>
+                            <h3>
+                                <a class="keep-scroll"
+                                   th:href="@{/aluno/forum/{id}(id=${topico.id()})}"
+                                   th:text="${topico.titulo()}">
+                                    Título
+                                </a>
+                            </h3>
+
+                            <p th:text="${topico.mensagem()}">
+                                Mensagem
+                            </p>
+                        </div>
+
+                        <span class="badge"
+                              th:classappend="${topico.estado() == 'ABERTO'} ? ' badge-success-soft' : ' badge-muted'"
+                              th:text="${topico.estado()}">
+                            ABERTO
+                        </span>
+                    </div>
+
+                    <div class="aluno-forum-meta">
+                        <span>
+                            Autor:
+                            <strong th:text="${topico.autorNome()}">Utilizador</strong>
+                        </span>
+
+                        <span th:if="${topico.grupoNome() != null}">
+                            Grupo:
+                            <strong th:text="${topico.grupoNome()}">Grupo</strong>
+                        </span>
+
+                        <span th:if="${topico.experienciaNome() != null}">
+                            Experiência:
+                            <strong th:text="${topico.experienciaNome()}">Experiência</strong>
+                        </span>
+
+                        <span>
+                            Respostas:
+                            <strong th:text="${topico.totalRespostas()}">0</strong>
+                        </span>
+
+                        <span th:if="${topico.criadoEm() != null}"
+                              th:text="${#temporals.format(topico.criadoEm(), 'dd/MM/yyyy HH:mm')}">
+                            Data
+                        </span>
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- =========================================================
+             NOVO TÓPICO
+             ========================================================= -->
+        <section th:if="${modo == 'novo'}" class="aluno-panel form-panel-wide">
+
+            <form class="keep-scroll-form"
+                  method="post"
+                  th:action="@{/aluno/forum/novo}">
+
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+                        <label for="titulo">Título</label>
+                        <input id="titulo"
+                               name="titulo"
+                               type="text"
+                               maxlength="150"
+                               required
+                               th:value="${formTitulo}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grupoId">Grupo</label>
+                        <select id="grupoId" name="grupoId">
+                            <option value="">Selecionar grupo</option>
+                            <option th:each="grupo : ${grupos}"
+                                    th:value="${grupo.id()}"
+                                    th:selected="${formGrupoId != null and formGrupoId == grupo.id()}"
+                                    th:text="${grupo.nome() + (grupo.detalhe() != null && !grupo.detalhe().isBlank() ? ' · ' + grupo.detalhe() : '')}">
+                                Grupo
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experienciaId">Experiência</label>
+                        <select id="experienciaId" name="experienciaId">
+                            <option value="">Selecionar experiência</option>
+                            <option th:each="experiencia : ${experiencias}"
+                                    th:value="${experiencia.id()}"
+                                    th:selected="${formExperienciaId != null and formExperienciaId == experiencia.id()}"
+                                    th:text="${experiencia.nome() + (experiencia.detalhe() != null && !experiencia.detalhe().isBlank() ? ' · ' + experiencia.detalhe() : '')}">
+                                Experiência
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="mensagem">Mensagem</label>
+                        <textarea id="mensagem"
+                                  name="mensagem"
+                                  required
+                                  th:text="${formMensagem}"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn btn-secondary keep-scroll"
+                       th:href="@{/aluno/forum}">
+                        Cancelar
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        Criar tópico
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- =========================================================
+             VER TÓPICO
+             ========================================================= -->
+        <section th:if="${modo == 'ver' and topico != null}" class="aluno-panel">
+
+            <div class="aluno-forum-topic-header">
+                <div>
+                    <span class="badge"
+                          th:classappend="${topico.estado() == 'ABERTO'} ? ' badge-success-soft' : ' badge-muted'"
+                          th:text="${topico.estado()}">
+                        ABERTO
+                    </span>
+
+                    <h2 th:text="${topico.titulo()}">Tópico</h2>
+
+                    <p th:text="${topico.mensagem()}">
+                        Mensagem
+                    </p>
+                </div>
+            </div>
+
+            <div class="aluno-forum-meta margin-top-small">
+                <span>
+                    Autor:
+                    <strong th:text="${topico.autorNome()}">Utilizador</strong>
+                </span>
+
+                <span th:if="${topico.grupoNome() != null}">
+                    Grupo:
+                    <strong th:text="${topico.grupoNome()}">Grupo</strong>
+                </span>
+
+                <span th:if="${topico.experienciaNome() != null}">
+                    Experiência:
+                    <strong th:text="${topico.experienciaNome()}">Experiência</strong>
+                </span>
+
+                <span th:if="${topico.criadoEm() != null}"
+                      th:text="${#temporals.format(topico.criadoEm(), 'dd/MM/yyyy HH:mm')}">
+                    Data
+                </span>
+            </div>
+
+        </section>
+
+        <section th:if="${modo == 'ver' and topico != null}" class="aluno-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Respostas</h2>
+                    <span th:text="${respostas != null ? #lists.size(respostas) + ' resposta(s)' : '0 respostas'}">
+                        0 respostas
+                    </span>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${respostas == null or #lists.isEmpty(respostas)}">
+                Ainda não existem respostas.
+            </div>
+
+            <div class="aluno-forum-respostas"
+                 th:if="${respostas != null and !#lists.isEmpty(respostas)}">
+
+                <article class="aluno-forum-resposta"
+                         th:each="resposta : ${respostas}">
+
+                    <div class="aluno-forum-resposta-header">
+                        <strong th:text="${resposta.autorNome()}">Utilizador</strong>
+                        <span th:if="${resposta.criadoEm() != null}"
+                              th:text="${#temporals.format(resposta.criadoEm(), 'dd/MM/yyyy HH:mm')}">
+                            Data
+                        </span>
+                    </div>
+
+                    <p th:text="${resposta.mensagem()}">
+                        Resposta
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <section th:if="${modo == 'ver' and topico != null}" class="aluno-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Responder</h2>
+                    <span th:if="${topico.estado() == 'ABERTO'}">Envia uma resposta para este tópico.</span>
+                    <span th:if="${topico.estado() == 'FECHADO'}">Este tópico está fechado.</span>
+                </div>
+            </div>
+
+            <form th:if="${topico.estado() == 'ABERTO'}"
+                  class="keep-scroll-form"
+                  method="post"
+                  th:action="@{/aluno/forum/{id}/responder(id=${topico.id()})}">
+
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <div class="form-group">
+                    <label for="respostaMensagem">Mensagem</label>
+                    <textarea id="respostaMensagem"
+                              name="mensagem"
+                              required></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        Enviar resposta
+                    </button>
+                </div>
+
+            </form>
+
+            <div class="empty-state" th:if="${topico.estado() == 'FECHADO'}">
+                Não é possível responder a tópicos fechados.
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script th:src="@{/js/keep-scroll.js}"></script>
+
+</body>
+</html>

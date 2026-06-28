@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiências | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('experiencias')}"></div>
+    <main class="professor-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Experiências</h1>
+                <p>Gerir experiências associadas aos grupos.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-primary" th:href="@{/professor/experiencias/nova}">Nova experiência</a></div>
+        </header>
+
+        <section class="professor-panel">
+            <div class="empty-state" th:if="${experiencias == null or #lists.isEmpty(experiencias)}">Ainda não existem experiências.</div>
+            <div class="table-wrap" th:if="${experiencias != null and !#lists.isEmpty(experiencias)}">
+                <table class="professor-table"><thead><tr><th>Nome</th><th>Grupo</th><th>Estado</th><th>Início</th><th>Ações</th></tr></thead><tbody>
+                    <tr th:each="experiencia : ${experiencias}">
+                        <td><strong th:text="${experiencia.nome}">Experiência</strong><small th:text="${experiencia.descricao}">Descrição</small></td>
+                        <td th:text="${nomesGrupos != null ? nomesGrupos[experiencia.grupoId] : experiencia.grupoId}">Grupo</td>
+                        <td><span class="status-pill" th:text="${experiencia.estado}">Estado</span></td>
+                        <td th:text="${experiencia.dataInicio != null ? #temporals.format(experiencia.dataInicio, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+                        <td class="table-actions"><a class="btn btn-secondary" th:href="@{/professor/experiencias/{id}(id=${experiencia.id})}">Ver</a><a class="btn btn-secondary" th:href="@{/professor/experiencias/{id}/editar(id=${experiencia.id})}">Editar</a></td>
+                    </tr>
+                </tbody></table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensores | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('sensores')}"></div>
+    <main class="professor-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Sensores</h1>
+                <p>Controlo operacional dos sensores.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/sensores/pedidos}">Pedidos pendentes</a></div>
+        </header>
+
+        <section class="professor-panel"><div class="empty-state" th:if="${sensores == null or #lists.isEmpty(sensores)}">Sem sensores disponíveis.</div><div class="table-wrap" th:if="${sensores != null and !#lists.isEmpty(sensores)}"><table class="professor-table"><thead><tr><th>Sensor</th><th>Tipo</th><th>Unidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody><tr th:each="sensor : ${sensores}"><td><strong th:text="${sensor.nome}">Sensor</strong></td><td th:text="${sensor.tipo}">Tipo</td><td th:text="${sensor.unidade}">Unidade</td><td><span class="status-pill" th:text="${sensor.ativo ? 'Ativo' : 'Inativo'}">Estado</span></td><td class="table-actions"><a class="btn btn-secondary" th:href="@{/professor/sensores/{id}(id=${sensor.id})}">Ver</a></td></tr></tbody></table></div></section>
+
+    </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Utilizadores</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-page">
+
+<div class="admin-layout">
+
+    <div th:replace="~{fragments/admin-sidebar :: adminSidebar(${paginaAtiva})}"></div>
+
+    <main class="admin-main">
+		<div th:replace="~{fragments/global-alerts :: alerts}"></div>
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="admin-topbar admin-topbar-actions">
+            <div>
+                <h1>Utilizadores</h1>
+                <p>Gestão global dos utilizadores da plataforma.</p>
+            </div>
+
+        </header>
+
+        <section th:if="${mensagemSucesso}" class="alert alert-success">
+            <span th:text="${mensagemSucesso}"></span>
+        </section>
+
+        <section th:if="${mensagemErro}" class="alert alert-error">
+            <span th:text="${mensagemErro}"></span>
+        </section>
+
+        <section class="admin-panel">
+            <form class="filter-form keep-scroll-form" th:action="@{/admin/utilizadores}" method="get">
+
+                <div class="form-group">
+                    <label for="termo">Pesquisar</label>
+                    <input id="termo"
+                           type="text"
+                           name="termo"
+                           placeholder="Nome ou email"
+                           th:value="${termo}">
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role">
+                        <option value="">Todas</option>
+                        <option value="ADMIN" th:selected="${role == 'ADMIN'}">Admin</option>
+                        <option value="PROFESSOR" th:selected="${role == 'PROFESSOR'}">Professor</option>
+                        <option value="ALUNO" th:selected="${role == 'ALUNO'}">Aluno</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado">
+                        <option value="">Todos</option>
+                        <option value="ativo" th:selected="${estado == 'ativo'}">Ativos</option>
+                        <option value="inativo" th:selected="${estado == 'inativo'}">Inativos</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a th:href="@{/admin/utilizadores}" class="btn btn-secondary">Limpar</a>
+                </div>
+
+            </form>
+        </section>
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+                <h2>Lista de utilizadores</h2>
+                <span class="muted">
+                    Total:
+                    <strong th:text="${#lists.size(utilizadores)}">0</strong>
+                </span>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(utilizadores)}">
+                Nenhum utilizador encontrado.
+            </div>
+
+            <table class="admin-table" th:if="${!#lists.isEmpty(utilizadores)}">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Estado</th>
+                    <th>Criado em</th>
+                    <th class="actions-column">Ações</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="utilizador : ${utilizadores}">
+                    <td>
+                        <strong th:text="${utilizador.nome()}">Nome</strong>
+                    </td>
+
+                    <td th:text="${utilizador.email()}">email@email.com</td>
+
+                    <td>
+                        <span class="badge"
+                              th:classappend="${utilizador.role() == 'ADMIN'} ? 'badge-error' : (${utilizador.role() == 'PROFESSOR'} ? 'badge-warning' : 'badge-info')"
+                              th:text="${utilizador.role()}">
+                            ALUNO
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status-pill"
+                              th:classappend="${utilizador.ativo()} ? 'status-active' : 'status-inactive'"
+                              th:text="${utilizador.ativo()} ? 'Ativo' : 'Inativo'">
+                            Ativo
+                        </span>
+                    </td>
+
+                    <td th:text="${utilizador.criadoEm() != null ? #temporals.format(utilizador.criadoEm(), 'dd/MM/yyyy HH:mm') : '-'}">
+                        -
+                    </td>
+
+                    <td class="table-actions">
+                        <a class="btn btn-small btn-secondary"
+                           th:href="@{/admin/utilizadores/{id}/editar(id=${utilizador.id()})}">
+                            Editar
+                        </a>
+
+                        <form th:action="@{/admin/utilizadores/{id}/estado(id=${utilizador.id()})}"
+                              method="post"
+                              class="inline-form keep-scroll-form">
+                            <button type="submit"
+                                    class="btn btn-small"
+                                    th:classappend="${utilizador.ativo()} ? 'btn-danger' : 'btn-success'"
+                                    th:text="${utilizador.ativo()} ? 'Desativar' : 'Ativar'">
+                                Alterar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+    </main>
+</div>
+<script th:src="@{/js/keep-scroll.js}"></script>
+</body>
+</html>

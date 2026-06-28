@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhe do grupo | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('grupos')}"></div>
+    <main class="professor-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Detalhe do grupo</h1>
+                <p>Membros e gestão do grupo.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/grupos}">Voltar</a></div>
+        </header>
+
+        <section class="professor-panel" th:if="${grupo != null}"><div class="panel-header"><div><h2 th:text="${grupo.nome}">Grupo</h2><p th:text="${grupo.descricao}">Descrição</p></div><span class="status-pill" th:text="${grupo.ativo ? 'Ativo' : 'Inativo'}">Estado</span></div><div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/grupos/{id}/editar(id=${grupo.id})}">Editar</a><a class="btn btn-secondary" th:href="@{/professor/grupos/{id}/estacoes(id=${grupo.id})}">Estações</a><form method="post" th:action="@{/professor/grupos/{id}/alternar-estado(id=${grupo.id})}"><button class="btn btn-warning" type="submit">Alternar estado</button></form></div></section>
+        <section class="professor-panel" th:if="${grupo != null}"><div class="panel-header"><h2>Membros</h2></div><div class="empty-state" th:if="${membros == null or #lists.isEmpty(membros)}">Sem membros.</div><div class="card-grid" th:if="${membros != null and !#lists.isEmpty(membros)}"><article class="info-card" th:each="membro : ${membros}"><p th:text="${membro}">Membro</p></article></div><form method="post" th:action="@{/professor/grupos/{id}/membros/adicionar(id=${grupo.id})}" class="inline-form" style="margin-top:16px"><select name="utilizadorId"><option value="">Utilizador</option><option th:each="utilizador : ${utilizadoresDisponiveis}" th:value="${utilizador.id}" th:text="${utilizador.nome != null ? utilizador.nome : utilizador.email}">Utilizador</option></select><select name="roleGrupoId"><option value="">Role</option><option th:each="role : ${rolesGrupo}" th:value="${role.id}" th:text="${role.nome}">Role</option></select><button class="btn btn-primary" type="submit">Adicionar</button></form></section>
+
+    </main>
+</div>
+
+</body>
+</html>

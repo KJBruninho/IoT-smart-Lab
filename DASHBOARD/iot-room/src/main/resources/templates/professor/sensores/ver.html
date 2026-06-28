@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor | Professor</title>
+    <link rel="stylesheet" th:href="@{/css/professor.css}">
+</head>
+<body class="professor-page theme-auto">
+<div class="professor-layout">
+    <div th:replace="~{fragments/professor-sidebar :: professorSidebar('sensores')}"></div>
+    <main class="professor-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Admin', ${paginaAtual})}"></div>
+        <header class="professor-topbar">
+            <div>
+                <p class="eyebrow">Área Professor</p>
+                <h1>Sensor</h1>
+                <p>Configuração, calibração e comandos.</p>
+            </div>
+            <div class="professor-actions"><a class="btn btn-secondary" th:href="@{/professor/sensores}">Voltar</a></div>
+        </header>
+
+        <section class="professor-panel" th:if="${sensor != null}"><div class="panel-header"><div><h2 th:text="${sensor.nome}">Sensor</h2><p><span th:text="${sensor.tipo}">Tipo</span> · <span th:text="${sensor.unidade}">Unidade</span></p></div><span class="status-pill" th:text="${sensor.ativo ? 'Ativo' : 'Inativo'}">Estado</span></div><div class="detail-grid"><div><span>Remoto</span><strong th:text="${sensor.remotoAtivo ? 'Ativo' : 'Inativo'}">Ativo</strong></div><div><span>Fator calibração</span><strong th:text="${sensor.fatorCalibracao}">1</strong></div><div><span>Offset</span><strong th:text="${sensor.offsetCalibracao}">0</strong></div></div><div class="professor-actions" style="margin-top:16px"><form method="post" th:action="@{/professor/sensores/{id}/ligar(id=${sensor.id})}"><button class="btn btn-success" type="submit">Ligar</button></form><form method="post" th:action="@{/professor/sensores/{id}/desligar(id=${sensor.id})}"><button class="btn btn-danger" type="submit">Desligar</button></form></div></section>
+        <section class="professor-panel" th:if="${sensor != null}"><div class="panel-header"><h2>Modo de envio</h2></div><form method="post" th:action="@{/professor/sensores/{id}/configuracao(id=${sensor.id})}"><div class="form-grid"><div class="form-group"><label for="intervaloRapidoMs">Intervalo rápido (ms)</label><input id="intervaloRapidoMs" name="intervaloRapidoMs" type="number" th:value="${modoForm != null ? modoForm.intervaloRapidoMs : ''}"></div><div class="form-group"><label for="intervaloEstavelMs">Intervalo estável (ms)</label><input id="intervaloEstavelMs" name="intervaloEstavelMs" type="number" th:value="${modoForm != null ? modoForm.intervaloEstavelMs : ''}"></div><div class="form-group"><label for="duracaoModoRapidoMs">Duração modo rápido (ms)</label><input id="duracaoModoRapidoMs" name="duracaoModoRapidoMs" type="number" th:value="${modoForm != null ? modoForm.duracaoModoRapidoMs : ''}"></div><div class="form-group"><label for="deltaSignificativo">Delta significativo</label><input id="deltaSignificativo" name="deltaSignificativo" type="number" step="0.0001" th:value="${modoForm != null ? modoForm.deltaSignificativo : ''}"></div></div><div class="form-actions" style="margin-top:16px"><button class="btn btn-primary" type="submit">Guardar modo</button></div></form></section>
+        <section class="content-grid two-columns" th:if="${sensor != null}"><article class="professor-panel"><div class="panel-header"><h2>Calibração</h2></div><form method="post" th:action="@{/professor/sensores/{id}/calibracao(id=${sensor.id})}" class="inline-form"><input name="fator" type="number" step="0.0001" placeholder="Fator"><button class="btn btn-primary" type="submit">Enviar fator</button></form><form method="post" th:action="@{/professor/sensores/{id}/ph-offset(id=${sensor.id})}" class="inline-form"><input name="offset" type="number" step="0.0001" placeholder="Offset pH"><button class="btn btn-primary" type="submit">Enviar offset</button></form></article><article class="professor-panel"><div class="panel-header"><h2>Comandos recentes</h2></div><div class="empty-state" th:if="${comandosRecentes == null or #lists.isEmpty(comandosRecentes)}">Sem comandos.</div><div class="card-stack" th:if="${comandosRecentes != null and !#lists.isEmpty(comandosRecentes)}"><div class="info-card" th:each="comando : ${comandosRecentes}" th:text="${comando}">Comando</div></div></article></section>
+
+    </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="pagination(page, baseUrl)" class="pagination-bar"
+     th:if="${page != null && page.totalPages > 1}">
+
+    <div class="pagination-info">
+        Página
+        <strong th:text="${page.number + 1}">1</strong>
+        de
+        <strong th:text="${page.totalPages}">1</strong>
+        ·
+        <span th:text="${page.totalElements + ' registos'}">0 registos</span>
+    </div>
+
+    <nav class="pagination-actions" aria-label="Paginação">
+
+        <a class="pagination-btn keep-scroll"
+           th:classappend="${page.first} ? ' disabled' : ''"
+           th:href="@{${baseUrl}(page=${page.number - 1}, size=${page.size}, estacaoId=${estacaoId}, tipo=${tipo}, estado=${estado})}">
+            Anterior
+        </a>
+
+        <a class="pagination-btn keep-scroll"
+           th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+           th:if="${i >= page.number - 2 && i <= page.number + 2}"
+           th:classappend="${i == page.number} ? ' active' : ''"
+           th:href="@{${baseUrl}(page=${i}, size=${page.size}, estacaoId=${estacaoId}, tipo=${tipo}, estado=${estado})}"
+           th:text="${i + 1}">
+            1
+        </a>
+
+        <a class="pagination-btn keep-scroll"
+           th:classappend="${page.last} ? ' disabled' : ''"
+           th:href="@{${baseUrl}(page=${page.number + 1}, size=${page.size}, estacaoId=${estacaoId}, tipo=${tipo}, estado=${estado})}">
+            Seguinte
+        </a>
+
+    </nav>
+
+</div>
+
+</body>
+</html>

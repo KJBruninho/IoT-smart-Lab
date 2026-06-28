@@ -1,4 +1,12 @@
-* {
+
+/* =========================================================
+   BASE
+   ========================================================= */
+@import url("/css/app-user-topbar.css");
+@import url("/css/global-ui.css");
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -6,105 +14,207 @@
     color-scheme: dark;
 }
 
-/* ---------- Tema único: néon escuro (estilo terminal) ---------- */
-
 body.professor-page {
-    color-scheme: dark;
-    --bg: #020806;
-    --bg-deep: #01100b;
-    --surface: #050f0c;
-    --surface-2: #08160f;
-    --surface-3: #0d1f15;
-    --text: #d7ffe9;
-    --text-strong: #eafff2;
-    --muted: #6fa98f;
-    --line: rgba(0, 255, 140, 0.14);
-    --line-strong: rgba(0, 255, 140, 0.32);
+    --bg-main: #020203;
+    --bg-grid: rgba(34, 197, 94, 0.018);
+    --bg-panel: #07090c;
+    --bg-panel-2: #0c0e12;
+    --bg-panel-3: #11141a;
+    --bg-sidebar: #010203;
+    --bg-input: #050608;
 
-    --green: #00ff8a;
-    --green-strong: #00e078;
-    --green-dark: #003d22;
-    --green-soft: rgba(0, 255, 140, 0.14);
-    --blue: #00d4ff;
-    --blue-strong: #00aedd;
-    --blue-soft: rgba(0, 212, 255, 0.14);
+    --border-soft: rgba(34, 197, 94, 0.10);
+    --border-strong: rgba(34, 197, 94, 0.25);
 
-    --warning: #ffd84a;
-    --warning-bg: rgba(255, 216, 74, 0.14);
-    --danger: #ff5470;
-    --danger-bg: rgba(255, 84, 112, 0.14);
-    --success: #00ff8a;
-    --success-bg: rgba(0, 255, 140, 0.14);
+    --text-main: #e2e8f0;
+    --text-soft: #94a3b8;
+    --text-muted: #64748b;
+    --text-faint: #475569;
+    --text-dark: #000000;
 
-    --sidebar-w: 284px;
-    --topnav-h: 68px;
-    --radius: 16px;
-    --radius-sm: 10px;
-    --shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-    --shadow-soft: 0 14px 32px rgba(0, 0, 0, 0.45);
+    --accent: #22c55e;
+    --accent-strong: #16a34a;
+    --accent-soft: rgba(34, 197, 94, 0.12);
+    --accent-glow: rgba(34, 197, 94, 0.23);
+
+    --blue: #38bdf8;
+    --blue-soft: rgba(56, 189, 248, 0.12);
+    --green: #22c55e;
+    --green-soft: rgba(34, 197, 94, 0.12);
+    --yellow: #facc15;
+    --yellow-soft: rgba(250, 204, 21, 0.13);
+    --red: #f87171;
+    --red-soft: rgba(248, 113, 113, 0.12);
+    --violet: #a855f7;
+    --violet-soft: rgba(168, 85, 247, 0.12);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+
+    --shadow-panel: 0 20px 50px rgba(0, 0, 0, 0.62);
+    --shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.42);
+    --shadow-glow: 0 0 0 1px rgba(34, 197, 94, 0.06), 0 0 30px rgba(34, 197, 94, 0.035);
+
+    --sidebar-w: 280px;
+    --sidebar-width: 280px;
+    --topnav-h: 64px;
+    --top-nav-height: 64px;
 
     margin: 0;
     min-height: 100vh;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color: var(--text-main);
     background:
-        radial-gradient(circle at top left, rgba(0, 255, 140, 0.08), transparent 28rem),
-        radial-gradient(circle at top right, rgba(0, 212, 255, 0.06), transparent 30rem),
-        linear-gradient(135deg, var(--bg), var(--bg-deep));
-    color: var(--text);
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.07), transparent 34rem),
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.035), transparent 30rem),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(180deg, var(--bg-grid) 1px, transparent 1px),
+        var(--bg-main);
+    background-size: auto, auto, 42px 42px, 42px 42px, auto;
 }
 
-/* Compatibilidade: se as classes theme-dark / theme-auto ainda existirem no
-   HTML, usam exatamente o mesmo esquema único acima (não há tema claro). */
+body.professor-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent 18rem),
+        radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.025), transparent 36rem);
+    z-index: 0;
+}
+
+body.professor-page,
+body.professor-page button,
+body.professor-page input,
+body.professor-page select,
+body.professor-page textarea {
+    font: inherit;
+}
+
+body.professor-page a {
+    color: inherit;
+}
+
+body.professor-page strong {
+    color: #f8fafc;
+}
+
 body.professor-page.theme-dark,
 body.professor-page.theme-auto {
     color-scheme: dark;
-    --bg: #020806;
-    --bg-deep: #01100b;
-    --surface: #050f0c;
-    --surface-2: #08160f;
-    --surface-3: #0d1f15;
-    --text: #d7ffe9;
-    --text-strong: #eafff2;
-    --muted: #6fa98f;
-    --line: rgba(0, 255, 140, 0.14);
-    --line-strong: rgba(0, 255, 140, 0.32);
-    --green: #00ff8a;
-    --green-strong: #00e078;
-    --green-dark: #003d22;
-    --green-soft: rgba(0, 255, 140, 0.14);
-    --blue: #00d4ff;
-    --blue-strong: #00aedd;
-    --blue-soft: rgba(0, 212, 255, 0.14);
-    --warning: #ffd84a;
-    --warning-bg: rgba(255, 216, 74, 0.14);
-    --danger: #ff5470;
-    --danger-bg: rgba(255, 84, 112, 0.14);
-    --success: #00ff8a;
-    --success-bg: rgba(0, 255, 140, 0.14);
-    --shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-    --shadow-soft: 0 14px 32px rgba(0, 0, 0, 0.45);
-    background:
-        radial-gradient(circle at top left, rgba(0, 255, 140, 0.08), transparent 26rem),
-        radial-gradient(circle at top right, rgba(0, 212, 255, 0.06), transparent 30rem),
-        linear-gradient(135deg, var(--bg), var(--bg-deep));
 }
 
-/* ---------- Top navigation ---------- */
+/* =========================================================
+   KEEP SCROLL · LOADING FRAME
+   ========================================================= */
+
+.keep-scroll-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(34, 197, 94, 0.14), transparent 18rem),
+        rgba(2, 2, 3, 0.88);
+    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+}
+
+.keep-scroll-loader::before {
+    content: "";
+    position: absolute;
+    width: min(380px, 78vw);
+    height: min(380px, 78vw);
+    border-radius: 999px;
+    border: 1px solid rgba(34, 197, 94, 0.16);
+    background:
+        linear-gradient(90deg, transparent 49%, rgba(34, 197, 94, 0.10) 50%, transparent 51%),
+        linear-gradient(0deg, transparent 49%, rgba(34, 197, 94, 0.08) 50%, transparent 51%);
+    box-shadow:
+        0 0 70px rgba(34, 197, 94, 0.08),
+        inset 0 0 70px rgba(34, 197, 94, 0.04);
+    animation: keep-scroll-radar 1600ms linear infinite;
+}
+
+.keep-scroll-loader.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.keep-scroll-loader-card {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 210px;
+    padding: 15px 21px;
+    border-radius: 16px;
+    background:
+        linear-gradient(135deg, rgba(34, 197, 94, 0.11), transparent),
+        rgba(7, 9, 12, 0.96);
+    color: #f8fafc;
+    font-size: 0.86rem;
+    font-weight: 900;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    border: 1px solid rgba(34, 197, 94, 0.30);
+    box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.68),
+        0 0 30px rgba(34, 197, 94, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.keep-scroll-spinner {
+    width: 23px;
+    height: 23px;
+    flex: 0 0 23px;
+    border-radius: 999px;
+    border: 3px solid rgba(34, 197, 94, 0.18);
+    border-top-color: var(--accent);
+    animation: keep-scroll-spin 680ms linear infinite;
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.24);
+}
+
+@keyframes keep-scroll-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes keep-scroll-radar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   TOP NAV
+   ========================================================= */
 
 .app-topnav,
 .professor-global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     min-height: var(--topnav-h);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 20px;
-    padding: 12px 24px;
-    background: linear-gradient(90deg, #010604, #02100a 48%, #021a14);
-    color: #eafff2;
-    border-bottom: 1px solid rgba(0, 255, 140, 0.20);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
-    position: sticky;
-    top: 0;
-    z-index: 20;
+    padding: 0 28px;
+    color: var(--text-main);
+    background: rgba(2, 2, 3, 0.92);
+    border-bottom: 1px solid var(--border-soft);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.48);
 }
 
 .app-brand,
@@ -112,24 +222,24 @@ body.professor-page.theme-auto {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    min-width: max-content;
-    color: #eafff2;
+    min-width: 0;
+    color: var(--text-main);
     text-decoration: none;
 }
 
 .app-brand-mark,
 .professor-brand-mark {
+    width: 36px;
+    height: 36px;
     display: grid;
     place-items: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    background:
-        linear-gradient(135deg, rgba(0, 255, 140, 0.95), rgba(0, 212, 255, 0.95));
-    color: #01140d;
-    font-weight: 900;
+    border: 1px solid rgba(34, 197, 94, 0.32);
+    border-radius: 10px;
+    color: #041008;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    box-shadow: 0 0 18px rgba(34, 197, 94, 0.16);
+    font-weight: 950;
     letter-spacing: -0.04em;
-    box-shadow: 0 0 24px rgba(0, 255, 140, 0.35);
 }
 
 .app-brand-text,
@@ -141,48 +251,68 @@ body.professor-page.theme-auto {
 
 .app-brand-text strong,
 .professor-brand-text strong {
-    font-size: 16px;
-    letter-spacing: -0.02em;
+    display: block;
+    color: var(--text-main);
+    font-size: 0.98rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .app-brand-text span,
 .professor-brand-text span {
-    color: #7dffc2;
-    font-size: 12px;
+    display: block;
+    margin-top: 1px;
+    color: var(--text-faint);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .app-nav-links,
 .professor-nav-links {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    flex-wrap: wrap;
     margin-left: auto;
 }
 
 .app-nav-links a,
 .professor-nav-links a {
-    color: #d7ffe9;
-    text-decoration: none;
-    padding: 9px 13px;
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 800;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
     border: 1px solid transparent;
+    border-radius: 999px;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
 
 .app-nav-links a:hover,
 .app-nav-links a.active,
 .professor-nav-links a:hover,
 .professor-nav-links a.active {
-    color: #01140d;
-    background: linear-gradient(135deg, #00ff8a, #00d4ff);
-    border-color: rgba(234, 255, 242, 0.20);
+    color: #f8fafc;
+    border-color: rgba(34, 197, 94, 0.28);
+    background: rgba(34, 197, 94, 0.12);
 }
 
 .app-user-actions,
 .professor-user-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 10px;
 }
 
@@ -193,169 +323,441 @@ body.professor-page.theme-auto {
     min-height: 34px;
     padding: 7px 12px;
     border-radius: 999px;
-    background: rgba(234, 255, 242, 0.08);
-    border: 1px solid rgba(0, 255, 140, 0.22);
-    color: #bdffe6;
+    color: var(--text-soft);
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(34, 197, 94, 0.16);
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 850;
 }
 
 .logout-form {
     margin: 0;
 }
 
-/* ---------- Layout ---------- */
+/* =========================================================
+   LAYOUT + SIDEBAR
+   ========================================================= */
 
 .professor-layout {
+    position: relative;
+    z-index: 1;
     display: flex;
-    min-height: calc(100vh - var(--topnav-h));
+    min-height: 100vh;
 }
 
 .professor-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 20;
     width: var(--sidebar-w);
-    flex: 0 0 var(--sidebar-w);
-    min-height: calc(100vh - var(--topnav-h));
     display: flex;
     flex-direction: column;
-    position: sticky;
-    top: var(--topnav-h);
-    align-self: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    color: var(--text-main);
     background:
-        linear-gradient(180deg, rgba(0, 255, 140, 0.16), transparent 20rem),
-        linear-gradient(180deg, #012015, #010c08);
-    color: #eafff2;
-    border-right: 1px solid rgba(0, 255, 140, 0.18);
-    box-shadow: 14px 0 40px rgba(0, 0, 0, 0.36);
+        linear-gradient(180deg, rgba(34, 197, 94, 0.05), transparent 16rem),
+        linear-gradient(135deg, #020203, #07090c 60%, #020203);
+    border-right: 1px solid rgba(34, 197, 94, 0.12);
+    box-shadow: 18px 0 45px rgba(0, 0, 0, 0.70);
 }
 
-.professor-sidebar-header {
+.professor-sidebar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, rgba(34, 197, 94, 0.40), transparent);
+    opacity: 0.78;
+    pointer-events: none;
+}
+
+.professor-sidebar-header,
+.professor-sidebar .sidebar-brand {
+    position: relative;
     padding: 24px 20px 20px;
-    border-bottom: 1px solid rgba(0, 255, 140, 0.16);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.professor-sidebar .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .professor-sidebar-title {
-    display: block;
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: -0.04em;
+    margin: 0;
+    color: #f8fafc;
+    font-size: 1.32rem;
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.professor-sidebar-title::before {
+    content: "▣";
+    margin-right: 10px;
+    color: var(--accent);
+    text-shadow: 0 0 18px var(--accent-glow);
 }
 
 .professor-sidebar-subtitle {
     margin-top: 7px;
-    color: #7dffc2;
-    font-size: 13px;
-    line-height: 1.45;
+    color: var(--text-faint);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
 }
 
 .professor-zone-note {
     display: block;
     margin-top: 10px;
     padding-left: 10px;
-    border-left: 2px solid rgba(0, 212, 255, 0.65);
-    color: #9fe9ff;
+    border-left: 2px solid rgba(34, 197, 94, 0.50);
+    color: #bbf7d0;
     font-size: 12px;
 }
 
-.professor-sidebar-nav {
+.professor-sidebar .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    color: var(--text-dark);
+    font-size: 15px;
+    font-weight: 950;
+    letter-spacing: -0.05em;
+    box-shadow: 0 0 24px var(--accent-glow);
+}
+
+
+/* =========================================================
+   LOGO PLANTA — Professor
+   Mesmo logo usado no Aluno/Admin.
+
+   HTML esperado dentro do mark:
+   <span class="brand-mark">
+       <span class="plant-sun"></span>
+       <span class="plant-shade"></span>
+   </span>
+   ========================================================= */
+
+.professor-sidebar .brand-mark,
+.professor-sidebar .logo-mark,
+.app-brand-mark,
+.professor-brand-mark {
+    position: relative;
+    overflow: hidden;
+    font-size: 0;
+}
+
+.professor-sidebar .brand-mark .plant-sun,
+.professor-sidebar .brand-mark .plant-shade,
+.professor-sidebar .logo-mark .plant-sun,
+.professor-sidebar .logo-mark .plant-shade,
+.app-brand-mark .plant-sun,
+.app-brand-mark .plant-shade,
+.professor-brand-mark .plant-sun,
+.professor-brand-mark .plant-shade {
+    position: absolute;
+    inset: 0;
+    width: 26px;
+    height: 26px;
+    margin: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.professor-sidebar .brand-mark .plant-sun,
+.professor-sidebar .logo-mark .plant-sun,
+.app-brand-mark .plant-sun,
+.professor-brand-mark .plant-sun {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3E%3Cpath d='M20 38 C19.5 30 19.5 22 20 14' stroke='%23073427' stroke-width='1.8' stroke-linecap='round'/%3E%3Cg transform='rotate(-35 14 24)'%3E%3Cellipse cx='14' cy='24' rx='8.5' ry='6' fill='%23064e3b'/%3E%3C/g%3E%3Cg transform='rotate(35 26 24)'%3E%3Cellipse cx='26' cy='24' rx='8.5' ry='6' fill='%23073427'/%3E%3C/g%3E%3Cg transform='rotate(-28 14.5 15)'%3E%3Cellipse cx='14.5' cy='15' rx='7.2' ry='5.2' fill='%23065f46'/%3E%3C/g%3E%3Cg transform='rotate(28 25.5 15)'%3E%3Cellipse cx='25.5' cy='15' rx='7.2' ry='5.2' fill='%23064e3b'/%3E%3C/g%3E%3Cellipse cx='20' cy='9' rx='6.2' ry='6.8' fill='%23047857'/%3E%3C/svg%3E");
+    opacity: 0;
+    transform: scale(0.82) rotate(6deg);
+}
+
+.professor-sidebar .brand-mark .plant-shade,
+.professor-sidebar .logo-mark .plant-shade,
+.app-brand-mark .plant-shade,
+.professor-brand-mark .plant-shade {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40' fill='none'%3E%3Cpath d='M20 38 C19.7 29 19.7 18 21 6' stroke='%23073427' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M20.3 32 C14.5 30.5 10 27 7.5 22 C12.5 22 17 25 20.3 29.5 Z' fill='%23064e3b'/%3E%3Cpath d='M20.5 25.5 C15 24.3 11 21 9 16.5 C13.5 16.5 17.5 19.3 20.5 23.5 Z' fill='%23065f46'/%3E%3Cpath d='M21 19.5 C16.7 18.4 13.5 15.6 12 12 C15.8 12 19 14.2 21 17.5 Z' fill='%23064e3b'/%3E%3Cpath d='M21.3 13.5 C18 12.5 15.8 10.5 14.6 7.7 C17.4 7.7 19.8 9.5 21.3 12 Z' fill='%23047857'/%3E%3Cpath d='M20.3 32 C26.1 30.5 30.6 27 33.1 22 C28.1 22 23.6 25 20.3 29.5 Z' fill='%23073427'/%3E%3Cpath d='M20.5 25.5 C26 24.3 30 21 32 16.5 C27.5 16.5 23.5 19.3 20.5 23.5 Z' fill='%23065f46'/%3E%3Cpath d='M21 19.5 C25.3 18.4 28.5 15.6 30 12 C26.2 12 23 14.2 21 17.5 Z' fill='%23064e3b'/%3E%3Cpath d='M21.3 13.5 C24.6 12.5 26.8 10.5 28 7.7 C25.2 7.7 22.8 9.5 21.3 12 Z' fill='%23047857'/%3E%3C/svg%3E");
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+/* Caso exista modo claro no professor, faz crossfade para a planta clara */
+body.theme-light .professor-sidebar .brand-mark .plant-sun,
+body.theme-light .professor-sidebar .logo-mark .plant-sun,
+body.theme-light .app-brand-mark .plant-sun,
+body.theme-light .professor-brand-mark .plant-sun {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+body.theme-light .professor-sidebar .brand-mark .plant-shade,
+body.theme-light .professor-sidebar .logo-mark .plant-shade,
+body.theme-light .app-brand-mark .plant-shade,
+body.theme-light .professor-brand-mark .plant-shade {
+    opacity: 0;
+    transform: scale(0.82) rotate(-6deg);
+}
+
+
+
+.professor-sidebar .sidebar-brand strong {
+    display: block;
+    color: #f8fafc;
+    font-size: 18px;
+    font-weight: 950;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+}
+
+.professor-sidebar .sidebar-brand span {
+    display: block;
+    margin-top: 4px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 850;
+    letter-spacing: 0.02em;
+}
+
+.professor-sidebar-nav,
+.professor-sidebar .sidebar-nav {
     display: flex;
     flex-direction: column;
+    gap: 7px;
     padding: 16px 12px;
-    gap: 6px;
 }
 
 .professor-sidebar-section {
     margin: 14px 12px 5px;
-    color: #5fd9ff;
+    color: var(--accent);
     font-size: 11px;
-    font-weight: 900;
+    font-weight: 950;
     text-transform: uppercase;
     letter-spacing: 0.10em;
 }
 
 .professor-sidebar-nav a,
-.professor-sidebar-footer a {
+.professor-sidebar-footer a,
+.professor-sidebar .sidebar-nav a,
+.professor-sidebar .sidebar-footer a,
+.professor-sidebar .sidebar-footer button,
+.professor-sidebar-footer button {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
     min-height: 42px;
-    color: #d7ffe9;
-    text-decoration: none;
     padding: 11px 13px;
     border-radius: 12px;
-    font-size: 14px;
-    font-weight: 800;
+    color: var(--text-soft);
+    background: transparent;
     border: 1px solid transparent;
+    text-decoration: none;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1.2;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.professor-sidebar-nav a::before,
+.professor-sidebar-footer a::before,
+.professor-sidebar .sidebar-nav a::before,
+.professor-sidebar .sidebar-footer a::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: rgba(148, 163, 184, 0.20);
+    transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
 .professor-sidebar-nav a:hover,
-.professor-sidebar-nav a.active {
-    color: #01140d;
-    background: linear-gradient(135deg, #00ff8a, #00d4ff);
-    box-shadow: 0 0 22px rgba(0, 255, 140, 0.22);
+.professor-sidebar-nav a.active,
+.professor-sidebar-footer a:hover,
+.professor-sidebar .sidebar-nav a:hover,
+.professor-sidebar .sidebar-nav a.active,
+.professor-sidebar .sidebar-footer a:hover {
+    color: #f8fafc;
+    border-color: rgba(34, 197, 94, 0.28);
+    background: linear-gradient(90deg, rgba(34, 197, 94, 0.12), rgba(0, 0, 0, 0.20));
+    transform: translateX(2px);
 }
 
-.professor-sidebar-footer {
+.professor-sidebar-nav a:hover::before,
+.professor-sidebar-nav a.active::before,
+.professor-sidebar-footer a:hover::before,
+.professor-sidebar .sidebar-nav a:hover::before,
+.professor-sidebar .sidebar-nav a.active::before,
+.professor-sidebar .sidebar-footer a:hover::before {
+    background: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.professor-sidebar-footer,
+.professor-sidebar .sidebar-footer {
     margin-top: auto;
     padding: 16px 12px 22px;
-    border-top: 1px solid rgba(0, 255, 140, 0.16);
+    border-top: 1px solid var(--border-soft);
 }
 
-.professor-sidebar-footer a {
-    color: #9fe9ff;
+.professor-sidebar-footer form,
+.professor-sidebar .sidebar-footer form {
+    margin: 8px 0 0;
 }
 
-.professor-sidebar-footer a:hover {
-    background: rgba(0, 212, 255, 0.10);
-    border-color: rgba(0, 212, 255, 0.30);
+.professor-sidebar-footer button,
+.professor-sidebar .sidebar-footer button {
+    justify-content: flex-start;
+    color: #ffdfdf;
+    background: rgba(248, 113, 113, 0.08);
+    border-color: rgba(248, 113, 113, 0.22);
+}
+
+.professor-sidebar-footer button::before,
+.professor-sidebar .sidebar-footer button::before {
+    display: none;
+}
+
+.professor-sidebar-footer button:hover,
+.professor-sidebar .sidebar-footer button:hover {
+    color: #270707;
+    background: linear-gradient(135deg, #fca5a5, #f87171);
+    border-color: rgba(254, 202, 202, 0.42);
+    transform: translateX(2px);
 }
 
 .professor-main {
+    position: relative;
     width: calc(100% - var(--sidebar-w));
-    padding: 28px;
+    min-height: 100vh;
+    margin-left: var(--sidebar-w);
+    padding: 30px;
 }
 
-/* ---------- Core blocks ---------- */
+.professor-main::before {
+    content: "PROFESSOR";
+    position: fixed;
+    right: 28px;
+    bottom: 18px;
+    color: rgba(34, 197, 94, 0.030);
+    font-size: clamp(2rem, 5vw, 5rem);
+    font-weight: 950;
+    letter-spacing: 0.16em;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* se existir nav superior fora do layout */
+.app-topnav + .professor-layout .professor-sidebar,
+.professor-global-nav + .professor-layout .professor-sidebar {
+    top: var(--topnav-h);
+}
+
+.app-topnav + .professor-layout,
+.professor-global-nav + .professor-layout {
+    min-height: calc(100vh - var(--topnav-h));
+}
+
+/* =========================================================
+   TOPBARS / PANELS / CARDS
+   ========================================================= */
 
 .professor-topbar,
 .professor-panel,
 .professor-focus-card,
 .stat-card,
 .log-detail-box,
-.pedido-card {
+.pedido-card,
+.profile-card {
+    border: 1px solid var(--border-soft);
     background:
-        linear-gradient(180deg, rgba(0, 255, 140, 0.035), rgba(0, 212, 255, 0.025)),
-        var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-soft);
+        linear-gradient(135deg, rgba(34, 197, 94, 0.045), transparent 42%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0.003)),
+        rgba(7, 9, 12, 0.96);
+    box-shadow: var(--shadow-panel), var(--shadow-glow);
 }
 
 .professor-topbar {
+    position: relative;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 22px;
+    margin-bottom: 24px;
     padding: 24px;
-    margin-bottom: 22px;
-    border-top: 4px solid var(--green);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.professor-topbar::after {
+    content: "";
+    position: absolute;
+    right: -56px;
+    top: -76px;
+    width: 210px;
+    height: 210px;
+    border: 1px solid rgba(34, 197, 94, 0.10);
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.06), transparent 60%);
 }
 
 .professor-topbar h1 {
+    position: relative;
+    z-index: 1;
     margin: 0;
-    font-size: clamp(24px, 3vw, 34px);
+    color: #f8fafc;
+    font-size: clamp(1.75rem, 2.2vw, 2.45rem);
+    font-weight: 950;
     letter-spacing: -0.04em;
-    color: var(--text-strong);
+}
+
+.professor-topbar h1::before {
+    content: "//";
+    margin-right: 10px;
+    color: var(--accent);
+    font-weight: 950;
+    letter-spacing: -0.12em;
 }
 
 .professor-topbar p {
-    margin: 7px 0 0;
-    color: var(--muted);
-    line-height: 1.45;
+    position: relative;
+    z-index: 1;
+    max-width: 850px;
+    margin: 8px 0 0;
+    color: var(--text-soft);
+    line-height: 1.55;
+}
+
+.professor-topbar-actions {
+    align-items: center;
 }
 
 .professor-panel {
-    padding: 22px;
     margin-bottom: 22px;
+    padding: 22px;
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+}
+
+.professor-panel:hover {
+    border-color: rgba(34, 197, 94, 0.20);
 }
 
 .panel-header {
@@ -368,20 +770,29 @@ body.professor-page.theme-auto {
 
 .panel-header h2 {
     margin: 0;
-    font-size: 20px;
+    color: #f8fafc;
+    font-size: 1.18rem;
+    font-weight: 900;
     letter-spacing: -0.02em;
-    color: var(--text-strong);
 }
 
 .panel-header p {
-    margin: 5px 0 0;
+    margin: 6px 0 0;
 }
 
 .panel-header a {
-    color: var(--blue);
-    font-weight: 800;
+    color: var(--accent);
     text-decoration: none;
+    font-weight: 850;
 }
+
+.panel-header a:hover {
+    color: #4ade80;
+}
+
+/* =========================================================
+   STATS / FOCUS
+   ========================================================= */
 
 .professor-focus-grid,
 .stats-grid,
@@ -395,73 +806,113 @@ body.professor-page.theme-auto {
     margin-bottom: 22px;
 }
 
-.professor-focus-card {
-    padding: 20px;
-    border-left: 4px solid var(--green);
-}
-
-.professor-focus-card:nth-child(2n) {
-    border-left-color: var(--blue);
-}
-
-.professor-focus-card strong {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-strong);
-    font-size: 18px;
-}
-
-.professor-focus-card p {
-    margin: 0;
-    color: var(--muted);
-    line-height: 1.5;
-}
-
 .stats-grid {
     grid-template-columns: repeat(4, minmax(180px, 1fr));
     margin-bottom: 22px;
 }
 
+.professor-focus-card,
 .stat-card {
-    padding: 19px;
-    border-left: 4px solid var(--green);
+    position: relative;
+    min-height: 138px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
 }
 
-.stat-card.warning {
-    border-left-color: var(--warning);
+.professor-focus-card::before,
+.stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--accent), #15803d);
+    box-shadow: 0 0 22px var(--accent-glow);
+}
+
+.professor-focus-card:nth-child(2n)::before {
+    background: linear-gradient(180deg, var(--blue), #0284c7);
+    box-shadow: 0 0 22px rgba(56, 189, 248, 0.18);
+}
+
+.stat-card.warning::before {
+    background: linear-gradient(180deg, #fbbf24, #f97316);
+    box-shadow: 0 0 22px rgba(245, 158, 11, 0.22);
+}
+
+.professor-focus-card::after,
+.stat-card::after {
+    content: "";
+    position: absolute;
+    right: -34px;
+    bottom: -40px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.03);
+}
+
+.professor-focus-card strong {
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin-bottom: 8px;
+    color: #f8fafc;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.professor-focus-card p {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: var(--text-soft);
+    line-height: 1.5;
 }
 
 .stat-label {
+    position: relative;
+    z-index: 1;
     display: block;
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 850;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     margin-bottom: 10px;
+    color: var(--text-faint);
+    font-size: 0.76rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .stat-card strong {
+    position: relative;
+    z-index: 1;
     display: block;
-    font-size: 32px;
+    margin-bottom: 10px;
+    color: #f8fafc;
+    font-size: 2.15rem;
     line-height: 1;
-    color: var(--text-strong);
-    margin-bottom: 9px;
+    font-weight: 950;
+    letter-spacing: -0.05em;
 }
 
 .stat-card strong.small-value {
-    font-size: 18px;
-    line-height: 1.25;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
 }
 
 .stat-card small {
-    color: var(--muted);
-    line-height: 1.45;
+    position: relative;
+    z-index: 1;
+    color: var(--text-soft);
+    line-height: 1.5;
 }
 
-/* ---------- Tables ---------- */
+/* =========================================================
+   TABLES
+   ========================================================= */
 
 .table-scroll,
+.table-wrapper,
 .professor-table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -469,30 +920,32 @@ body.professor-page.theme-auto {
 
 .professor-table {
     width: 100%;
-    border-collapse: collapse;
     min-width: 760px;
+    border-collapse: collapse;
+    font-size: 14px;
 }
 
 .professor-table th,
 .professor-table td {
-    padding: 13px 11px;
-    border-bottom: 1px solid var(--line);
+    padding: 14px 12px;
+    border-bottom: 1px solid rgba(34, 197, 94, 0.10);
     text-align: left;
     vertical-align: top;
-    font-size: 14px;
 }
 
 .professor-table th {
-    color: var(--muted);
+    color: #bbf7d0;
+    background:
+        linear-gradient(180deg, rgba(34, 197, 94, 0.06), rgba(34, 197, 94, 0.025)),
+        var(--bg-panel-2);
     font-size: 12px;
+    font-weight: 950;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 900;
-    background: var(--surface-2);
+    letter-spacing: 0.07em;
 }
 
-.professor-table tbody tr:hover {
-    background: rgba(0, 255, 140, 0.07);
+.professor-table tbody tr:hover td {
+    background: rgba(34, 197, 94, 0.045);
 }
 
 .actions-column {
@@ -500,7 +953,7 @@ body.professor-page.theme-auto {
 }
 
 .actions-column-wide {
-    width: 330px;
+    width: 340px;
 }
 
 .table-actions,
@@ -521,7 +974,9 @@ body.professor-page.theme-auto {
     margin: 0;
 }
 
-/* ---------- Forms ---------- */
+/* =========================================================
+   FORMS
+   ========================================================= */
 
 .filter-form {
     display: grid;
@@ -555,9 +1010,9 @@ body.professor-page.theme-auto {
 }
 
 .form-group label {
+    color: #f8fafc;
     font-size: 14px;
-    font-weight: 850;
-    color: var(--text-strong);
+    font-weight: 900;
 }
 
 .form-group input,
@@ -565,13 +1020,15 @@ body.professor-page.theme-auto {
 .form-group textarea,
 .pedido-action-form input {
     width: 100%;
-    border: 1px solid var(--line-strong);
-    border-radius: 11px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
     padding: 11px 12px;
+    background: var(--bg-input);
+    color: var(--text-main);
     font-size: 14px;
     font-family: inherit;
-    background: var(--surface);
-    color: var(--text);
+    outline: none;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .form-group textarea {
@@ -583,13 +1040,13 @@ body.professor-page.theme-auto {
 .form-group select:focus,
 .form-group textarea:focus,
 .pedido-action-form input:focus {
-    outline: none;
-    border-color: var(--blue);
-    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.16);
+    border-color: rgba(34, 197, 94, 0.55);
+    background: #080b0d;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.11);
 }
 
 .form-group small {
-    color: var(--muted);
+    color: var(--text-faint);
     line-height: 1.4;
 }
 
@@ -604,10 +1061,16 @@ body.professor-page.theme-auto {
     gap: 12px;
     min-height: 44px;
     padding: 13px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--border-soft);
     border-radius: 13px;
-    background: var(--surface-2);
+    background: var(--bg-panel-2);
     cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.checkbox-label:hover,
+.checkbox-card:hover {
+    border-color: var(--border-strong);
 }
 
 .checkbox-label input,
@@ -616,31 +1079,31 @@ body.professor-page.theme-auto {
 .permission-card input {
     width: 18px;
     height: 18px;
-    accent-color: var(--green);
+    accent-color: var(--accent);
 }
 
 .checkbox-card strong {
     display: block;
-    color: var(--text-strong);
+    color: #f8fafc;
 }
 
 .checkbox-card small {
     display: block;
-    color: var(--muted);
     margin-top: 3px;
+    color: var(--text-muted);
     line-height: 1.4;
 }
 
 .checkbox-card:has(input:checked) {
-    border-color: var(--green);
-    background: var(--green-soft);
+    border-color: rgba(34, 197, 94, 0.45);
+    background: var(--accent-soft);
 }
 
 .form-section-title {
     margin: 6px 0 18px;
     padding-bottom: 10px;
-    border-bottom: 1px solid var(--line);
-    color: var(--text-strong);
+    border-bottom: 1px solid var(--border-soft);
+    color: #f8fafc;
     font-size: 18px;
     letter-spacing: -0.02em;
 }
@@ -658,23 +1121,27 @@ body.professor-page.theme-auto {
     margin-top: 22px;
 }
 
-/* ---------- Buttons ---------- */
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 .btn {
+    min-height: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
     border: 1px solid transparent;
-    border-radius: 11px;
+    border-radius: 12px;
     padding: 10px 14px;
+    color: var(--text-main);
+    background: var(--bg-panel-2);
     font-size: 14px;
-    font-weight: 900;
+    font-weight: 950;
     font-family: inherit;
+    line-height: 1;
     text-decoration: none;
     cursor: pointer;
-    line-height: 1;
-    transition: 0.15s ease;
+    transition: transform 0.15s ease, filter 0.15s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn:hover {
@@ -682,145 +1149,216 @@ body.professor-page.theme-auto {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--green), var(--blue));
-    color: #021109;
-    box-shadow: 0 12px 24px rgba(0, 255, 140, 0.22);
+    color: #052e16;
+    background: linear-gradient(135deg, #86efac, var(--accent));
+    box-shadow: 0 12px 24px rgba(34, 197, 94, 0.18);
 }
 
 .btn-primary:hover {
     filter: brightness(1.04);
+    box-shadow: 0 14px 30px rgba(34, 197, 94, 0.24);
 }
 
 .btn-secondary {
-    background: var(--surface-2);
-    color: var(--text-strong);
-    border-color: var(--line-strong);
+    color: var(--text-main);
+    background: var(--bg-panel-2);
+    border-color: var(--border-strong);
 }
 
 .btn-secondary:hover {
-    border-color: var(--blue);
-    background: var(--surface-3);
+    border-color: rgba(34, 197, 94, 0.45);
+    background: var(--bg-panel-3);
 }
 
 .btn-danger {
-    background: var(--danger-bg);
-    color: var(--danger);
-    border-color: rgba(185, 28, 28, 0.22);
+    color: #fecaca;
+    background: var(--red-soft);
+    border-color: rgba(248, 113, 113, 0.28);
+}
+
+.btn-danger:hover {
+    color: #270707;
+    background: linear-gradient(135deg, #fca5a5, #f87171);
+    border-color: rgba(254, 202, 202, 0.45);
 }
 
 .btn-success {
-    background: var(--success-bg);
-    color: var(--success);
-    border-color: rgba(22, 101, 52, 0.22);
+    color: #bbf7d0;
+    background: var(--green-soft);
+    border-color: rgba(34, 197, 94, 0.30);
+}
+
+.btn-success:hover {
+    color: #052e16;
+    background: linear-gradient(135deg, #bbf7d0, #22c55e);
 }
 
 .btn-small {
     min-height: 32px;
     padding: 7px 10px;
-    font-size: 12px;
     border-radius: 9px;
+    font-size: 12px;
 }
 
-/* ---------- Badges / status ---------- */
+.btn-link {
+    color: var(--accent);
+    background: transparent;
+    border-color: transparent;
+    padding-inline: 0;
+}
+
+.btn-link:hover {
+    color: #4ade80;
+    transform: none;
+}
+
+/* =========================================================
+   BADGES / STATUS
+   ========================================================= */
 
 .badge,
 .status-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    border-radius: 999px;
+    gap: 6px;
+    min-height: 24px;
     padding: 5px 9px;
-    font-size: 12px;
-    font-weight: 900;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 950;
     line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     white-space: nowrap;
 }
 
 .badge {
-    background: var(--blue-soft);
-    color: var(--blue-strong);
+    color: #bbf7d0;
+    border-color: rgba(34, 197, 94, 0.28);
+    background: var(--green-soft);
 }
 
 .badge-info {
+    color: #bae6fd;
+    border-color: rgba(56, 189, 248, 0.23);
     background: var(--blue-soft);
-    color: var(--blue-strong);
 }
 
 .badge-warning {
-    background: var(--warning-bg);
-    color: var(--warning);
+    color: #fde68a;
+    border-color: rgba(250, 204, 21, 0.26);
+    background: var(--yellow-soft);
 }
 
 .badge-error {
-    background: var(--danger-bg);
-    color: var(--danger);
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.28);
+    background: var(--red-soft);
 }
 
 .badge-success-soft {
-    background: var(--success-bg);
-    color: var(--success);
+    color: #bbf7d0;
+    border-color: rgba(34, 197, 94, 0.30);
+    background: var(--green-soft);
 }
 
 .badge-muted {
-    background: var(--surface-3);
-    color: var(--muted);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(51, 65, 85, 0.32);
 }
 
-.status-active {
-    background: var(--success-bg);
-    color: var(--success);
+.status-active,
+.status-online {
+    color: #bbf7d0;
+    border-color: rgba(34, 197, 94, 0.32);
+    background: var(--green-soft);
 }
 
-.status-inactive {
-    background: var(--surface-3);
-    color: var(--muted);
+.status-inactive,
+.status-offline {
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(51, 65, 85, 0.32);
 }
 
 .status-warning {
-    background: var(--warning-bg);
-    color: var(--warning);
+    color: #fde68a;
+    border-color: rgba(250, 204, 21, 0.28);
+    background: var(--yellow-soft);
 }
 
-/* ---------- Alerts / utility ---------- */
+.status-error,
+.status-danger {
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.28);
+    background: var(--red-soft);
+}
+
+/* =========================================================
+   ALERTS / UTILITIES
+   ========================================================= */
 
 .alert {
-    padding: 14px 16px;
-    border-radius: 13px;
+    position: relative;
     margin-bottom: 18px;
-    font-weight: 850;
+    padding: 14px 16px;
     border: 1px solid transparent;
+    border-radius: 14px;
+    font-weight: 850;
+    line-height: 1.45;
+    box-shadow: var(--shadow-soft);
 }
 
 .alert-success {
-    background: var(--success-bg);
-    color: var(--success);
-    border-color: rgba(22, 101, 52, 0.22);
+    color: #bbf7d0;
+    border-color: rgba(34, 197, 94, 0.28);
+    background: rgba(20, 83, 45, 0.30);
 }
 
-.alert-error {
-    background: var(--danger-bg);
-    color: var(--danger);
-    border-color: rgba(185, 28, 28, 0.22);
+.alert-error,
+.alert-danger {
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.30);
+    background: rgba(127, 29, 29, 0.30);
+}
+
+.alert-warning {
+    color: #fde68a;
+    border-color: rgba(250, 204, 21, 0.28);
+    background: rgba(113, 63, 18, 0.30);
+}
+
+.alert-info {
+    color: #bae6fd;
+    border-color: rgba(56, 189, 248, 0.28);
+    background: rgba(12, 74, 110, 0.24);
 }
 
 .empty-state {
     padding: 28px;
-    background: var(--surface-2);
-    color: var(--muted);
-    border: 1px dashed var(--line-strong);
+    border: 1px dashed var(--border-strong);
     border-radius: 14px;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.50);
     text-align: center;
-    font-weight: 750;
+    font-weight: 800;
 }
 
 .muted {
-    color: var(--muted);
+    color: var(--text-muted);
     font-size: 14px;
+    line-height: 1.45;
 }
 
 .text-danger {
-    color: var(--danger);
+    color: var(--red) !important;
+}
+
+.text-success {
+    color: var(--green) !important;
 }
 
 .margin-top {
@@ -833,12 +1371,15 @@ body.professor-page.theme-auto {
 
 code {
     display: inline-block;
+    max-width: 100%;
     padding: 4px 7px;
-    border-radius: 7px;
-    background: var(--surface-3);
-    color: var(--text-strong);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    color: #bbf7d0;
+    background: rgba(0, 0, 0, 0.78);
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
     font-size: 13px;
-    border: 1px solid var(--line);
+    line-height: 1.45;
     word-break: break-word;
 }
 
@@ -848,10 +1389,11 @@ code {
 
 .command-cell code {
     white-space: normal;
-    line-height: 1.45;
 }
 
-/* ---------- Selection / permissions ---------- */
+/* =========================================================
+   SELECTION / PERMISSIONS / SETTINGS
+   ========================================================= */
 
 .selection-grid,
 .permission-grid,
@@ -869,23 +1411,28 @@ code {
     justify-content: space-between;
     gap: 14px;
     padding: 18px;
-    border: 1px solid var(--line);
-    border-radius: 15px;
-    background: var(--surface-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    background:
+        linear-gradient(135deg, rgba(34, 197, 94, 0.035), transparent 40%),
+        var(--bg-panel-2);
     cursor: pointer;
-    transition: 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .selection-card:hover,
 .permission-card:hover {
-    border-color: var(--blue);
+    border-color: rgba(34, 197, 94, 0.36);
     box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
 }
 
 .selection-card-selected,
 .permission-card-selected {
-    border-color: var(--green);
-    background: var(--green-soft);
+    border-color: rgba(34, 197, 94, 0.48);
+    background:
+        linear-gradient(135deg, rgba(34, 197, 94, 0.14), transparent),
+        var(--bg-panel-2);
 }
 
 .selection-card-main,
@@ -899,7 +1446,7 @@ code {
 .permission-card-main strong {
     display: block;
     margin-bottom: 6px;
-    color: var(--text-strong);
+    color: #f8fafc;
     font-size: 17px;
 }
 
@@ -920,7 +1467,9 @@ code {
     justify-content: space-between;
 }
 
-/* ---------- Pedidos ---------- */
+/* =========================================================
+   PEDIDOS
+   ========================================================= */
 
 .pedido-list {
     display: grid;
@@ -929,6 +1478,7 @@ code {
 
 .pedido-card {
     padding: 20px;
+    border-radius: var(--radius-lg);
 }
 
 .pedido-card-header {
@@ -941,8 +1491,9 @@ code {
 
 .pedido-card-header h3 {
     margin: 0 0 6px;
+    color: #f8fafc;
     font-size: 19px;
-    color: var(--text-strong);
+    font-weight: 900;
 }
 
 .pedido-card-header p {
@@ -964,26 +1515,26 @@ code {
 .pedido-grid > div,
 .pedido-text,
 .log-detail-header > div {
-    background: var(--surface-2);
-    border: 1px solid var(--line);
-    border-radius: 13px;
     padding: 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: 13px;
+    background: var(--bg-panel-2);
 }
 
 .pedido-grid strong {
     display: block;
-    font-size: 18px;
     margin-top: 6px;
-    color: var(--text-strong);
+    color: #f8fafc;
+    font-size: 18px;
 }
 
 .pedido-meta {
     display: grid;
     grid-template-columns: repeat(4, minmax(140px, 1fr));
     gap: 10px;
-    color: var(--muted);
-    font-size: 14px;
     margin-bottom: 14px;
+    color: var(--text-muted);
+    font-size: 14px;
 }
 
 .pedido-meta p,
@@ -997,7 +1548,7 @@ code {
 
 .pedido-text p {
     margin-top: 7px;
-    color: var(--muted);
+    color: var(--text-soft);
     line-height: 1.55;
 }
 
@@ -1007,7 +1558,7 @@ code {
     gap: 14px;
     margin-top: 18px;
     padding-top: 18px;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--border-soft);
 }
 
 .pedido-action-form {
@@ -1019,11 +1570,13 @@ code {
     flex: 1;
 }
 
-/* ---------- Logs / detail compatibility ---------- */
+/* =========================================================
+   LOGS / DETAILS
+   ========================================================= */
 
 .log-message-cell {
     max-width: 360px;
-    color: var(--muted);
+    color: var(--text-soft);
     line-height: 1.45;
 }
 
@@ -1038,39 +1591,130 @@ code {
 .log-detail-section {
     margin-top: 22px;
     padding-top: 20px;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--border-soft);
 }
 
 .log-detail-section h2,
 .log-detail-box h3 {
     margin: 0 0 10px;
-    color: var(--text-strong);
+    color: #f8fafc;
 }
 
 .log-detail-section p,
 .log-detail-box p {
     margin: 6px 0;
-    color: var(--muted);
+    color: var(--text-soft);
     line-height: 1.6;
 }
 
 .log-detail-box {
     padding: 16px;
+    border-radius: var(--radius-lg);
 }
 
 .json-box {
-    background: #01140d;
-    color: #d7ffe9;
     padding: 16px;
+    border: 1px solid rgba(34, 197, 94, 0.20);
     border-radius: 12px;
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.72);
     overflow-x: auto;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
     font-size: 13px;
     line-height: 1.5;
     white-space: pre-wrap;
-    border: 1px solid rgba(0, 255, 140, 0.20);
 }
 
-/* ---------- Responsive ---------- */
+/* =========================================================
+   FILTROS RECOLHÍVEIS
+   ========================================================= */
+
+.filters-panel {
+    overflow: hidden;
+}
+
+.filters-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.filters-summary::-webkit-details-marker {
+    display: none;
+}
+
+.filters-summary h2 {
+    margin: 0;
+}
+
+.filters-summary span {
+    color: var(--text-muted);
+}
+
+.filters-toggle-text {
+    padding: 8px 12px;
+    border-radius: 999px;
+    color: #bbf7d0;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    font-size: 0.82rem;
+    font-weight: 900;
+}
+
+.filters-panel[open] .filters-toggle-text {
+    color: #bbf7d0;
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.24);
+    font-size: 0;
+}
+
+.filters-panel[open] .filters-toggle-text::after {
+    content: "Fechar filtros";
+    font-size: 0.82rem;
+}
+
+.filters-panel .filter-form,
+.filters-panel .filters-form {
+    margin-top: 18px;
+}
+
+/* =========================================================
+   COMPATIBILIDADE COM OUTROS TEMPLATES
+   ========================================================= */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 22px;
+}
+
+.profile-card {
+    padding: 22px;
+    border-radius: var(--radius-lg);
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    display: inline-flex;
+    padding: 8px 12px;
+    border-radius: 999px;
+    color: #bbf7d0;
+    background: var(--green-soft);
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    font-weight: 850;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 1220px) {
     .stats-grid,
@@ -1096,6 +1740,7 @@ code {
     .professor-global-nav {
         position: static;
         flex-wrap: wrap;
+        padding: 12px 16px;
     }
 
     .app-nav-links,
@@ -1104,47 +1749,73 @@ code {
         width: 100%;
         overflow-x: auto;
         margin-left: 0;
+        justify-content: flex-start;
     }
 
     .professor-layout {
-        flex-direction: column;
+        display: block;
     }
 
-    .professor-sidebar {
-        position: static;
+    .professor-sidebar,
+    .app-topnav + .professor-layout .professor-sidebar,
+    .professor-global-nav + .professor-layout .professor-sidebar {
+        position: relative;
+        inset: auto;
+        top: auto;
         width: 100%;
-        flex-basis: auto;
         min-height: auto;
+        box-shadow: none;
+        border-right: none;
+        border-bottom: 1px solid rgba(34, 197, 94, 0.12);
     }
 
-    .professor-sidebar-nav {
+    .professor-sidebar-header,
+    .professor-sidebar .sidebar-brand {
+        padding: 16px;
+    }
+
+    .professor-sidebar-nav,
+    .professor-sidebar .sidebar-nav {
         display: grid;
         grid-template-columns: repeat(2, minmax(150px, 1fr));
+        padding: 12px;
     }
 
     .professor-sidebar-section {
         grid-column: 1 / -1;
     }
 
+    .professor-sidebar-footer,
+    .professor-sidebar .sidebar-footer {
+        padding: 12px;
+    }
+
     .professor-main {
         width: 100%;
+        min-height: auto;
+        margin-left: 0;
         padding: 20px;
     }
 
     .professor-focus-grid,
     .selection-grid,
     .permission-grid,
-    .settings-grid {
+    .settings-grid,
+    .profile-grid {
         grid-template-columns: 1fr;
+    }
+
+    .professor-sidebar-nav a:hover,
+    .professor-sidebar-nav a.active,
+    .professor-sidebar-footer a:hover,
+    .professor-sidebar .sidebar-nav a:hover,
+    .professor-sidebar .sidebar-nav a.active,
+    .professor-sidebar .sidebar-footer a:hover {
+        transform: none;
     }
 }
 
 @media (max-width: 700px) {
-    .app-topnav,
-    .professor-global-nav {
-        padding: 12px 16px;
-    }
-
     .app-user-actions,
     .professor-user-actions {
         width: 100%;
@@ -1160,6 +1831,7 @@ code {
     }
 
     .professor-sidebar-nav,
+    .professor-sidebar .sidebar-nav,
     .stats-grid,
     .filter-form,
     .filter-form-wide,
@@ -1197,184 +1869,718 @@ code {
     }
 }
 
+@media (max-width: 560px) {
+    .professor-sidebar-nav,
+    .professor-sidebar .sidebar-nav {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
         scroll-behavior: auto !important;
         transition: none !important;
         animation: none !important;
     }
 }
-
 /* =========================================================
-   FIX V3 - Compatibilidade com o fragmento professor-sidebar.html
-   O HTML atual usa: sidebar-brand, brand-mark, sidebar-nav, sidebar-footer.
-   Estas regras garantem que a barra lateral fica estilizada sem depender de
-   outros ficheiros CSS.
+   FIX FINAL · Professor
+   - Corrige clique no primeiro botão/link
+   - Adiciona modo claro completo
+   - Mantém modo escuro atual
    ========================================================= */
 
-body.professor-page .professor-layout {
-    display: flex;
-    align-items: stretch;
-    min-height: 100vh;
+/* ---------------------------------------------------------
+   FIX · Camadas a bloquear botões/links
+   --------------------------------------------------------- */
+
+.professor-main {
+    position: relative;
+    z-index: 1;
 }
 
-body.professor-page .professor-sidebar {
-    position: sticky;
-    top: 0;
-    width: var(--sidebar-w);
-    flex: 0 0 var(--sidebar-w);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+.professor-main > .app-user-topbar {
+    position: relative;
+    z-index: 60;
+}
+
+.professor-topbar,
+.professor-panel,
+.professor-focus-card,
+.stat-card,
+.info-card,
+.profile-card,
+.panel-header,
+.professor-actions,
+.table-actions,
+.form-actions,
+.filter-actions,
+.quick-actions {
+    position: relative;
+    z-index: 2;
+}
+
+.professor-actions a,
+.professor-actions button,
+.panel-header a,
+.panel-header button,
+.table-actions a,
+.table-actions button,
+.form-actions a,
+.form-actions button,
+.filter-actions a,
+.filter-actions button,
+.quick-actions a,
+.quick-actions button,
+.btn {
+    position: relative;
+    z-index: 8;
+    pointer-events: auto;
+}
+
+body.professor-page::before,
+.professor-sidebar::before,
+.professor-topbar::before,
+.professor-topbar::after,
+.professor-panel::before,
+.professor-panel::after,
+.professor-focus-card::before,
+.professor-focus-card::after,
+.stat-card::before,
+.stat-card::after,
+.info-card::before,
+.info-card::after,
+.profile-card::before,
+.profile-card::after {
+    pointer-events: none !important;
+}
+
+/* ---------------------------------------------------------
+   Tema claro · Variáveis
+   O JS global aplica body.theme-light / body.theme-dark
+   --------------------------------------------------------- */
+
+body.professor-page.theme-light {
+    color-scheme: light;
+
+    --bg-main: #eef7f1;
+    --bg-grid: rgba(7, 52, 39, 0.040);
+    --bg-panel: #ffffff;
+    --bg-panel-2: #f7fbf8;
+    --bg-panel-3: #edf7f0;
+    --bg-sidebar: #f8fcf9;
+    --bg-input: #ffffff;
+
+    --border-soft: rgba(34, 94, 58, 0.14);
+    --border-strong: rgba(34, 94, 58, 0.24);
+
+    --text-main: #102018;
+    --text-soft: #3f5f4b;
+    --text-muted: #60766a;
+    --text-faint: #7d9287;
+    --text-dark: #052e16;
+
+    --accent: #168f49;
+    --accent-strong: #0f7439;
+    --accent-soft: rgba(22, 143, 73, 0.10);
+    --accent-glow: rgba(22, 143, 73, 0.18);
+
+    --blue: #0369a1;
+    --blue-soft: rgba(3, 105, 161, 0.10);
+    --green: #168f49;
+    --green-soft: rgba(22, 143, 73, 0.10);
+    --yellow: #b45309;
+    --yellow-soft: rgba(180, 83, 9, 0.11);
+    --red: #b91c1c;
+    --red-soft: rgba(185, 28, 28, 0.10);
+    --violet: #7e22ce;
+    --violet-soft: rgba(126, 34, 206, 0.10);
+
+    --shadow-panel: 0 18px 42px rgba(16, 45, 30, 0.12);
+    --shadow-soft: 0 12px 28px rgba(16, 45, 30, 0.10);
+    --shadow-glow: 0 0 0 1px rgba(22, 143, 73, 0.06), 0 0 26px rgba(22, 143, 73, 0.035);
+
+    color: var(--text-main);
     background:
-        radial-gradient(circle at 20% 0%, rgba(0, 255, 140, 0.22), transparent 16rem),
-        linear-gradient(180deg, #012015 0%, #04231f 52%, #021815 100%);
-    color: #eafff2;
-    border-right: 1px solid rgba(0, 255, 140, 0.20);
-    box-shadow: 18px 0 46px rgba(0, 0, 0, 0.26);
+        radial-gradient(circle at top left, rgba(22, 143, 73, 0.13), transparent 34rem),
+        radial-gradient(circle at top right, rgba(3, 105, 161, 0.08), transparent 30rem),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(180deg, var(--bg-grid) 1px, transparent 1px),
+        var(--bg-main);
+    background-size: auto, auto, 42px 42px, 42px 42px, auto;
 }
 
-body.professor-page .professor-sidebar .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid rgba(0, 255, 140, 0.18);
+body.professor-page.theme-light::before {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.50), transparent 18rem),
+        radial-gradient(circle at 50% 0%, rgba(22, 143, 73, 0.10), transparent 36rem);
 }
 
-body.professor-page .professor-sidebar .brand-mark {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #00ff8a, #00d4ff);
-    color: #01140d;
-    font-size: 15px;
-    font-weight: 950;
-    letter-spacing: -0.05em;
-    box-shadow: 0 0 24px rgba(0, 255, 140, 0.35);
+/* Texto claro */
+
+body.professor-page.theme-light strong,
+body.professor-page.theme-light .professor-sidebar-title,
+body.professor-page.theme-light .professor-sidebar .sidebar-brand strong,
+body.professor-page.theme-light .professor-topbar h1,
+body.professor-page.theme-light .panel-header h2,
+body.professor-page.theme-light .form-group label,
+body.professor-page.theme-light .form-section-title,
+body.professor-page.theme-light .selection-card-main strong,
+body.professor-page.theme-light .permission-card-main strong,
+body.professor-page.theme-light .checkbox-card strong,
+body.professor-page.theme-light .pedido-card-header h3,
+body.professor-page.theme-light .log-detail-section h2,
+body.professor-page.theme-light .log-detail-box h3,
+body.professor-page.theme-light .professor-focus-card strong,
+body.professor-page.theme-light .stat-card strong {
+    color: #102018;
 }
 
-body.professor-page .professor-sidebar .sidebar-brand strong {
-    display: block;
-    color: #eafff2;
-    font-size: 18px;
-    font-weight: 950;
-    line-height: 1.05;
-    letter-spacing: -0.04em;
+body.professor-page.theme-light .muted,
+body.professor-page.theme-light .professor-topbar p,
+body.professor-page.theme-light .panel-header p,
+body.professor-page.theme-light .professor-focus-card p,
+body.professor-page.theme-light .stat-card small,
+body.professor-page.theme-light .checkbox-card small,
+body.professor-page.theme-light .pedido-text p,
+body.professor-page.theme-light .log-detail-section p,
+body.professor-page.theme-light .log-detail-box p {
+    color: var(--text-muted);
 }
 
-body.professor-page .professor-sidebar .sidebar-brand span {
-    display: block;
-    margin-top: 4px;
-    color: #7dffc2;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
+/* Sidebar claro */
+
+body.professor-page.theme-light .professor-sidebar {
+    color: var(--text-main);
+    background:
+        linear-gradient(180deg, rgba(22, 143, 73, 0.08), transparent 16rem),
+        linear-gradient(135deg, #ffffff, #f3faf5 62%, #e8f5ec);
+    border-right-color: rgba(22, 143, 73, 0.16);
+    box-shadow: 18px 0 38px rgba(15, 64, 38, 0.12);
 }
 
-body.professor-page .professor-sidebar .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding: 16px 12px;
+body.professor-page.theme-light .professor-sidebar::before {
+    background: linear-gradient(180deg, transparent, rgba(22, 143, 73, 0.36), transparent);
 }
 
-body.professor-page .professor-sidebar .sidebar-nav a,
-body.professor-page .professor-sidebar .sidebar-footer a,
-body.professor-page .professor-sidebar .sidebar-footer button {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-height: 42px;
-    padding: 11px 13px;
-    border-radius: 12px;
-    color: #d7ffe9;
+body.professor-page.theme-light .professor-sidebar-header,
+body.professor-page.theme-light .professor-sidebar .sidebar-brand,
+body.professor-page.theme-light .professor-sidebar-footer,
+body.professor-page.theme-light .professor-sidebar .sidebar-footer {
+    border-color: rgba(22, 143, 73, 0.13);
+}
+
+body.professor-page.theme-light .professor-sidebar-subtitle {
+    color: var(--text-faint);
+}
+
+body.professor-page.theme-light .professor-zone-note {
+    color: #166534;
+    border-left-color: rgba(22, 143, 73, 0.46);
+}
+
+body.professor-page.theme-light .professor-sidebar .brand-mark,
+body.professor-page.theme-light .professor-sidebar .logo-mark,
+body.professor-page.theme-light .app-brand-mark,
+body.professor-page.theme-light .professor-brand-mark {
+    background: linear-gradient(135deg, #bbf7d0, #22c55e);
+    border-color: rgba(22, 143, 73, 0.30);
+    box-shadow: 0 10px 24px rgba(22, 143, 73, 0.18);
+}
+
+body.professor-page.theme-light .professor-sidebar .sidebar-nav a,
+body.professor-page.theme-light .professor-sidebar-nav a,
+body.professor-page.theme-light .professor-sidebar-footer a,
+body.professor-page.theme-light .professor-sidebar .sidebar-footer a,
+body.professor-page.theme-light .professor-sidebar .sidebar-footer button,
+body.professor-page.theme-light .professor-sidebar-footer button {
+    color: #395c48;
+}
+
+body.professor-page.theme-light .professor-sidebar .sidebar-nav a::before,
+body.professor-page.theme-light .professor-sidebar-nav a::before,
+body.professor-page.theme-light .professor-sidebar-footer a::before,
+body.professor-page.theme-light .professor-sidebar .sidebar-footer a::before {
+    background: rgba(57, 92, 72, 0.22);
+}
+
+body.professor-page.theme-light .professor-sidebar .sidebar-nav a:hover,
+body.professor-page.theme-light .professor-sidebar .sidebar-nav a.active,
+body.professor-page.theme-light .professor-sidebar-nav a:hover,
+body.professor-page.theme-light .professor-sidebar-nav a.active,
+body.professor-page.theme-light .professor-sidebar-footer a:hover,
+body.professor-page.theme-light .professor-sidebar .sidebar-footer a:hover {
+    color: #0f3d24;
+    border-color: rgba(22, 143, 73, 0.28);
+    background: linear-gradient(90deg, rgba(22, 143, 73, 0.10), rgba(255, 255, 255, 0.60));
+}
+
+body.professor-page.theme-light .professor-sidebar-footer button,
+body.professor-page.theme-light .professor-sidebar .sidebar-footer button {
+    color: #991b1b;
+    background: rgba(185, 28, 28, 0.08);
+    border-color: rgba(185, 28, 28, 0.18);
+}
+
+body.professor-page.theme-light .professor-sidebar-footer button:hover,
+body.professor-page.theme-light .professor-sidebar .sidebar-footer button:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    border-color: rgba(185, 28, 28, 0.28);
+}
+
+/* Top nav / topbar claro */
+
+body.professor-page.theme-light .app-topnav,
+body.professor-page.theme-light .professor-global-nav {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.86);
+    border-bottom-color: rgba(22, 143, 73, 0.14);
+    box-shadow: 0 14px 30px rgba(16, 45, 30, 0.10);
+}
+
+body.professor-page.theme-light .app-brand-text strong,
+body.professor-page.theme-light .professor-brand-text strong {
+    color: #102018;
+}
+
+body.professor-page.theme-light .app-brand-text span,
+body.professor-page.theme-light .professor-brand-text span {
+    color: var(--text-faint);
+}
+
+body.professor-page.theme-light .app-nav-links a,
+body.professor-page.theme-light .professor-nav-links a {
+    color: #456653;
+}
+
+body.professor-page.theme-light .app-nav-links a:hover,
+body.professor-page.theme-light .app-nav-links a.active,
+body.professor-page.theme-light .professor-nav-links a:hover,
+body.professor-page.theme-light .professor-nav-links a.active {
+    color: #0f3d24;
+    border-color: rgba(22, 143, 73, 0.24);
+    background: rgba(22, 143, 73, 0.09);
+}
+
+body.professor-page.theme-light .app-user-pill,
+body.professor-page.theme-light .professor-user-pill {
+    color: #395c48;
+    background: rgba(255, 255, 255, 0.70);
+    border-color: rgba(22, 143, 73, 0.16);
+}
+
+/* Painéis / cartões claro */
+
+body.professor-page.theme-light .professor-topbar,
+body.professor-page.theme-light .professor-panel,
+body.professor-page.theme-light .professor-focus-card,
+body.professor-page.theme-light .stat-card,
+body.professor-page.theme-light .log-detail-box,
+body.professor-page.theme-light .pedido-card,
+body.professor-page.theme-light .profile-card {
+    border-color: rgba(22, 143, 73, 0.15);
+    background:
+        linear-gradient(135deg, rgba(22, 143, 73, 0.065), transparent 42%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.78)),
+        #ffffff;
+    box-shadow: var(--shadow-panel), var(--shadow-glow);
+}
+
+body.professor-page.theme-light .professor-topbar::after {
+    border-color: rgba(22, 143, 73, 0.14);
+    background: radial-gradient(circle, rgba(22, 143, 73, 0.09), transparent 60%);
+}
+
+body.professor-page.theme-light .professor-main::before {
+    color: rgba(22, 143, 73, 0.06);
+}
+
+body.professor-page.theme-light .professor-panel:hover {
+    border-color: rgba(22, 143, 73, 0.24);
+}
+
+body.professor-page.theme-light .professor-focus-card::after,
+body.professor-page.theme-light .stat-card::after {
+    background: rgba(22, 143, 73, 0.055);
+}
+
+body.professor-page.theme-light .stat-label {
+    color: #5f766a;
+}
+
+/* Tabelas claro */
+
+body.professor-page.theme-light .professor-table th,
+body.professor-page.theme-light .professor-table td {
+    border-bottom-color: rgba(22, 143, 73, 0.12);
+}
+
+body.professor-page.theme-light .professor-table th {
+    color: #166534;
+    background:
+        linear-gradient(180deg, rgba(22, 143, 73, 0.08), rgba(22, 143, 73, 0.035)),
+        #f1faf4;
+}
+
+body.professor-page.theme-light .professor-table tbody tr:hover td {
+    background: rgba(22, 143, 73, 0.055);
+}
+
+/* Forms claro */
+
+body.professor-page.theme-light .form-group input,
+body.professor-page.theme-light .form-group select,
+body.professor-page.theme-light .form-group textarea,
+body.professor-page.theme-light .pedido-action-form input {
+    color: #102018;
+    background: #ffffff;
+    border-color: rgba(22, 143, 73, 0.22);
+}
+
+body.professor-page.theme-light .form-group input:focus,
+body.professor-page.theme-light .form-group select:focus,
+body.professor-page.theme-light .form-group textarea:focus,
+body.professor-page.theme-light .pedido-action-form input:focus {
+    border-color: rgba(22, 143, 73, 0.48);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(22, 143, 73, 0.11);
+}
+
+body.professor-page.theme-light .form-group small {
+    color: var(--text-muted);
+}
+
+body.professor-page.theme-light .checkbox-label,
+body.professor-page.theme-light .checkbox-card {
+    border-color: rgba(22, 143, 73, 0.14);
+    background: #f7fbf8;
+}
+
+body.professor-page.theme-light .checkbox-label:hover,
+body.professor-page.theme-light .checkbox-card:hover {
+    border-color: rgba(22, 143, 73, 0.28);
+}
+
+body.professor-page.theme-light .checkbox-card:has(input:checked) {
+    border-color: rgba(22, 143, 73, 0.42);
+    background: rgba(22, 143, 73, 0.10);
+}
+
+body.professor-page.theme-light .form-section-title {
+    border-bottom-color: rgba(22, 143, 73, 0.14);
+}
+
+/* Botões claro */
+
+body.professor-page.theme-light .btn {
+    color: #102018;
+    background: #ffffff;
+    border-color: rgba(22, 143, 73, 0.18);
+}
+
+body.professor-page.theme-light .btn:hover {
+    border-color: rgba(22, 143, 73, 0.32);
+    background: #f1faf4;
+}
+
+body.professor-page.theme-light .btn-primary {
+    color: #052e16;
+    background: linear-gradient(135deg, #86efac, #22c55e);
+    border-color: rgba(22, 143, 73, 0.30);
+    box-shadow: 0 12px 24px rgba(22, 143, 73, 0.18);
+}
+
+body.professor-page.theme-light .btn-primary:hover {
+    background: linear-gradient(135deg, #bbf7d0, #22c55e);
+    box-shadow: 0 14px 30px rgba(22, 143, 73, 0.22);
+}
+
+body.professor-page.theme-light .btn-secondary {
+    color: #164e35;
+    background: #ffffff;
+    border-color: rgba(22, 143, 73, 0.22);
+}
+
+body.professor-page.theme-light .btn-secondary:hover {
+    background: #f1faf4;
+    border-color: rgba(22, 143, 73, 0.36);
+}
+
+body.professor-page.theme-light .btn-danger {
+    color: #991b1b;
+    background: rgba(185, 28, 28, 0.08);
+    border-color: rgba(185, 28, 28, 0.20);
+}
+
+body.professor-page.theme-light .btn-danger:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+body.professor-page.theme-light .btn-success {
+    color: #166534;
+    background: rgba(22, 143, 73, 0.09);
+    border-color: rgba(22, 143, 73, 0.22);
+}
+
+body.professor-page.theme-light .btn-success:hover {
+    color: #052e16;
+    background: linear-gradient(135deg, #bbf7d0, #22c55e);
+}
+
+body.professor-page.theme-light .btn-link {
+    color: #168f49;
     background: transparent;
-    border: 1px solid transparent;
-    text-decoration: none;
-    font: inherit;
-    font-size: 14px;
-    font-weight: 850;
-    line-height: 1.2;
-    cursor: pointer;
-    text-align: left;
+    border-color: transparent;
 }
 
-body.professor-page .professor-sidebar .sidebar-nav a:hover,
-body.professor-page .professor-sidebar .sidebar-nav a.active,
-body.professor-page .professor-sidebar .sidebar-footer a:hover,
-body.professor-page .professor-sidebar .sidebar-footer button:hover {
-    color: #01140d;
-    background: linear-gradient(135deg, #00ff8a, #00d4ff);
-    border-color: rgba(234, 255, 242, 0.24);
-    box-shadow: 0 0 22px rgba(0, 255, 140, 0.24);
+body.professor-page.theme-light .btn-link:hover {
+    color: #0f7439;
+    background: transparent;
 }
 
-body.professor-page .professor-sidebar .sidebar-footer {
-    margin-top: auto;
-    padding: 16px 12px 22px;
-    border-top: 1px solid rgba(0, 255, 140, 0.18);
+/* Badges / status claro */
+
+body.professor-page.theme-light .badge {
+    color: #166534;
+    border-color: rgba(22, 143, 73, 0.22);
+    background: rgba(22, 143, 73, 0.09);
 }
 
-body.professor-page .professor-sidebar .sidebar-footer form {
-    margin: 8px 0 0;
+body.professor-page.theme-light .badge-info {
+    color: #075985;
+    border-color: rgba(3, 105, 161, 0.18);
+    background: rgba(3, 105, 161, 0.09);
 }
 
-body.professor-page .professor-sidebar .sidebar-footer button {
-    justify-content: center;
-    color: #ffdfdf;
-    background: rgba(248, 113, 113, 0.08);
-    border-color: rgba(248, 113, 113, 0.22);
+body.professor-page.theme-light .badge-warning {
+    color: #92400e;
+    border-color: rgba(180, 83, 9, 0.20);
+    background: rgba(180, 83, 9, 0.10);
 }
 
-body.professor-page .professor-sidebar .sidebar-footer button:hover {
-    color: #270707;
-    background: linear-gradient(135deg, #fca5a5, #f87171);
-    border-color: rgba(254, 202, 202, 0.42);
+body.professor-page.theme-light .badge-error {
+    color: #991b1b;
+    border-color: rgba(185, 28, 28, 0.20);
+    background: rgba(185, 28, 28, 0.09);
 }
 
-body.professor-page .professor-main {
-    flex: 1 1 auto;
-    width: auto;
-    min-width: 0;
-    min-height: 100vh;
+body.professor-page.theme-light .badge-success-soft {
+    color: #166534;
+    border-color: rgba(22, 143, 73, 0.22);
+    background: rgba(22, 143, 73, 0.10);
 }
 
-@media (max-width: 980px) {
-    body.professor-page .professor-layout {
-        display: block;
-    }
-
-    body.professor-page .professor-sidebar {
-        position: static;
-        width: 100%;
-        min-height: auto;
-        box-shadow: none;
-        border-right: 0;
-        border-bottom: 1px solid rgba(0, 255, 140, 0.20);
-    }
-
-    body.professor-page .professor-sidebar .sidebar-brand {
-        padding: 16px;
-    }
-
-    body.professor-page .professor-sidebar .sidebar-nav {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        padding: 12px;
-    }
-
-    body.professor-page .professor-sidebar .sidebar-footer {
-        padding: 12px;
-    }
+body.professor-page.theme-light .badge-muted,
+body.professor-page.theme-light .status-inactive,
+body.professor-page.theme-light .status-offline {
+    color: #475569;
+    border-color: rgba(100, 116, 139, 0.18);
+    background: rgba(100, 116, 139, 0.09);
 }
 
-@media (max-width: 620px) {
-    body.professor-page .professor-sidebar .sidebar-nav {
-        grid-template-columns: 1fr;
-    }
+body.professor-page.theme-light .status-active,
+body.professor-page.theme-light .status-online {
+    color: #166534;
+    border-color: rgba(22, 143, 73, 0.22);
+    background: rgba(22, 143, 73, 0.09);
+}
+
+body.professor-page.theme-light .status-warning {
+    color: #92400e;
+    border-color: rgba(180, 83, 9, 0.20);
+    background: rgba(180, 83, 9, 0.10);
+}
+
+body.professor-page.theme-light .status-error,
+body.professor-page.theme-light .status-danger {
+    color: #991b1b;
+    border-color: rgba(185, 28, 28, 0.20);
+    background: rgba(185, 28, 28, 0.09);
+}
+
+/* Alertas / utilitários claro */
+
+body.professor-page.theme-light .alert {
+    box-shadow: var(--shadow-soft);
+}
+
+body.professor-page.theme-light .alert-success {
+    color: #166534;
+    border-color: rgba(22, 143, 73, 0.22);
+    background: #ecfdf5;
+}
+
+body.professor-page.theme-light .alert-error,
+body.professor-page.theme-light .alert-danger {
+    color: #991b1b;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+body.professor-page.theme-light .alert-warning {
+    color: #92400e;
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+
+body.professor-page.theme-light .alert-info {
+    color: #075985;
+    border-color: #bae6fd;
+    background: #f0f9ff;
+}
+
+body.professor-page.theme-light .empty-state {
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.72);
+    border-color: rgba(22, 143, 73, 0.22);
+}
+
+body.professor-page.theme-light code {
+    color: #166534;
+    background: #f1faf4;
+    border-color: rgba(22, 143, 73, 0.16);
+}
+
+body.professor-page.theme-light .json-box {
+    color: #102018;
+    background: #f7fbf8;
+    border-color: rgba(22, 143, 73, 0.18);
+}
+
+/* Cards de seleção / permissões claro */
+
+body.professor-page.theme-light .selection-card,
+body.professor-page.theme-light .permission-card,
+body.professor-page.theme-light .pedido-grid > div,
+body.professor-page.theme-light .pedido-text,
+body.professor-page.theme-light .log-detail-header > div {
+    border-color: rgba(22, 143, 73, 0.14);
+    background:
+        linear-gradient(135deg, rgba(22, 143, 73, 0.045), transparent 40%),
+        #ffffff;
+}
+
+body.professor-page.theme-light .selection-card:hover,
+body.professor-page.theme-light .permission-card:hover {
+    border-color: rgba(22, 143, 73, 0.28);
+    box-shadow: var(--shadow-soft);
+}
+
+body.professor-page.theme-light .selection-card-selected,
+body.professor-page.theme-light .permission-card-selected {
+    border-color: rgba(22, 143, 73, 0.40);
+    background:
+        linear-gradient(135deg, rgba(22, 143, 73, 0.11), transparent),
+        #ffffff;
+}
+
+body.professor-page.theme-light .tag {
+    color: #166534;
+    background: rgba(22, 143, 73, 0.09);
+    border-color: rgba(22, 143, 73, 0.18);
+}
+
+/* Filtros recolhíveis claro */
+
+body.professor-page.theme-light .filters-toggle-text {
+    color: #166534;
+    background: rgba(22, 143, 73, 0.09);
+    border-color: rgba(22, 143, 73, 0.18);
+}
+
+body.professor-page.theme-light .filters-panel[open] .filters-toggle-text {
+    color: #166534;
+    background: rgba(22, 143, 73, 0.09);
+    border-color: rgba(22, 143, 73, 0.20);
+}
+
+/* Loader claro */
+
+body.professor-page.theme-light .keep-scroll-loader {
+    background:
+        radial-gradient(circle at 50% 42%, rgba(22, 143, 73, 0.17), transparent 18rem),
+        rgba(238, 247, 241, 0.74);
+}
+
+body.professor-page.theme-light .keep-scroll-loader-card {
+    color: #102018;
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(22, 143, 73, 0.22);
+    box-shadow:
+        0 24px 70px rgba(16, 45, 30, 0.20),
+        0 0 30px rgba(22, 143, 73, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.80);
+}
+
+/* Paginação global em modo claro dentro do professor */
+
+body.professor-page.theme-light .pagination-bar {
+    background: rgba(255, 255, 255, 0.80);
+    border-color: rgba(22, 143, 73, 0.14);
+}
+
+body.professor-page.theme-light .pagination-info {
+    color: var(--text-muted);
+}
+
+body.professor-page.theme-light .pagination-info strong {
+    color: #102018;
+}
+
+body.professor-page.theme-light .pagination-btn {
+    color: #164e35;
+    background: #ffffff;
+    border-color: rgba(22, 143, 73, 0.18);
+}
+
+body.professor-page.theme-light .pagination-btn:hover {
+    border-color: rgba(22, 143, 73, 0.32);
+    background: rgba(22, 143, 73, 0.08);
+    color: #166534;
+}
+
+body.professor-page.theme-light .pagination-btn.active {
+    color: #052e16;
+    background: linear-gradient(135deg, #86efac, #22c55e);
+    border-color: rgba(22, 143, 73, 0.30);
+}
+
+/* Estados de sensores em modo claro */
+
+body.professor-page.theme-light .sensor-status-online {
+    color: #166534;
+    background: #dcfce7;
+    border-color: #bbf7d0;
+}
+
+body.professor-page.theme-light .sensor-status-sem-comunicacao,
+body.professor-page.theme-light .sensor-status-sem-dados {
+    color: #92400e;
+    background: #fef3c7;
+    border-color: #fde68a;
+}
+
+body.professor-page.theme-light .sensor-status-inativo-bd,
+body.professor-page.theme-light .sensor-status-desligado {
+    color: #475569;
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+body.professor-page.theme-light .sensor-status-valor-invalido {
+    color: #991b1b;
+    background: #fee2e2;
+    border-color: #fecaca;
+}
+
+body.professor-page.theme-auto.theme-light {
+    color-scheme: light;
+}
+
+body.professor-page.theme-auto.theme-dark {
+    color-scheme: dark;
 }

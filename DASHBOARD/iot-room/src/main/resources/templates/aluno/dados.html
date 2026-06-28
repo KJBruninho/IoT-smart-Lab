@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados · Aluno · IoT Room</title>
+    <link rel="stylesheet" th:href="@{/css/aluno.css}">
+</head>
+<body>
+<div class="aluno-layout">
+    <div th:replace="~{fragments/aluno-sidebar :: sidebar(${paginaAtual})}"></div>
+
+    <main class="aluno-main">
+		<div th:replace="~{fragments/app-user-topbar :: topbar('Área Aluno', ${paginaAtual})}"></div>
+        <section class="aluno-topbar hero-panel">
+            <div>
+                <span class="eyebrow">Consulta</span>
+                <h1>Dados dos sensores</h1>
+                <p>Um gráfico por tipo de sensor. Controla quantas séries e quantos dados cada série mostra.</p>
+            </div>
+
+            <div class="topbar-actions">
+                <a class="btn btn-secondary"
+                   th:href="@{/aluno/dados/exportar/excel(
+                        grupoId=${filtro.grupoId},
+                        experienciaId=${filtro.experienciaId},
+                        estacaoId=${filtro.estacaoId},
+                        tipoSensor=${filtro.tipoSensor},
+                        dataInicio=${dataInicioValue},
+                        dataFim=${dataFimValue}
+                   )}">
+                    Excel filtrado
+                </a>
+
+                <a class="btn btn-primary"
+                   th:href="@{/aluno/dados/exportar/excel/todos}">
+                    Excel completo
+                </a>
+            </div>
+        </section>
+
+        <details class="aluno-panel filters-panel"
+                 th:with="temFiltros=${filtro.grupoId != null
+                    or filtro.experienciaId != null
+                    or filtro.estacaoId != null
+                    or filtro.tipoSensor != null
+                    or dataInicioValue != ''
+                    or dataFimValue != ''}"
+                 th:attr="open=${temFiltros} ? 'open' : null">
+
+            <summary class="filters-summary">
+                <div>
+                    <h2>Filtros</h2>
+                </div>
+            </summary>
+
+            <form class="filters-form keep-scroll-form" th:action="@{/aluno/dados}" method="get">
+                <div class="form-group">
+                    <label for="grupoId">Grupo</label>
+                    <select id="grupoId" name="grupoId">
+                        <option value="">Todos</option>
+                        <option th:each="grupo : ${grupos}"
+                                th:value="${grupo.id()}"
+                                th:text="${grupo.nome()}"
+                                th:selected="${filtro.grupoId != null && filtro.grupoId == grupo.id()}">
+                            Grupo
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="experienciaId">Experiência</label>
+                    <select id="experienciaId" name="experienciaId">
+                        <option value="">Todas</option>
+                        <option th:each="experiencia : ${experiencias}"
+                                th:value="${experiencia.id()}"
+                                th:text="${experiencia.nome()}"
+                                th:selected="${filtro.experienciaId != null && filtro.experienciaId == experiencia.id()}">
+                            Experiência
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="estacaoId">Estação</label>
+                    <select id="estacaoId" name="estacaoId">
+                        <option value="">Todas</option>
+                        <option th:each="estacao : ${estacoes}"
+                                th:value="${estacao.id()}"
+                                th:text="${estacao.nome()}"
+                                th:selected="${filtro.estacaoId != null && filtro.estacaoId == estacao.id()}">
+                            Estação
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoSensor">Tipo de sensor</label>
+                    <select id="tipoSensor" name="tipoSensor">
+                        <option value="">Todos</option>
+                        <option th:each="tipo : ${tiposSensor}"
+                                th:value="${tipo}"
+                                th:text="${tipo}"
+                                th:selected="${filtro.tipoSensor != null && filtro.tipoSensor == tipo}">
+                            Tipo
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataInicio">Data inicial</label>
+                    <input id="dataInicio"
+                           type="datetime-local"
+                           name="dataInicio"
+                           th:value="${dataInicioValue}">
+                </div>
+
+                <div class="form-group">
+                    <label for="dataFim">Data final</label>
+                    <input id="dataFim"
+                           type="datetime-local"
+                           name="dataFim"
+                           th:value="${dataFimValue}">
+                </div>
+
+                <div class="form-group compact-input">
+                    <label for="limiteSeries">Séries por gráfico</label>
+                    <input id="limiteSeries"
+                           type="number"
+                           name="limiteSeries"
+                           min="1"
+                           max="50"
+                           step="1"
+                           th:value="${limiteSeries}">
+                    <small>Máximo recomendado: 50 linhas por gráfico.</small>
+                </div>
+
+                <div class="form-group compact-input">
+                    <label for="limiteDados">Dados por série</label>
+                    <input id="limiteDados"
+                           type="number"
+                           name="limiteDados"
+                           min="1"
+                           max="9999"
+                           step="1"
+                           th:value="${limiteDados}">
+                    <small>Máximo: 9999 pontos por linha.</small>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn btn-primary" type="submit">Aplicar</button>
+                    <a class="btn btn-light" th:href="@{/aluno/dados}">Limpar</a>
+                </div>
+            </form>
+        </details>
+
+        <section class="aluno-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Gráficos</h2>
+                    <span th:text="${#lists.size(graficos) + ' tipos de sensor encontrados'}">
+                        0 tipos de sensor encontrados
+                    </span>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(graficos)}" class="empty-state">
+                Não existem leituras para gerar gráficos com os filtros selecionados.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(graficos)}" class="charts-stack">
+                <article th:each="grafico, iter : ${graficos}" class="sensor-chart-card">
+                    <div class="panel-header">
+                        <div>
+                            <h3 th:text="${grafico.tipoSensor() + (grafico.unidade() != null && !grafico.unidade().isBlank() ? ' (' + grafico.unidade() + ')' : '')}">
+                                Tipo de sensor
+                            </h3>
+                            <span th:text="${#lists.size(grafico.series()) + ' séries sobrepostas'}">
+                                0 séries
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas th:id="${'grafico-sensor-' + iter.index}"></canvas>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="aluno-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Tabela de leituras</h2>
+                    <span th:text="${#lists.size(leituras) + ' leituras mais recentes encontradas'}">
+                        0 leituras encontradas
+                    </span>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(leituras)}" class="empty-state">
+                Não existem leituras para os filtros selecionados.
+            </div>
+
+            <div class="table-wrapper" th:if="${!#lists.isEmpty(leituras)}">
+                <table class="aluno-table">
+                    <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Grupo</th>
+                        <th>Experiência</th>
+                        <th>Estação</th>
+                        <th>Sensor</th>
+                        <th>Valor</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="leitura : ${leituras}">
+                        <td th:text="${#temporals.format(leitura.dataRegisto(), 'dd/MM/yyyy HH:mm:ss')}">
+                            data
+                        </td>
+
+                        <td th:text="${leitura.grupoNome()}">
+                            Grupo
+                        </td>
+
+                        <td th:text="${leitura.experienciaNome()}">
+                            Experiência
+                        </td>
+
+                        <td>
+                            <strong th:text="${leitura.estacaoNome()}">Estação</strong>
+                            <small th:text="${leitura.deviceId()}">device</small>
+                        </td>
+
+                        <td>
+                            <strong th:text="${leitura.sensorNome()}">Sensor</strong>
+                            <small th:text="${leitura.tipoSensor()}">Tipo</small>
+                        </td>
+
+                        <td>
+                            <strong th:text="${leitura.valor()}">0</strong>
+                            <small th:text="${leitura.unidade()}">un</small>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    const graficos = JSON.parse(/*[[${graficosJson}]]*/ '[]');
+
+    const cores = [
+        '#2563eb',
+        '#16a34a',
+        '#dc2626',
+        '#9333ea',
+        '#ea580c',
+        '#0891b2',
+        '#be123c',
+        '#4f46e5'
+    ];
+
+    graficos.forEach((grafico, graficoIndex) => {
+        const canvas = document.getElementById(`grafico-sensor-${graficoIndex}`);
+
+        if (!canvas || !window.Chart) {
+            return;
+        }
+
+        const datasets = (grafico.series || []).map((serie, serieIndex) => {
+            const cor = cores[serieIndex % cores.length];
+            const totalPontos = (serie.pontos || []).length;
+
+            return {
+                label: serie.nome,
+                data: (serie.pontos || []).map((ponto, pontoIndex) => ({
+                    x: pontoIndex + 1,
+                    y: Number(ponto.valor),
+                    label: ponto.label
+                })),
+                borderColor: cor,
+                backgroundColor: cor,
+                borderWidth: 3,
+                tension: 0.25,
+                pointRadius: totalPontos > 100 ? 0 : 2,
+                pointHoverRadius: 4,
+                fill: false
+            };
+        });
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                parsing: false,
+                interaction: {
+                    mode: 'nearest',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            boxWidth: 28,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                if (!context || context.length === 0) {
+                                    return '';
+                                }
+
+                                const ponto = context[0].raw;
+                                return ponto.label || '';
+                            },
+                            label: function(context) {
+                                const unidade = grafico.unidade ? ` ${grafico.unidade}` : '';
+                                return `${context.dataset.label}: ${context.parsed.y}${unidade}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'Número da leitura'
+                        },
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: grafico.unidade || 'Valor'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script th:src="@{/js/keep-scroll.js}"></script>
+</body>
+</html>
