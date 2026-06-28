@@ -89,6 +89,20 @@
 			<artifactId>sqlite-jdbc</artifactId>
 		</dependency>
 
+		<!-- MariaDB -->
+		<dependency>
+		    <groupId>org.mariadb.jdbc</groupId>
+		    <artifactId>mariadb-java-client</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
+		
+		<!-- SQLite local cache -->
+		<dependency>
+		    <groupId>org.xerial</groupId>
+		    <artifactId>sqlite-jdbc</artifactId>
+		    <version>3.45.3.0</version>
+		</dependency>
+
     </dependencies>
 	
 	<build>
