@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -75,7 +76,7 @@ public class ProfessorController {
         this.professorGrupoService = professorGrupoService;
         this.permissaoGrupoEstacaoService = permissaoGrupoEstacaoService;
     }
-
+    
     @GetMapping("/professor")
     public String dashboardProfessor(Model model, Authentication authentication) {
         AcessoProfessor acesso = obterAcessoProfessor(authentication);
@@ -343,11 +344,18 @@ public class ProfessorController {
     public String sensoresGuardarConfiguracaoModo(
             @PathVariable Long sensorId,
             @ModelAttribute("modoForm") SensorModoFormDTO modoForm,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ) {
-        AcessoProfessor acesso = obterAcessoProfessor(authentication);
+        try {
+            AcessoProfessor acesso = obterAcessoProfessor(authentication);
 
-        professorComandoSensorService.guardarConfiguracaoModo(sensorId, acesso.id(), acesso.admin(), modoForm);
+            professorComandoSensorService.guardarConfiguracaoModo(sensorId, acesso.id(), acesso.admin(), modoForm);
+
+            redirectAttributes.addFlashAttribute("sucesso", "Configuração do sensor guardada com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Não foi possível guardar a configuração: " + mensagemErro(e));
+        }
 
         return "redirect:/professor/sensores/" + sensorId;
     }
@@ -356,11 +364,18 @@ public class ProfessorController {
     public String sensoresEnviarFatorCalibracao(
             @PathVariable Long sensorId,
             @RequestParam BigDecimal fator,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ) {
-        AcessoProfessor acesso = obterAcessoProfessor(authentication);
+        try {
+            AcessoProfessor acesso = obterAcessoProfessor(authentication);
 
-        professorComandoSensorService.enviarFatorCalibracao(sensorId, acesso.id(), acesso.admin(), fator);
+            professorComandoSensorService.enviarFatorCalibracao(sensorId, acesso.id(), acesso.admin(), fator);
+
+            redirectAttributes.addFlashAttribute("sucesso", "Comando de calibração registado com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Não foi possível enviar a calibração por MQTT: " + mensagemErro(e));
+        }
 
         return "redirect:/professor/sensores/" + sensorId;
     }
@@ -369,11 +384,18 @@ public class ProfessorController {
     public String sensoresEnviarOffsetPh(
             @PathVariable Long sensorId,
             @RequestParam BigDecimal offset,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ) {
-        AcessoProfessor acesso = obterAcessoProfessor(authentication);
+        try {
+            AcessoProfessor acesso = obterAcessoProfessor(authentication);
 
-        professorComandoSensorService.enviarOffsetPh(sensorId, acesso.id(), acesso.admin(), offset);
+            professorComandoSensorService.enviarOffsetPh(sensorId, acesso.id(), acesso.admin(), offset);
+
+            redirectAttributes.addFlashAttribute("sucesso", "Comando de offset pH registado com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Não foi possível enviar o offset pH por MQTT: " + mensagemErro(e));
+        }
 
         return "redirect:/professor/sensores/" + sensorId;
     }
@@ -381,11 +403,18 @@ public class ProfessorController {
     @PostMapping("/professor/sensores/{sensorId}/ligar")
     public String sensoresLigarSensor(
             @PathVariable Long sensorId,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ) {
-        AcessoProfessor acesso = obterAcessoProfessor(authentication);
+        try {
+            AcessoProfessor acesso = obterAcessoProfessor(authentication);
 
-        professorComandoSensorService.ligarSensor(sensorId, acesso.id(), acesso.admin());
+            professorComandoSensorService.ligarSensor(sensorId, acesso.id(), acesso.admin());
+
+            redirectAttributes.addFlashAttribute("sucesso", "Comando para ligar sensor registado com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Não foi possível enviar o comando MQTT para ligar o sensor: " + mensagemErro(e));
+        }
 
         return "redirect:/professor/sensores/" + sensorId;
     }
@@ -393,11 +422,18 @@ public class ProfessorController {
     @PostMapping("/professor/sensores/{sensorId}/desligar")
     public String sensoresDesligarSensor(
             @PathVariable Long sensorId,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ) {
-        AcessoProfessor acesso = obterAcessoProfessor(authentication);
+        try {
+            AcessoProfessor acesso = obterAcessoProfessor(authentication);
 
-        professorComandoSensorService.desligarSensor(sensorId, acesso.id(), acesso.admin());
+            professorComandoSensorService.desligarSensor(sensorId, acesso.id(), acesso.admin());
+
+            redirectAttributes.addFlashAttribute("sucesso", "Comando para desligar sensor registado com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Não foi possível enviar o comando MQTT para desligar o sensor: " + mensagemErro(e));
+        }
 
         return "redirect:/professor/sensores/" + sensorId;
     }
@@ -406,11 +442,18 @@ public class ProfessorController {
     public String sensoresAprovarPedido(
             @PathVariable Long pedidoId,
             @RequestParam(required = false) String respostaProfessor,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ) {
-        AcessoProfessor acesso = obterAcessoProfessor(authentication);
+        try {
+            AcessoProfessor acesso = obterAcessoProfessor(authentication);
 
-        professorComandoSensorService.aprovarPedido(pedidoId, acesso.id(), acesso.admin(), respostaProfessor);
+            professorComandoSensorService.aprovarPedido(pedidoId, acesso.id(), acesso.admin(), respostaProfessor);
+
+            redirectAttributes.addFlashAttribute("sucesso", "Pedido aprovado com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Não foi possível aprovar o pedido: " + mensagemErro(e));
+        }
 
         return "redirect:/professor/sensores/pedidos";
     }
@@ -419,11 +462,18 @@ public class ProfessorController {
     public String sensoresRejeitarPedido(
             @PathVariable Long pedidoId,
             @RequestParam(required = false) String respostaProfessor,
-            Authentication authentication
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
     ) {
-        AcessoProfessor acesso = obterAcessoProfessor(authentication);
+        try {
+            AcessoProfessor acesso = obterAcessoProfessor(authentication);
 
-        professorComandoSensorService.rejeitarPedido(pedidoId, acesso.id(), acesso.admin(), respostaProfessor);
+            professorComandoSensorService.rejeitarPedido(pedidoId, acesso.id(), acesso.admin(), respostaProfessor);
+
+            redirectAttributes.addFlashAttribute("sucesso", "Pedido rejeitado com sucesso.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Não foi possível rejeitar o pedido: " + mensagemErro(e));
+        }
 
         return "redirect:/professor/sensores/pedidos";
     }
@@ -866,6 +916,14 @@ public class ProfessorController {
         professorGrupoMembroService.removerMembro(id, utilizadorId, acesso.id(), acesso.admin());
 
         return "redirect:/professor/grupos/" + id;
+    }
+
+    private String mensagemErro(Exception e) {
+        if (e.getMessage() == null || e.getMessage().isBlank()) {
+            return e.getClass().getSimpleName();
+        }
+
+        return e.getMessage();
     }
 
     private void prepararFormularioAlertas(Model model, AcessoProfessor acesso) {

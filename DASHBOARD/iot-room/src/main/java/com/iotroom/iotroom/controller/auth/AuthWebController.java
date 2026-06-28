@@ -3,6 +3,7 @@ package com.iotroom.iotroom.controller.auth;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,7 @@ public class AuthWebController {
             @RequestParam String email,
             @RequestParam String password,
             HttpServletResponse response,
+            HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -80,13 +82,16 @@ public class AuthWebController {
                     Duration.ofDays(30)
             );
 
+            guardarUtilizadorNaSessao(session, body);
 
             if ("ADMIN".equalsIgnoreCase(body.role())) {
                 return "redirect:/admin";
             }
+
             if ("PROFESSOR".equalsIgnoreCase(body.role())) {
                 return "redirect:/professor";
             }
+
             if ("ALUNO".equalsIgnoreCase(body.role())) {
                 return "redirect:/aluno";
             }
@@ -166,7 +171,32 @@ public class AuthWebController {
         limparCookie(response, "access_token");
         limparCookie(response, "refresh_token");
 
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            session.invalidate();
+        }
+
         return "redirect:/auth/login";
+    }
+
+    private void guardarUtilizadorNaSessao(HttpSession session, AuthApiLoginResponse body) {
+        String nome = body.nome();
+        String email = body.email();
+        String role = body.role();
+
+        if (nome == null || nome.isBlank()) {
+            nome = email;
+        }
+
+        if (nome == null || nome.isBlank()) {
+            nome = "Utilizador";
+        }
+
+        session.setAttribute("utilizadorId", body.id());
+        session.setAttribute("nomeUtilizador", nome);
+        session.setAttribute("emailUtilizador", email);
+        session.setAttribute("roleUtilizador", role);
     }
 
     private void tentarRevogarRefreshToken(String accessToken, String refreshToken) {

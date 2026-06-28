@@ -11,7 +11,12 @@ import com.iotroom.iotroom.service.admin.AdminEstacaoService;
 import com.iotroom.iotroom.service.admin.AdminLogService;
 import com.iotroom.iotroom.service.admin.AdminSensorService;
 import com.iotroom.iotroom.service.admin.AdminUtilizadorService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -305,11 +310,6 @@ public class AdminController {
         return "redirect:/admin/utilizadores";
     }
     
-    
-
-    
-
-    
     @GetMapping("/estacoes")
     public String listarEstacoes(
             @RequestParam(value = "termo", required = false) String termo,
@@ -399,33 +399,43 @@ public class AdminController {
         }
     }
     
-    @GetMapping("/sensores")
-    public String listarSensores(
-            @RequestParam(value = "estacaoId", required = false) Long estacaoId,
-            @RequestParam(value = "tipo", required = false) String tipo,
-            @RequestParam(value = "estado", required = false) String estado,
-            @RequestParam(value = "sucesso", required = false) String sucesso,
-            @RequestParam(value = "erro", required = false) String erro,
-            Model model
-    ) {
-        model.addAttribute("sensores", adminSensorService.listar(estacaoId, tipo, estado));
-        model.addAttribute("estacoes", adminSensorService.listarEstacoesParaSelect());
-
-        model.addAttribute("estacaoId", estacaoId);
-        model.addAttribute("tipo", tipo);
-        model.addAttribute("estado", estado);
-        model.addAttribute("paginaAtiva", "sensores");
-
-        if (sucesso != null) {
-            model.addAttribute("mensagemSucesso", sucesso);
-        }
-
-        if (erro != null) {
-            model.addAttribute("mensagemErro", erro);
-        }
-
-        return "admin/sensores";
-    }
+	@GetMapping("/sensores")
+	public String listarSensores(
+	        @RequestParam(value = "estacaoId", required = false) Long estacaoId,
+	        @RequestParam(value = "tipo", required = false) String tipo,
+	        @RequestParam(value = "estado", required = false) String estado,
+	        @RequestParam(value = "page", defaultValue = "0") int page,
+	        @RequestParam(value = "size", defaultValue = "10") int size,
+	        @RequestParam(value = "sucesso", required = false) String sucesso,
+	        @RequestParam(value = "erro", required = false) String erro,
+	        Model model
+	) {
+	    var listaCompleta = adminSensorService.listar(estacaoId, tipo, estado);
+	    Page<?> sensoresPage = criarPagina(listaCompleta, page, size);
+	
+	    model.addAttribute("sensoresPage", sensoresPage);
+	    model.addAttribute("sensores", sensoresPage.getContent());
+	
+	    model.addAttribute("estacoes", adminSensorService.listarEstacoesParaSelect());
+	
+	    model.addAttribute("estacaoId", estacaoId);
+	    model.addAttribute("tipo", tipo);
+	    model.addAttribute("estado", estado);
+	    model.addAttribute("paginaAtiva", "sensores");
+	    model.addAttribute("paginaAtual", "sensores");
+	
+	    if (sucesso != null) {
+	        model.addAttribute("mensagemSucesso", sucesso);
+	        model.addAttribute("sucesso", sucesso);
+	    }
+	
+	    if (erro != null) {
+	        model.addAttribute("mensagemErro", erro);
+	        model.addAttribute("erro", erro);
+	    }
+	
+	    return "admin/sensores";
+	}
 
     @GetMapping("/sensores/novo")
     public String novoSensor(
@@ -549,5 +559,20 @@ public class AdminController {
         }
 
         return "redirect:/admin/estacoes";
+    }
+    
+    private <T> Page<T> criarPagina(List<T> listaCompleta, int page, int size) {
+        int tamanhoPagina = Math.max(5, Math.min(size, 100));
+        int paginaAtual = Math.max(page, 0);
+
+        Pageable pageable = PageRequest.of(paginaAtual, tamanhoPagina);
+
+        int total = listaCompleta.size();
+        int inicio = Math.min((int) pageable.getOffset(), total);
+        int fim = Math.min(inicio + pageable.getPageSize(), total);
+
+        List<T> conteudo = listaCompleta.subList(inicio, fim);
+
+        return new PageImpl<>(conteudo, pageable, total);
     }
 }
