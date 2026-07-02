@@ -1,12 +1,16 @@
 package com.iotroom.iotroom.config;
 
-import com.iotroom.iotroom.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.iotroom.iotroom.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -15,24 +19,20 @@ public class SecurityConfig {
     private static final String[] TODOS_OS_PERFIS = {
             "ADMIN",
             "PROFESSOR",
-            "USER",
             "ALUNO",
-            "ROLE_ADMIN",
-            "ROLE_PROFESSOR",
-            "ROLE_USER",
-            "ROLE_ALUNO"
+            "USER"
     };
 
     private static final String[] ADMIN_PROFESSOR = {
             "ADMIN",
-            "PROFESSOR",
-            "ROLE_ADMIN",
-            "ROLE_PROFESSOR"
+            "PROFESSOR"
     };
 
-    private static final String[] ADMIN_ONLY = {
+    private static final String[] ADMIN_PROFESSOR_ALUNO = {
             "ADMIN",
-            "ROLE_ADMIN"
+            "PROFESSOR",
+            "ALUNO",
+            "USER"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -44,30 +44,51 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/api/**",
-                        "/auth/login",
-                        "/auth/logout",
-                        "/auth/register"
-                ))
-
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .logout(logout -> logout.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            if (request.getRequestURI().startsWith("/api/")) {
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Não autenticado");
+                            } else {
+                                response.sendRedirect("/auth/login");
+                            }
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            if (request.getRequestURI().startsWith("/api/")) {
+                                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado");
+                            } else {
+                                response.sendRedirect("/acesso-negado");
+                            }
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .requestMatchers(
-                                "/login",
                                 "/auth/login",
                                 "/auth/register",
                                 "/auth/logout",
-                                "/register",
+                                "/acesso-negado",
+                                "/error",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/img/**",
                                 "/webjars/**",
-                                "/favicon.ico",
-                                "/error"
+                                "/favicon.ico"
                         ).permitAll()
 
+                        /*
+                         * Rotas da Auth API quando passam pelo gateway.
+                         * Normalmente o Nginx envia isto para o serviço iot-auth-api,
+                         * mas deixar aqui como permitAll evita bloqueios se cair no dashboard.
+                         */
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/register",
@@ -75,8 +96,32 @@ public class SecurityConfig {
                         ).permitAll()
 
                         /*
+                         * Áreas web.
+                         */
+                        .requestMatchers("/admin/**")
+                        .hasAuthority("ADMIN")
+
+                        .requestMatchers("/professor/**")
+                        .hasAnyAuthority(ADMIN_PROFESSOR)
+
+                        .requestMatchers("/aluno/**")
+                        .hasAnyAuthority(ADMIN_PROFESSOR_ALUNO)
+
+                        /*
+                         * APIs específicas por área.
+                         */
+                        .requestMatchers("/api/admin/**")
+                        .hasAuthority("ADMIN")
+
+                        .requestMatchers("/api/professor/**")
+                        .hasAnyAuthority(ADMIN_PROFESSOR)
+
+                        .requestMatchers("/api/aluno/**")
+                        .hasAnyAuthority(ADMIN_PROFESSOR_ALUNO)
+
+                        /*
                          * APIs usadas pela app Android.
-                         * O aluno estava a levar 403 porque USER/ALUNO não estavam autorizados.
+                         * Antes estavam só para PROFESSOR/ADMIN, causando 403 em contas ALUNO/USER.
                          */
                         .requestMatchers(
                                 "/api/dashboard/**",
@@ -84,47 +129,24 @@ public class SecurityConfig {
                                 "/api/tds",
                                 "/api/ph",
                                 "/api/alertas/**",
+                                "/api/estacoes/**",
+                                "/api/sensores/**",
+                                "/api/leituras/**",
+                                "/api/grupos/**",
+                                "/api/experiencias/**",
                                 "/api/pedidos-comando/**",
                                 "/api/pedidos-configuracao/**",
                                 "/api/assistente/**"
                         ).hasAnyAuthority(TODOS_OS_PERFIS)
 
-                        .requestMatchers(
-                                "/admin/**"
-                        ).hasAnyAuthority(ADMIN_ONLY)
-
-                        .requestMatchers(
-                                "/professor/**"
-                        ).hasAnyAuthority(ADMIN_PROFESSOR)
-
-                        .requestMatchers(
-                                "/aluno/**"
-                        ).hasAnyAuthority(TODOS_OS_PERFIS)
-
                         /*
-                         * Qualquer outra API do dashboard fica autenticada
-                         * e acessível aos perfis existentes.
+                         * Qualquer outra API exige autenticação válida.
                          */
-                        .requestMatchers(
-                                "/api/**"
-                        ).hasAnyAuthority(TODOS_OS_PERFIS)
+                        .requestMatchers("/api/**")
+                        .hasAnyAuthority(TODOS_OS_PERFIS)
 
                         .anyRequest().authenticated()
                 )
-
-                .formLogin(form -> form
-                        .loginPage("/auth/login")
-                        .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/", true)
-                        .permitAll()
-                )
-
-                .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/auth/login?logout")
-                        .permitAll()
-                )
-
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
