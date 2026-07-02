@@ -19,7 +19,7 @@ services:
       test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p$${MARIADB_ROOT_PASSWORD} --silent"]
       interval: 10s
       timeout: 5s
-      retries: 12
+      retries: 20
     networks:
       - iotroom-net
 
@@ -38,25 +38,58 @@ services:
 
   iot-auth:
     build:
-      context: ../../SECURITY/iot-auth-api
+      context: ../../SECURITY
       dockerfile: Dockerfile
     container_name: iotroom-auth
     restart: unless-stopped
     environment:
       SERVER_PORT: 8090
       SERVER_ADDRESS: 0.0.0.0
+
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&sslMode=disable
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.mariadb.jdbc.Driver
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MariaDBDialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_OPEN_IN_VIEW: "false"
+
       JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION_MS: ${ACCESS_TOKEN_EXPIRATION_MS}
+      REFRESH_TOKEN_EXPIRATION_MS: ${REFRESH_TOKEN_EXPIRATION_MS}
     ports:
       - "${IOT_AUTH_PORT}:8090"
     depends_on:
       mariadb:
         condition: service_healthy
+    networks:
+      - iotroom-net
+
+  iot-assistant:
+    build:
+      context: ../../CHAT-BOT
+      dockerfile: Dockerfile
+    container_name: iotroom-assistant
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8092
+      SERVER_ADDRESS: 0.0.0.0
+
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&sslMode=disable
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.mariadb.jdbc.Driver
+
+      MQTT_BROKER: ${MQTT_BROKER}
+      AUTH_API_BASE_URL: http://iot-auth:8090
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "${IOT_ASSISTANT_PORT}:8092"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      iot-auth:
+        condition: service_started
     networks:
       - iotroom-net
 
@@ -80,6 +113,7 @@ services:
       SPRING_JPA_OPEN_IN_VIEW: "false"
 
       AUTH_API_BASE_URL: http://iot-auth:8090
+      IOT_ASSISTANT_BASE_URL: http://iot-assistant:8092
 
       MQTT_BROKER: ${MQTT_BROKER}
       MQTT_CLIENT_ID: ${MQTT_CLIENT_ID}
@@ -87,6 +121,7 @@ services:
       MQTT_TOPIC_TDS: ${MQTT_TOPIC_TDS}
       MQTT_TOPIC_PH: ${MQTT_TOPIC_PH}
       MQTT_DEVICE_ID: ${MQTT_DEVICE_ID}
+      MQTT_COMMAND_PREFIX: ${MQTT_COMMAND_PREFIX}
     command:
       - "--server.address=0.0.0.0"
       - "--mqtt.broker=${MQTT_BROKER}"
@@ -95,7 +130,9 @@ services:
       - "--mqtt.topic.tds=${MQTT_TOPIC_TDS}"
       - "--mqtt.topic.ph=${MQTT_TOPIC_PH}"
       - "--mqtt.device-id=${MQTT_DEVICE_ID}"
+      - "--mqtt.command-prefix=${MQTT_COMMAND_PREFIX}"
       - "--auth.api.base-url=http://iot-auth:8090"
+      - "--iot.assistant.base-url=http://iot-assistant:8092"
     ports:
       - "${IOT_ROOM_PORT}:8081"
     depends_on:
@@ -104,6 +141,8 @@ services:
       mosquitto:
         condition: service_started
       iot-auth:
+        condition: service_started
+      iot-assistant:
         condition: service_started
     networks:
       - iotroom-net
@@ -119,8 +158,60 @@ services:
     depends_on:
       - iot-room
       - iot-auth
+      - iot-assistant
     networks:
       - iotroom-net
+
+  # One-shot helper. It sends the temperature adaptive threshold command to the ESP32.
+  # Run only when the ESP32 is online:
+  # docker compose --env-file deploy/compose/.env -f deploy/compose/docker-compose.yml --profile device-config up esp32-temp-delta-01
+  esp32-temp-delta-01:
+    image: eclipse-mosquitto:2
+    container_name: iotroom-esp32-temp-delta-01
+    profiles: ["device-config"]
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      '
+      BROKER="$${MQTT_BROKER#tcp://}";
+      HOST="$${BROKER%%:*}";
+      PORT="$${BROKER##*:}";
+      [ "$$HOST" = "$$PORT" ] && PORT=1883;
+      echo "Sending temp delta config to $$HOST:$$PORT for device ${MQTT_DEVICE_ID}";
+      mosquitto_pub -h "$$HOST" -p "$$PORT" -t "esp32/${MQTT_DEVICE_ID}/cmd" -m "{\"commandId\":9001,\"deviceId\":\"${MQTT_DEVICE_ID}\",\"tipoSensor\":\"TEMPERATURA\",\"comando\":\"SET_CONFIG:TEMPERATURA:FAST=1000;STABLE=30000;FAST_DURATION=120000;DELTA=0.10\"}";
+      '
+    environment:
+      MQTT_BROKER: ${MQTT_BROKER}
+      MQTT_DEVICE_ID: ${MQTT_DEVICE_ID}
+    depends_on:
+      - mosquitto
+    networks:
+      - iotroom-net
+
+  # Build-only container for the Android app. It does not run as a service.
+  # docker compose --env-file deploy/compose/.env -f deploy/compose/docker-compose.yml --profile build-tools run --rm android-build
+  android-build:
+    build:
+      context: ../../APP
+      dockerfile: Dockerfile
+    container_name: iotroom-android-build
+    profiles: ["build-tools"]
+    volumes:
+      - ../../APP:/workspace
+    working_dir: /workspace
+    command: ["./gradlew", "assembleDebug"]
+
+  # Build-only container for ESP32 firmware using arduino-cli.
+  # It is optional and may need board/library adjustment depending on your local Arduino setup.
+  esp32-firmware-build:
+    build:
+      context: ../../ESP32
+      dockerfile: Dockerfile
+    container_name: iotroom-esp32-firmware-build
+    profiles: ["build-tools"]
+    volumes:
+      - ../../ESP32:/workspace
+    working_dir: /workspace
+    command: ["bash", "/opt/build-esp32.sh"]
 
 volumes:
   iotroom_mariadb_data:

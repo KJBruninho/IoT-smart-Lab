@@ -1,0 +1,9 @@
+diff --git a/ESP32/sketch_esp32/sketch_esp32.ino b/ESP32/sketch_esp32/sketch_esp32.ino
+--- a/ESP32/sketch_esp32/sketch_esp32.ino
++++ b/ESP32/sketch_esp32/sketch_esp32.ino
+@@
+-// 9) SET_CONFIG:TEMPERATURA:FAST=1000;STABLE=30000;FAST_DURATION=120000;DELTA=0.20
++// 9) SET_CONFIG:TEMPERATURA:FAST=1000;STABLE=30000;FAST_DURATION=120000;DELTA=0.10
+@@
+-float tempDeltaLimit = 0.20;
++float tempDeltaLimit = 0.10;

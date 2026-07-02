@@ -20,6 +20,6 @@ COPY --from=build /app/target/*.jar /app/app.jar
 
 USER appuser
 
-EXPOSE 8081
+EXPOSE 8090
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
