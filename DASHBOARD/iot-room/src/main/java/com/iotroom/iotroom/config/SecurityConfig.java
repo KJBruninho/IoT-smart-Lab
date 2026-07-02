@@ -1,104 +1,196 @@
 package com.iotroom.iotroom.config;
 
-import jakarta.servlet.http.HttpServletResponse;
+import com.iotroom.iotroom.security.JwtAuthenticationFilter;
+import com.iotroom.iotroom.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.iotroom.iotroom.security.JwtAuthenticationFilter;
-
 @Configuration
+@EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private static final String[] TODOS_OS_PERFIS = {
+            "ADMIN",
+            "PROFESSOR",
+            "USER",
+            "ALUNO",
+            "ROLE_ADMIN",
+            "ROLE_PROFESSOR",
+            "ROLE_USER",
+            "ROLE_ALUNO"
+    };
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    private static final String[] ADMIN_PROFESSOR = {
+            "ADMIN",
+            "PROFESSOR",
+            "ROLE_ADMIN",
+            "ROLE_PROFESSOR"
+    };
+
+    private static final String[] ADMIN_ONLY = {
+            "ADMIN",
+            "ROLE_ADMIN"
+    };
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final PasswordEncoder passwordEncoder;
+
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            CustomUserDetailsService customUserDetailsService,
+            PasswordEncoder passwordEncoder
+    ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.customUserDetailsService = customUserDetailsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
-                .logout(logout -> logout.disable())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            if (request.getRequestURI().startsWith("/api/")) {
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Não autenticado");
-                            } else {
-                                response.sendRedirect("/auth/login");
-                            }
-                        })
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            if (request.getRequestURI().startsWith("/api/")) {
-                                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado");
-                            } else {
-                                response.sendRedirect("/acesso-negado");
-                            }
-                        })
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                /*
+                 * A app Android usa JWT/cookies em /api/**.
+                 * Evita 403 por CSRF em chamadas POST/PUT/DELETE da app.
+                 */
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        "/api/**",
+                        "/auth/login",
+                        "/auth/logout",
+                        "/auth/register"
+                ))
 
+                .authenticationProvider(authenticationProvider())
+
+                .authorizeHttpRequests(auth -> auth
+
+                        /*
+                         * Recursos públicos.
+                         */
                         .requestMatchers(
-                        		"/auth/login",
-                        		"/auth/register",
+                                "/",
+                                "/login",
+                                "/auth/login",
+                                "/auth/register",
                                 "/auth/logout",
-                                "/acesso-negado",
-                                "/error",
+                                "/register",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/webjars/**"
+                                "/img/**",
+                                "/webjars/**",
+                                "/favicon.ico",
+                                "/error"
                         ).permitAll()
 
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
-
-                        .requestMatchers("/professor/**")
-                        .hasAnyAuthority("PROFESSOR", "ADMIN")
-
-                        .requestMatchers("/aluno/**")
-                        .hasAnyAuthority("ALUNO", "PROFESSOR", "ADMIN")
-
-                        .requestMatchers("/api/admin/**")
-                        .hasAuthority("ADMIN")
-
-                        .requestMatchers("/api/professor/**")
-                        .hasAnyAuthority("PROFESSOR", "ADMIN")
-
-                        .requestMatchers("/api/aluno/**")
-                        .hasAnyAuthority("ALUNO", "PROFESSOR", "ADMIN")
-
+                        /*
+                         * Endpoints da Auth API quando passam pelo gateway/nginx.
+                         * Estes pedidos são tratados pelo serviço iot-auth-api.
+                         */
                         .requestMatchers(
-                                "/api/estacoes/**",
-                                "/api/sensores/**",
-                                "/api/leituras/**",
-                                "/api/alertas/**",
-                                "/api/grupos/**",
-                                "/api/experiencias/**",
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/refresh"
+                        ).permitAll()
+
+                        /*
+                         * APIs usadas pela app Android.
+                         * Têm de aceitar ADMIN, PROFESSOR e ALUNO/USER.
+                         */
+                        .requestMatchers(
+                                "/api/dashboard/**",
                                 "/api/temperatura",
                                 "/api/tds",
-                                "/api/dashboard/**"
-                        ).hasAnyAuthority("PROFESSOR", "ADMIN")
+                                "/api/ph",
+                                "/api/alertas/**",
+                                "/api/pedidos-comando/**",
+                                "/api/pedidos-configuracao/**",
+                                "/api/assistente/**"
+                        ).hasAnyAuthority(TODOS_OS_PERFIS)
+
+                        /*
+                         * Área web de administração.
+                         */
+                        .requestMatchers(
+                                "/admin/**"
+                        ).hasAnyAuthority(ADMIN_ONLY)
+
+                        /*
+                         * Área web do professor.
+                         * O admin também pode aceder.
+                         */
+                        .requestMatchers(
+                                "/professor/**"
+                        ).hasAnyAuthority(ADMIN_PROFESSOR)
+
+                        /*
+                         * Área web do aluno.
+                         */
+                        .requestMatchers(
+                                "/aluno/**"
+                        ).hasAnyAuthority(TODOS_OS_PERFIS)
+
+                        /*
+                         * Restantes APIs internas do dashboard.
+                         * Importante: não bloquear USER/ALUNO por defeito.
+                         */
+                        .requestMatchers(
+                                "/api/**"
+                        ).hasAnyAuthority(TODOS_OS_PERFIS)
 
                         .anyRequest().authenticated()
                 )
+
+                /*
+                 * Login web normal.
+                 * Mantém compatibilidade com /auth/login.
+                 */
+                .formLogin(form -> form
+                        .loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
+                        .defaultSuccessUrl("/", true)
+                        .permitAll()
+                )
+
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/auth/login?logout")
+                        .permitAll()
+                )
+
+                /*
+                 * Filtro JWT para a app Android e chamadas API.
+                 */
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(customUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration
+    ) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }
